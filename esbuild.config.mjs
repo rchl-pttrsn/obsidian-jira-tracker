@@ -2,11 +2,11 @@ import esbuild from "esbuild"
 import process from "process"
 import builtins from 'builtin-modules'
 
-const prod = (process.argv[2] === 'production')
+const isProduction = (process.argv[2] === 'production')
 
-esbuild.build({
+const ctx = await esbuild.context({
   banner: {
-    js: 'Project: https://github.com/marc0l92/obsidian-jira-issue',
+    js: 'Project: https://github.com/rchl-pttrsn/obsidian-jira-issue',
   },
   entryPoints: ['src/main.ts'],
   bundle: true,
@@ -36,10 +36,11 @@ esbuild.build({
     '@codemirror/view',
     ...builtins],
   format: 'cjs',
-  watch: !prod,
   target: 'es2020',
   logLevel: "info",
-  sourcemap: prod ? false : 'inline',
+  sourcemap: !isProduction && 'inline',
   treeShaking: true,
   outfile: 'main.js',
 }).catch(() => process.exit(1))
+
+await ctx.watch();

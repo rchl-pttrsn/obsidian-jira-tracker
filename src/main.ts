@@ -62,7 +62,7 @@ export default class JiraIssuePlugin extends Plugin {
 
         // Commands
         this.addCommand({
-            id: 'obsidian-jira-issue-clear-cache',
+            id: 'obsidian-jira-tracker-clear-cache',
             name: 'Clear cache',
             callback: () => {
                 ObjectsCache.clear()
@@ -71,7 +71,7 @@ export default class JiraIssuePlugin extends Plugin {
             }
         })
         this.addCommand({
-            id: 'obsidian-jira-issue-template-fence',
+            id: 'obsidian-jira-tracker-template-fence',
             name: 'Insert issue template',
             editorCallback: (editor: Editor, view: MarkdownView) => {
                 editor.replaceRange('```jira-issue\n\n```', editor.getCursor())

@@ -11,8 +11,7 @@ import * as main from '../src/main'
 const kLightCSSClass = 'is-light'
 const kDarkCSSClass = 'is-dark'
 
-// @ts-ignore
-const getConfigMock: jest.Mock = main.ObsidianApp.vault.getConfig
+const getConfigMock: jest.Mock = (main.ObsidianApp.vault as any).getConfig
 
 describe('RenderingCommon', () => {
     describe('getTheme', () => {

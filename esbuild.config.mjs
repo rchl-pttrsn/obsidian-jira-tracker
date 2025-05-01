@@ -2,7 +2,7 @@ import esbuild from "esbuild"
 import process from "process"
 import builtins from 'builtin-modules'
 
-const isProduction = (process.argv[2] === 'production')
+const isDev = process.argv[2] === 'dev';
 
 const ctx = await esbuild.context({
   banner: {
@@ -38,9 +38,11 @@ const ctx = await esbuild.context({
   format: 'cjs',
   target: 'es2020',
   logLevel: "info",
-  sourcemap: !isProduction && 'inline',
+  sourcemap: isDev && 'inline',
   treeShaking: true,
   outfile: 'main.js',
 }).catch(() => process.exit(1))
 
-await ctx.watch();
+if (isDev) {
+  await ctx.watch();
+}

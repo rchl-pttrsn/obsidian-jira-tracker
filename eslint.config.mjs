@@ -7,7 +7,7 @@ export default tseslint.config(
   eslint.configs.recommended,
   tseslint.configs.recommended,
   {
-    ignores: ['main.js', '**.mjs', 'jest.config.js', 'docs-gen/'],
+    ignores: ['main.js', '**.mjs', 'jest.config.js'],
   },
 );
 

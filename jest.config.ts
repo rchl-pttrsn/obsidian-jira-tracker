@@ -10,5 +10,16 @@ module.exports = {
     'node_modules',
     'src',
     'test',
-  ]
+  ],
+  globals: {
+    'ts-jest': {
+      tsconfig: {
+        target: 'ES6',
+        module: 'ESNext',
+        noImplicitAny: false,
+        esModuleInterop: true,
+        forceConsistentCasingInFileNames: true
+      },
+    },
+  },
 }

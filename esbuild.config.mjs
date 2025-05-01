@@ -6,7 +6,7 @@ const isDev = process.argv[2] === 'dev';
 
 const ctx = await esbuild.context({
   banner: {
-    js: 'Project: https://github.com/rchl-pttrsn/obsidian-jira-issue',
+    js: 'Project: https://github.com/rchl-pttrsn/obsidian-jira-tracker',
   },
   entryPoints: ['src/main.ts'],
   bundle: true,

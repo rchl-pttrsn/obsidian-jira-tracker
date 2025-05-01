@@ -1,7 +1,7 @@
 {
   "id": "obsidian-jira-tracker",
   "name": "Jira Tracker",
-  "version": "1.0.0",
+  "version": "1.0.0-BETA",
   "minAppVersion": "1.0.0",
   "description": "Track JIRA tickets in Obsidian.",
   "author": "rchl-pttrsn",

@@ -1,5 +1,5 @@
 # Obsidian jira-issue
-![Test Status](https://github.com/marc0l92/obsidian-jira-issue/actions/workflows/ci.yaml/badge.svg)
+![Test Status](https://github.com/rchl-pttrsn/obsidian-jira-tracker/actions/workflows/ci.yaml/badge.svg)
 
 
 This plugin allows you to track the progress of [Atlassian Jira](https://www.atlassian.com/software/jira) issues from your [Obsidian.md](https://obsidian.md/) notes.
@@ -91,4 +91,4 @@ Pull requests are welcome.
 
 ## License
 
-Jira-Issue is licensed under the GNU AGPLv3 license. Refer to [LICENSE](https://github.com/marc0l92/obsidian-jira-issue/blob/master/LICENSE) for more information.
+Jira-Issue is licensed under the GNU AGPLv3 license. Refer to [LICENSE](https://github.com/rchl-pttrsn/obsidian-jira-issue/blob/master/LICENSE) for more information.

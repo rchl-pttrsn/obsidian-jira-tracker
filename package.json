@@ -1,7 +1,7 @@
 {
-    "name": "obsidian-jira-issue",
-    "version": "1.57.0",
-    "description": "This plugin allows you to track the progress of [Atlassian Jira](https://www.atlassian.com/software/jira) issues from your [Obsidian](https://obsidian.md/) notes.",
+    "name": "obsidian-jira-tracker",
+    "version": "1.0.0-BETA",
+    "description": "This plugin lets you to track [Atlassian Jira](https://www.atlassian.com/software/jira) tickets in [Obsidian](https://obsidian.md/).",
     "main": "src/main.js",
     "scripts": {
         "dev": "node esbuild.config.mjs dev",
@@ -16,7 +16,7 @@
         "Jira",
         "Atlassian"
     ],
-    "author": "marc0l92",
+    "author": "rchl-pttrsn",
     "license": "AGPL-3.0-or-later",
     "devDependencies": {
         "@eslint/js": "^9.25.1",

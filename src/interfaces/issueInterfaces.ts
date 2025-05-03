@@ -9,13 +9,13 @@ export type IJiraSearchField = components['schemas']['Fields'] & {
     readonly aggregatetimespent?: number;
     // readonly attachment?: components['schemas']['attachment']; NEW
     // readonly comment?: components['schemas']['Comment']; or page of comment? NEW
-    // readonly components?: components['schemas']['component']; ComponentJsonBean? EXIST
+    readonly components?: components['schemas']['ComponentJsonBean'][];
     readonly created?: string;
     // readonly creator?: IJiraUser; NEW
     readonly description?: string;
     readonly duedate?: string;
     readonly environment?: string;
-    // readonly fixVersions?: components['schemas']['Version'][]; EXIST 
+    readonly fixVersions?: components['schemas']['Version'][];
     // readonly issuelinks?: components['schemas']['IssueLinks']; NEW
     // readonly issuerestriction?: components['schemas']['issuerestriction']; NEW
     readonly labels?: string[];
@@ -24,7 +24,7 @@ export type IJiraSearchField = components['schemas']['Fields'] & {
     readonly progress?: IJiraProgress;
     readonly project?: components['schemas']['ProjectDetails'];
     readonly reporter?: IJiraUser;
-    // readonly resolution?: components['schemas']['Resolution']; EXISTING
+    readonly resolution?: components['schemas']['Resolution'];
     readonly resolutiondate?: string;
     // readonly security?: components['schemas']['securitylevel']; NEW
     readonly statusCategory?: components['schemas']['StatusCategory'];

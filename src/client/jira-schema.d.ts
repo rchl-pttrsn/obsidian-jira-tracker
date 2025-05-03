@@ -119,6 +119,18 @@ export interface components {
             /** @description The list of items changed. */
             readonly items?: components["schemas"]["ChangeDetails"][];
         };
+        ComponentJsonBean: {
+            ari?: string;
+            description?: string;
+            id?: string;
+            metadata?: {
+                [key: string]: string;
+            };
+            name?: string;
+            self?: string;
+        } & {
+            [key: string]: unknown;
+        };
         ExpandPrioritySchemePage: {
             /** Format: int32 */
             maxResults?: number;
@@ -464,6 +476,20 @@ export interface components {
             /** @description Whether or not the project is simplified. */
             readonly simplified?: boolean;
         };
+        /** @description Details of an issue resolution. */
+        Resolution: {
+            /** @description The description of the issue resolution. */
+            description?: string;
+            /** @description The ID of the issue resolution. */
+            id?: string;
+            /** @description The name of the issue resolution. */
+            name?: string;
+            /**
+             * Format: uri
+             * @description The URL of the issue resolution.
+             */
+            self?: string;
+        };
         /** @description The projects the item is associated with. Indicated for items associated with [next-gen projects](https://confluence.atlassian.com/x/loMyO). */
         Scope: {
             /** @description The project the item has scope in. */
@@ -600,6 +626,107 @@ export interface components {
             readonly self?: string;
             /** @description The time zone specified in the user's profile. Depending on the user’s privacy settings, this may be returned as null. */
             readonly timeZone?: string;
+        };
+        /** @description Details about a project version. */
+        Version: {
+            /** @description If the expand option `approvers` is used, returns a list containing the approvers for this version. */
+            readonly approvers?: components["schemas"]["VersionApprover"][];
+            /** @description Indicates that the version is archived. Optional when creating or updating a version. */
+            archived?: boolean;
+            /** @description The description of the version. Optional when creating or updating a version. The maximum size is 16,384 bytes. */
+            description?: string;
+            /** @description If the expand option `driver` is used, returns the Atlassian account ID of the driver. */
+            readonly driver?: string;
+            /** @description Use [expand](em>#expansion) to include additional information about version in the response. This parameter accepts a comma-separated list. Expand options include:
+             *
+             *      *  `operations` Returns the list of operations available for this version.
+             *      *  `issuesstatus` Returns the count of issues in this version for each of the status categories *to do*, *in progress*, *done*, and *unmapped*. The *unmapped* property contains a count of issues with a status other than *to do*, *in progress*, and *done*.
+             *      *  `driver` Returns the Atlassian account ID of the version driver.
+             *      *  `approvers` Returns a list containing approvers for this version.
+             *
+             *     Optional for create and update. */
+            expand?: string;
+            /** @description The ID of the version. */
+            readonly id?: string;
+            /** @description If the expand option `issuesstatus` is used, returns the count of issues in this version for each of the status categories *to do*, *in progress*, *done*, and *unmapped*. The *unmapped* property contains a count of issues with a status other than *to do*, *in progress*, and *done*. */
+            readonly issuesStatusForFixVersion?: components["schemas"]["VersionIssuesStatus"];
+            /**
+             * Format: uri
+             * @description The URL of the self link to the version to which all unfixed issues are moved when a version is released. Not applicable when creating a version. Optional when updating a version.
+             */
+            moveUnfixedIssuesTo?: string;
+            /** @description The unique name of the version. Required when creating a version. Optional when updating a version. The maximum length is 255 characters. */
+            name?: string;
+            /** @description If the expand option `operations` is used, returns the list of operations available for this version. */
+            readonly operations?: components["schemas"]["SimpleLink"][];
+            /** @description Indicates that the version is overdue. */
+            readonly overdue?: boolean;
+            /** @description Deprecated. Use `projectId`. */
+            project?: string;
+            /**
+             * Format: int64
+             * @description The ID of the project to which this version is attached. Required when creating a version. Not applicable when updating a version.
+             */
+            projectId?: number;
+            /**
+             * Format: date
+             * @description The release date of the version. Expressed in ISO 8601 format (yyyy-mm-dd). Optional when creating or updating a version.
+             */
+            releaseDate?: string;
+            /** @description Indicates that the version is released. If the version is released a request to release again is ignored. Not applicable when creating a version. Optional when updating a version. */
+            released?: boolean;
+            /**
+             * Format: uri
+             * @description The URL of the version.
+             */
+            readonly self?: string;
+            /**
+             * Format: date
+             * @description The start date of the version. Expressed in ISO 8601 format (yyyy-mm-dd). Optional when creating or updating a version.
+             */
+            startDate?: string;
+            /** @description The date on which work on this version is expected to finish, expressed in the instance's *Day/Month/Year Format* date format. */
+            readonly userReleaseDate?: string;
+            /** @description The date on which work on this version is expected to start, expressed in the instance's *Day/Month/Year Format* date format. */
+            readonly userStartDate?: string;
+        };
+        /** @description Contains details about a version approver. */
+        VersionApprover: {
+            /** @description The Atlassian account ID of the approver. */
+            readonly accountId?: string;
+            /** @description A description of why the user is declining the approval. */
+            readonly declineReason?: string;
+            /** @description A description of what the user is approving within the specified version. */
+            readonly description?: string;
+            /** @description The status of the approval, which can be *PENDING*, *APPROVED*, or *DECLINED* */
+            readonly status?: string;
+        } & {
+            [key: string]: unknown;
+        };
+        /** @description Counts of the number of issues in various statuses. */
+        VersionIssuesStatus: {
+            /**
+             * Format: int64
+             * @description Count of issues with status *done*.
+             */
+            readonly done?: number;
+            /**
+             * Format: int64
+             * @description Count of issues with status *in progress*.
+             */
+            readonly inProgress?: number;
+            /**
+             * Format: int64
+             * @description Count of issues with status *to do*.
+             */
+            readonly toDo?: number;
+            /**
+             * Format: int64
+             * @description Count of issues with a status other than *to do*, *in progress*, and *done*.
+             */
+            readonly unmapped?: number;
+        } & {
+            [key: string]: unknown;
         };
     };
     responses: never;

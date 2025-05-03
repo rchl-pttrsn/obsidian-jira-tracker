@@ -7,7 +7,7 @@ export type IJiraSearchField = components['schemas']['Fields'] & {
     readonly aggregatetimeestimate?: number;
     readonly aggregatetimeoriginalestimate?: number;
     readonly aggregatetimespent?: number;
-    // readonly attachment?: components['schemas']['attachment']; NEW
+    // readonly attachment?: components['schemas']['Attachment']; NEW
     // readonly comment?: components['schemas']['Comment']; or page of comment? NEW
     readonly components?: components['schemas']['ComponentJsonBean'][];
     readonly created?: string;
@@ -26,7 +26,7 @@ export type IJiraSearchField = components['schemas']['Fields'] & {
     readonly reporter?: IJiraUser;
     readonly resolution?: components['schemas']['Resolution'];
     readonly resolutiondate?: string;
-    // readonly security?: components['schemas']['securitylevel']; NEW
+    // readonly security?: components['schemas']['SecurityLevel']; NEW
     readonly statusCategory?: components['schemas']['StatusCategory'];
     // readonly statuscategorychangedate?: string; NEW - WONT SUPPORT
     // readonly subtasks?: components['schemas']['IssueLinks']; NEW
@@ -38,7 +38,6 @@ export type IJiraSearchField = components['schemas']['Fields'] & {
     // readonly versions?: components['schemas']['Version'][]; NEW
     // readonly votes?: components['schemas']['votes']; NEW
     // readonly watches?: components['schemas']['watches']; NEW
-    // readonly worklog?: components['schemas']['worklog']; NOT NEEDED?
     // readonly workratio?: number; NEW
 }
 export type IJiraIssue = components['schemas']['IssueBean'] & {

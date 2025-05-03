@@ -1,6 +1,6 @@
 import { Platform, requestUrl, RequestUrlParam, RequestUrlResponse } from 'obsidian'
 import { AVATAR_RESOLUTION, EAuthenticationTypes, IJiraIssueAccountSettings } from '../interfaces/settingsInterfaces'
-import { ESprintState, IJiraAutocompleteField, IJiraBoard, IJiraDevStatus, IJiraField, IJiraIssue, IJiraSearchResults, IJiraSprint, IJiraStatus, IJiraUser } from '../interfaces/issueInterfaces'
+import { ESprintState, IJiraAutocompleteField, IJiraBoard, IJiraDevStatus, IJiraField, IJiraIssue, IJiraSearchResults, IJiraSprint, IJiraUser } from '../interfaces/issueInterfaces'
 import { SettingsData } from "../settings"
 
 interface RequestOptions {
@@ -233,7 +233,7 @@ export default {
                 method: 'GET',
                 path: `/status/${status}`,
             }
-        ) as IJiraStatus
+        )
         account.cache.statusColor[status] = response.statusCategory.colorName
     },
 
@@ -264,40 +264,6 @@ export default {
                 console.error('Error while retrieving custom fields list of account:', account.alias, e)
             }
         }
-    },
-
-    // async updateJQLAutoCompleteCache(): Promise<void> {
-    // const response = await sendRequest(
-    //     {
-    //         method: 'GET',
-    //         path: `/jql/autocompletedata`,
-    //     }
-    // ) as IJiraAutocompleteData
-    // settingData.cache.jqlAutocomplete = { fields: [], functions: {} }
-    // for (const functionData of response.visibleFunctionNames) {
-    //     for (const functionType of functionData.types) {
-    //         if (functionType in settingData.cache.jqlAutocomplete.functions) {
-    //             settingData.cache.jqlAutocomplete.functions[functionType].push(functionData.value)
-    //         } else {
-    //             settingData.cache.jqlAutocomplete.functions[functionType] = [functionData.value]
-    //         }
-    //     }
-    // }
-    // settingData.cache.jqlAutocomplete.fields = response.visibleFieldNames
-    // },
-
-    async getJQLAutoCompleteField(fieldName: string, fieldValue: string): Promise<IJiraAutocompleteField> {
-        const queryParameters = new URLSearchParams({
-            fieldName: fieldName,
-            fieldValue: fieldValue,
-        })
-        return await sendRequest(
-            {
-                method: 'GET',
-                path: `/jql/autocompletedata/suggestions`,
-                queryParameters: queryParameters,
-            }
-        ) as IJiraAutocompleteField
     },
 
     async testConnection(account: IJiraIssueAccountSettings): Promise<boolean> {

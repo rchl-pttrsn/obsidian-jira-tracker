@@ -1,5 +1,5 @@
 import { setIcon, TFile } from "obsidian"
-import { IJiraDevStatus, IJiraIssue, IJiraSearchField, IJiraUser } from "../interfaces/issueInterfaces"
+import { IJiraDevStatus, IJiraIssue, IJiraProgress, IJiraSearchField, IJiraUser } from "../interfaces/issueInterfaces"
 import RC, { JIRA_STATUS_COLOR_MAP, JIRA_STATUS_COLOR_MAP_BY_NAME } from "./renderingCommon"
 import * as jsonpath from 'jsonpath'
 import ObjectsCache from "../objectsCache"
@@ -123,10 +123,10 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                 renderEstimatorField(column, row, issue.fields.timespent)
                 break
             case ESearchColumnsTypes.AGGREGATE_PROGRESS:
-                createEl('td', { text: issue.fields.aggregateprogress.percent.toString() + '%', parent: row })
+                renderProgressField(column, row, issue.fields.aggregateprogress)
                 break
             case ESearchColumnsTypes.PROGRESS:
-                createEl('td', { text: issue.fields.progress.percent.toString() + '%', parent: row })
+                renderProgressField(column, row, issue.fields.progress)
                 break
             case ESearchColumnsTypes.CUSTOM_FIELD:
                 createEl('td', { text: renderCustomField(issue, column.extra), parent: row })
@@ -293,4 +293,12 @@ function renderEstimatorField(column: ISearchColumn, row: HTMLTableRowElement, d
         }
     }
     createEl('td', { text: timeStr, parent: row })
+}
+
+function renderProgressField(column: ISearchColumn, row: HTMLTableRowElement, progress: IJiraProgress) {
+    let percent = 0;
+    if(progress.progress > 0 && progress.total > 0) {
+        percent = (progress.progress / progress.total) * 100
+    }
+    createEl('td', { text: percent.toString() + '%', parent: row })
 }

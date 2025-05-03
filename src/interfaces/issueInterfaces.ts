@@ -1,4 +1,4 @@
-import { components } from "src/client/jira-schema"
+import { components } from "src/client/jira.schema"
 import { IJiraIssueAccountSettings } from "./settingsInterfaces"
 
 export type IJiraSearchField = components['schemas']['Fields'] & {
@@ -17,6 +17,7 @@ export type IJiraSearchField = components['schemas']['Fields'] & {
     readonly environment?: string;
     readonly fixVersions?: components['schemas']['Version'][];
     // readonly issuelinks?: components['schemas']['IssueLinks']; NEW
+    readonly issuetype?: components['schemas']['IssueTypeDetails'] & { iconUrl?: string}; 
     // readonly issuerestriction?: components['schemas']['issuerestriction']; NEW
     readonly labels?: string[];
     readonly lastViewed?: string;
@@ -38,26 +39,16 @@ export type IJiraSearchField = components['schemas']['Fields'] & {
     // readonly versions?: components['schemas']['Version'][]; NEW
     // readonly votes?: components['schemas']['votes']; NEW
     // readonly watches?: components['schemas']['watches']; NEW
+    readonly worklog?: {
+        worklogs: IJiraWorklog[]
+    };
     // readonly workratio?: number; NEW
 }
 export type IJiraIssue = components['schemas']['IssueBean'] & {
     readonly id: string;
     readonly key: string;
     readonly fields: IJiraSearchField
-    readonly account: IJiraIssueAccountSettings
-}
-
-export interface IJiraWorklog {
-    id: string
-    author: IJiraUser
-    comment: string
-    create: string
-    started: string
-    timeSpent: string
-    timeSpentSeconds: number
-    updateAuthor: IJiraUser
-    updated: string
-    issueKey?: string
+    account: IJiraIssueAccountSettings
 }
 
 export type IJiraProgress = {
@@ -65,9 +56,12 @@ export type IJiraProgress = {
     readonly total: number;
 }
 export type IJiraUser = components['schemas']['UserDetails']
+export type IJiraWorklog = components['schemas']['Worklog'];
 
 export type IJiraSearchResults = components['schemas']['SearchAndReconcileResults'] & {
     issues: IJiraIssue[];
+    account: IJiraIssueAccountSettings
+    total: number;
 }
 
 export interface IJiraField {

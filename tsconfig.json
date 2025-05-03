@@ -11,7 +11,8 @@
     "importHelpers": true,
     "isolatedModules": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noUncheckedIndexedAccess": true
   },
   "include": [
     "**/*.ts"

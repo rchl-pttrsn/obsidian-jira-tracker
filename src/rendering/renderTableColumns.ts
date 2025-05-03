@@ -1,40 +1,11 @@
 import { setIcon, TFile } from "obsidian"
-import { IJiraDevStatus, IJiraIssue } from "../interfaces/issueInterfaces"
+import { IJiraDevStatus, IJiraIssue, IJiraProgress, IJiraSearchField, IJiraUser } from "../interfaces/issueInterfaces"
 import RC, { JIRA_STATUS_COLOR_MAP, JIRA_STATUS_COLOR_MAP_BY_NAME } from "./renderingCommon"
 import * as jsonpath from 'jsonpath'
 import ObjectsCache from "../objectsCache"
 import JiraClient from "../client/jiraClient"
 import { AVATAR_RESOLUTION, ESearchColumnsTypes, ISearchColumn } from "../interfaces/settingsInterfaces"
 
-const DESCRIPTION_COMPACT_MAX_LENGTH = 20
-
-function dateToStr(fullDate: string): string {
-    if (fullDate) {
-        const d = new Date(fullDate)
-        return d.toLocaleDateString()
-    }
-    return fullDate
-}
-
-function deltaToStr(delta: number): string {
-    if (delta) {
-        const h = Math.floor(delta / 3600)
-        const m = Math.floor(delta % 3600 / 60)
-        const s = Math.floor(delta % 3600 % 60)
-        let timeStr = ''
-        if (h > 0) {
-            timeStr += h + 'h'
-        }
-        if (m > 0) {
-            timeStr += m + 'm'
-        }
-        if (s > 0) {
-            timeStr += s + 's'
-        }
-        return timeStr
-    }
-    return ''
-}
 
 export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIssue, row: HTMLTableRowElement): Promise<void> => {
     let markdownNotes: TFile[] = null
@@ -50,103 +21,33 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                 })
                 break
             case ESearchColumnsTypes.SUMMARY:
-                if (column.compact) {
-                    let summaryCompact = issue.fields.summary.substring(0, DESCRIPTION_COMPACT_MAX_LENGTH)
-                    if (issue.fields.summary.length > DESCRIPTION_COMPACT_MAX_LENGTH) {
-                        summaryCompact += '…'
-                    }
-                    createEl('td', { text: summaryCompact, title: issue.fields.summary, parent: row })
-                } else {
-                    createEl('td', { text: issue.fields.summary, parent: row })
-                }
+                renderLongTextField(column, row, issue.fields.summary)
                 break
             case ESearchColumnsTypes.DESCRIPTION:
-                if (column.compact) {
-                    let descriptionCompact = issue.fields.description.substring(0, DESCRIPTION_COMPACT_MAX_LENGTH)
-                    if (issue.fields.description.length > DESCRIPTION_COMPACT_MAX_LENGTH) {
-                        descriptionCompact += '…'
-                    }
-                    createEl('td', { text: descriptionCompact, title: issue.fields.description, parent: row })
-                } else {
-                    createEl('td', { text: issue.fields.description, parent: row })
-                }
+                renderLongTextField(column, row, issue.fields.description)
                 break
             case ESearchColumnsTypes.TYPE:
                 const typeCell = createEl('td', { parent: row })
-                if (issue.fields.issuetype.iconUrl) {
-                    createEl('img', {
-                        attr: { src: issue.fields.issuetype.iconUrl, alt: issue.fields.issuetype.name },
-                        title: column.compact ? issue.fields.issuetype.name : '',
-                        cls: 'letter-height',
-                        parent: typeCell
-                    })
-                } else {
-                    if (column.compact) {
-                        createSpan({ text: issue.fields.issuetype.name[0].toUpperCase(), title: issue.fields.issuetype.name, parent: typeCell })
-                    }
-                }
-                if (!column.compact) {
-                    createSpan({ text: ' ' + issue.fields.issuetype.name, parent: typeCell })
-                }
+                renderIconField(column, typeCell, issue.fields.issuetype)
                 break
             case ESearchColumnsTypes.CREATED:
-                if (column.compact) {
-                    createEl('td', { text: '🕑', title: dateToStr(issue.fields.created), parent: row })
-                } else {
-                    createEl('td', { text: dateToStr(issue.fields.created), parent: row })
-                }
+                renderDateField(column, row, issue.fields.created)
                 break
             case ESearchColumnsTypes.UPDATED:
-                if (column.compact) {
-                    createEl('td', { text: '🕑', title: dateToStr(issue.fields.updated), parent: row })
-                } else {
-                    createEl('td', { text: dateToStr(issue.fields.updated), parent: row })
-                }
+                renderDateField(column, row, issue.fields.updated)
                 break
             case ESearchColumnsTypes.REPORTER:
-                const reporterName = issue.fields.reporter.displayName || ''
-                if (column.compact && reporterName && issue.fields.reporter.avatarUrls[AVATAR_RESOLUTION]) {
-                    createEl('img', {
-                        attr: { src: issue.fields.reporter.avatarUrls[AVATAR_RESOLUTION], alt: reporterName },
-                        title: reporterName,
-                        cls: 'avatar-image',
-                        parent: createEl('td', { parent: row })
-                    })
-                } else {
-                    createEl('td', { text: reporterName, parent: row })
-                }
+                renderUserField(column, row, issue.fields.reporter)
                 break
             case ESearchColumnsTypes.ASSIGNEE:
-                const assigneeName = issue.fields.assignee.displayName || ''
-                if (column.compact && assigneeName && issue.fields.assignee.avatarUrls[AVATAR_RESOLUTION]) {
-                    createEl('img', {
-                        attr: { src: issue.fields.assignee.avatarUrls[AVATAR_RESOLUTION], alt: assigneeName },
-                        title: assigneeName,
-                        cls: 'avatar-image',
-                        parent: createEl('td', { parent: row })
-                    })
-                } else {
-                    createEl('td', { text: assigneeName, parent: row })
-                }
+                renderUserField(column, row, issue.fields.assignee)
                 break
             case ESearchColumnsTypes.PRIORITY:
-                const priorityCell = createEl('td', { parent: row })
+                const parentCell = createEl('td', { parent: row })
                 if (issue.fields.priority && issue.fields.priority.name) {
-                    if (issue.fields.priority.iconUrl) {
-                        createEl('img', {
-                            attr: { src: issue.fields.priority.iconUrl, alt: issue.fields.priority.name },
-                            title: column.compact ? issue.fields.priority.name : '',
-                            cls: 'letter-height',
-                            parent: priorityCell
-                        })
-                    } else if (column.compact) {
-                        createSpan({ text: issue.fields.priority.name[0].toUpperCase(), title: issue.fields.priority.name, parent: priorityCell })
-                    }
-                    if (!column.compact) {
-                        createSpan({ text: ' ' + issue.fields.priority.name, parent: priorityCell })
-                    }
+                    renderIconField(column, parentCell, issue.fields.priority)
                 } else {
-                    priorityCell.setText('-')
+                    parentCell.setText('-')
                 }
                 break
             case ESearchColumnsTypes.STATUS:
@@ -154,17 +55,14 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                 JIRA_STATUS_COLOR_MAP[issue.fields.status.statusCategory.colorName] || 
                 'is-light'
                 if (column.compact) {
+                    // TODO IS this valid? name array?
                     createSpan({ cls: `ji-tag no-wrap ${statusColor}`, text: issue.fields.status.name[0].toUpperCase(), title: issue.fields.status.name, attr: { 'data-status': issue.fields.status.name }, parent: createEl('td', { parent: row }) })
                 } else {
                     createSpan({ cls: `ji-tag no-wrap ${statusColor}`, text: issue.fields.status.name, title: issue.fields.status.description, attr: { 'data-status': issue.fields.status.name }, parent: createEl('td', { parent: row }) })
                 }
                 break
             case ESearchColumnsTypes.DUE_DATE:
-                if (column.compact) {
-                    createEl('td', { text: '🕑', title: dateToStr(issue.fields.duedate), parent: row })
-                } else {
-                    createEl('td', { text: dateToStr(issue.fields.duedate), parent: row })
-                }
+                renderDateField(column, row, issue.fields.duedate)
                 break
             case ESearchColumnsTypes.RESOLUTION:
                 if (issue.fields.resolution.description) {
@@ -174,22 +72,10 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                 }
                 break
             case ESearchColumnsTypes.RESOLUTION_DATE:
-                if (column.compact) {
-                    createEl('td', { text: '🕑', title: dateToStr(issue.fields.resolutiondate), parent: row })
-                } else {
-                    createEl('td', { text: dateToStr(issue.fields.resolutiondate), parent: row })
-                }
+                renderDateField(column, row, issue.fields.resolutiondate)
                 break
             case ESearchColumnsTypes.ENVIRONMENT:
-                if (column.compact) {
-                    let environmentCompact = issue.fields.environment.substring(0, DESCRIPTION_COMPACT_MAX_LENGTH)
-                    if (issue.fields.environment.length > DESCRIPTION_COMPACT_MAX_LENGTH) {
-                        environmentCompact += '…'
-                    }
-                    createEl('td', { text: environmentCompact, title: issue.fields.environment, parent: row })
-                } else {
-                    createEl('td', { text: issue.fields.environment, parent: row })
-                }
+                renderLongTextField(column, row, issue.fields.environment)
                 break
             case ESearchColumnsTypes.LABELS:
                 if (column.compact) {
@@ -219,28 +105,28 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                 createEl('td', { text: issue.fields.components.flatMap(c => c.name).join(', '), parent: row })
                 break
             case ESearchColumnsTypes.AGGREGATE_TIME_ESTIMATED:
-                createEl('td', { text: deltaToStr(issue.fields.aggregatetimeestimate), parent: row })
+                renderEstimatorField(column, row, issue.fields.aggregatetimeestimate)
                 break
             case ESearchColumnsTypes.AGGREGATE_TIME_ORIGINAL_ESTIMATE:
-                createEl('td', { text: deltaToStr(issue.fields.aggregatetimeoriginalestimate), parent: row })
+                renderEstimatorField(column, row, issue.fields.aggregatetimeoriginalestimate)
                 break
             case ESearchColumnsTypes.AGGREGATE_TIME_SPENT:
-                createEl('td', { text: deltaToStr(issue.fields.aggregatetimespent), parent: row })
+                renderEstimatorField(column, row, issue.fields.aggregatetimespent)
                 break
             case ESearchColumnsTypes.TIME_ESTIMATE:
-                createEl('td', { text: deltaToStr(issue.fields.timeestimate), parent: row })
+                renderEstimatorField(column, row, issue.fields.timeestimate)
                 break
             case ESearchColumnsTypes.TIME_ORIGINAL_ESTIMATE:
-                createEl('td', { text: deltaToStr(issue.fields.timeoriginalestimate), parent: row })
+                renderEstimatorField(column, row, issue.fields.timeoriginalestimate)
                 break
             case ESearchColumnsTypes.TIME_SPENT:
-                createEl('td', { text: deltaToStr(issue.fields.timespent), parent: row })
+                renderEstimatorField(column, row, issue.fields.timespent)
                 break
             case ESearchColumnsTypes.AGGREGATE_PROGRESS:
-                createEl('td', { text: issue.fields.aggregateprogress.percent.toString() + '%', parent: row })
+                renderProgressField(column, row, issue.fields.aggregateprogress)
                 break
             case ESearchColumnsTypes.PROGRESS:
-                createEl('td', { text: issue.fields.progress.percent.toString() + '%', parent: row })
+                renderProgressField(column, row, issue.fields.progress)
                 break
             case ESearchColumnsTypes.CUSTOM_FIELD:
                 createEl('td', { text: renderCustomField(issue, column.extra), parent: row })
@@ -265,11 +151,7 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                 }
                 break
             case ESearchColumnsTypes.LAST_VIEWED:
-                if (column.compact) {
-                    createEl('td', { text: '🕑', title: dateToStr(issue.fields.lastViewed), parent: row })
-                } else {
-                    createEl('td', { text: dateToStr(issue.fields.lastViewed), parent: row })
-                }
+                renderDateField(column, row, issue.fields.lastViewed)
                 break
             case ESearchColumnsTypes.DEV_STATUS:
                 const cacheKey = 'dev-status-' + issue.id
@@ -337,4 +219,86 @@ function renderCustomField(issue: IJiraIssue, customField: string): string {
         return value.toString()
     }
     return JSON.stringify(value)
+}
+
+function renderUserField(column: ISearchColumn, row: HTMLTableRowElement, user: IJiraUser) {
+    const userName = user.displayName || ''
+    if (column.compact && userName && user.avatarUrls[AVATAR_RESOLUTION]) {
+        createEl('img', {
+            attr: { src: user.avatarUrls[AVATAR_RESOLUTION], alt: userName },
+            title: userName,
+            cls: 'avatar-image',
+            parent: createEl('td', { parent: row })
+        })
+    } else {
+        createEl('td', { text: userName, parent: row })
+    }
+}
+
+function renderIconField(column: ISearchColumn, parentCell: HTMLTableCellElement, icon: IJiraSearchField['issuetype']) {
+    if (icon.iconUrl) {
+        createEl('img', {
+            attr: { src: icon.iconUrl, alt: icon.name },
+            title: column.compact ? icon.name : '',
+            cls: 'letter-height',
+            parent: parentCell
+        })
+    } else {
+        // TODO: is this valid? name[]?
+        if (column.compact) {
+            createSpan({ text: icon.name[0].toUpperCase(), title: icon.name, parent: parentCell })
+        }
+    }
+    if (!column.compact) {
+        createSpan({ text: ' ' + icon.name, parent: parentCell })
+    }
+}
+
+function renderDateField(column: ISearchColumn, row: HTMLTableRowElement, date: string) {
+    const localDateStr = !!date ? new Date(date).toLocaleDateString() : date;
+    if (column.compact) {
+        createEl('td', { text: '🕑', title: localDateStr, parent: row })
+    } else {
+        createEl('td', { text: localDateStr, parent: row })
+    }
+}
+
+function renderLongTextField(column: ISearchColumn, row: HTMLTableRowElement, text: string) {
+    const COMPACT_TEXT_LENGTH = 20
+    if (column.compact) {
+        let compactText = text.substring(0, COMPACT_TEXT_LENGTH)
+        if (text.length > COMPACT_TEXT_LENGTH) {
+            compactText += '…'
+        }
+        createEl('td', { text: compactText, title: text, parent: row })
+    } else {
+        createEl('td', { text: text, parent: row })
+    }
+}
+
+function renderEstimatorField(column: ISearchColumn, row: HTMLTableRowElement, delta: number) {
+    let timeStr = '';
+    if (delta) {
+        const h = Math.floor(delta / 3600)
+        const m = Math.floor(delta % 3600 / 60)
+        const s = Math.floor(delta % 3600 % 60)
+        if (h > 0) {
+            timeStr += h + 'h'
+        }
+        if (m > 0) {
+            timeStr += m + 'm'
+        }
+        if (s > 0) {
+            timeStr += s + 's'
+        }
+    }
+    createEl('td', { text: timeStr, parent: row })
+}
+
+function renderProgressField(column: ISearchColumn, row: HTMLTableRowElement, progress: IJiraProgress) {
+    let percent = 0;
+    if(progress.progress > 0 && progress.total > 0) {
+        percent = (progress.progress / progress.total) * 100
+    }
+    createEl('td', { text: percent.toString() + '%', parent: row })
 }

@@ -70,7 +70,7 @@ export async function getVelocity(projectKeyOrId: string, sprintId: number, stor
     )
     let velocity = 0
     for (const issue of searchResults.issues) {
-        velocity += issue.fields[storyPointFieldName]
+        velocity += (issue.fields[storyPointFieldName] as number)
     }
     return velocity
 }

@@ -1,123 +1,67 @@
+import { components } from "src/client/jira.schema"
 import { IJiraIssueAccountSettings } from "./settingsInterfaces"
 
-export interface IJiraIssue {
-    id: string
-    key: string
-    fields: {
-        assignee: IJiraUser
-        created: string
-        creator: IJiraUser
-        description: string
-        duedate: string
-        resolution: {
-            name: string
-            description: string
-        }
-        resolutiondate: string
-        issuetype: {
-            iconUrl: string
-            name: string
-        }
-        priority: {
-            iconUrl: string
-            name: string
-        }
-        reporter: IJiraUser
-        status: {
-            statusCategory: {
-                colorName: string
-            }
-            name: string
-            description: string
-        }
-        summary: string
-        updated: string
-        environment: string
-        project: {
-            key: string
-            name: string
-        }
-        labels: string[]
-        fixVersions: {
-            name: string
-            description: string
-            released: boolean
-        }[]
-        components: {
-            name: string
-        }[]
-        aggregatetimeestimate: number
-        aggregatetimeoriginalestimate: number
-        aggregatetimespent: number
-        timeestimate: number
-        timeoriginalestimate: number
-        timespent: number
-        issueLinks: {
-            type: {
-                name: string
-            }
-            inwardIssue: {
-                key: string
-                fields: {
-                    summary: string
-                }
-            }
-        }[]
-        aggregateprogress: {
-            percent: number
-        }
-        progress: {
-            percent: number
-        }
-        lastViewed: string
-        worklog: {
-            worklogs: IJiraWorklog[]
-        }
-        [k: string]: any
-    }
+export type IJiraSearchField = components['schemas']['Fields'] & {
+    [key: string]: unknown;
+    readonly aggregateprogress?: IJiraProgress;
+    readonly aggregatetimeestimate?: number;
+    readonly aggregatetimeoriginalestimate?: number;
+    readonly aggregatetimespent?: number;
+    // readonly attachment?: components['schemas']['Attachment']; NEW
+    // readonly comment?: components['schemas']['Comment']; or page of comment? NEW
+    readonly components?: components['schemas']['ComponentJsonBean'][];
+    readonly created?: string;
+    // readonly creator?: IJiraUser; NEW
+    readonly description?: string;
+    readonly duedate?: string;
+    readonly environment?: string;
+    readonly fixVersions?: components['schemas']['Version'][];
+    // readonly issuelinks?: components['schemas']['IssueLinks']; NEW
+    readonly issuetype?: components['schemas']['IssueTypeDetails'] & { iconUrl?: string}; 
+    // readonly issuerestriction?: components['schemas']['issuerestriction']; NEW
+    readonly labels?: string[];
+    readonly lastViewed?: string;
+    // readonly parent?: string; NEW
+    readonly progress?: IJiraProgress;
+    readonly project?: components['schemas']['ProjectDetails'];
+    readonly reporter?: IJiraUser;
+    readonly resolution?: components['schemas']['Resolution'];
+    readonly resolutiondate?: string;
+    // readonly security?: components['schemas']['SecurityLevel']; NEW
+    readonly statusCategory?: components['schemas']['StatusCategory'];
+    // readonly statuscategorychangedate?: string; NEW - WONT SUPPORT
+    // readonly subtasks?: components['schemas']['IssueLinks']; NEW
+    // readonly thumbnail?: string; NOT NEEDED?
+    readonly timeestimate?: number;
+    readonly timeoriginalestimate?: number;
+    readonly timespent?: number;
+    readonly updated?: string;
+    // readonly versions?: components['schemas']['Version'][]; NEW
+    // readonly votes?: components['schemas']['votes']; NEW
+    // readonly watches?: components['schemas']['watches']; NEW
+    readonly worklog?: {
+        worklogs: IJiraWorklog[]
+    };
+    // readonly workratio?: number; NEW
+}
+export type IJiraIssue = components['schemas']['IssueBean'] & {
+    readonly id: string;
+    readonly key: string;
+    readonly fields: IJiraSearchField
     account: IJiraIssueAccountSettings
 }
 
-export interface IJiraWorklog {
-    id: string
-    author: IJiraUser
-    comment: string
-    create: string
-    started: string
-    timeSpent: string
-    timeSpentSeconds: number
-    updateAuthor: IJiraUser
-    updated: string
-    issueKey?: string
+export type IJiraProgress = {
+    readonly progress: number;
+    readonly total: number;
 }
+export type IJiraUser = components['schemas']['UserDetails']
+export type IJiraWorklog = components['schemas']['Worklog'];
 
-export interface IJiraUser {
-    active: boolean
-    displayName: string
-    name: string
-    key: string
-    emailAddress: string
-    self: string
-    avatarUrls: {
-        '16x16': string
-        '24x24': string
-        '32x32': string
-        '48x48': string
-    }
-}
-
-export interface IJiraSearchResults {
-    issues: IJiraIssue[]
-    maxResults: number
-    startAt: number
-    total: number
+export type IJiraSearchResults = components['schemas']['SearchAndReconcileResults'] & {
+    issues: IJiraIssue[];
     account: IJiraIssueAccountSettings
-}
-
-export interface IJiraStatus {
-    statusCategory: {
-        colorName: string
-    }
+    total: number;
 }
 
 export interface IJiraField {
@@ -234,7 +178,7 @@ export interface ISeries {
     [date: string]: number
 }
 
-const newEmptyUser = () => {
+const newEmptyUser = (): IJiraUser => {
     return {
         active: false,
         avatarUrls: {
@@ -245,7 +189,7 @@ const newEmptyUser = () => {
         },
         displayName: '',
         self: '',
-    } as IJiraUser
+    }
 }
 
 const buildEmptyIssue = (): IJiraIssue => JSON.parse(JSON.stringify({
@@ -253,7 +197,7 @@ const buildEmptyIssue = (): IJiraIssue => JSON.parse(JSON.stringify({
     id: '',
     account: null,
     fields: {
-        aggregateprogress: { percent: 0 },
+        aggregateprogress: { progress: 0, total: 0 },
         aggregatetimeestimate: 0,
         aggregatetimeoriginalestimate: 0,
         aggregatetimespent: 0,
@@ -270,7 +214,7 @@ const buildEmptyIssue = (): IJiraIssue => JSON.parse(JSON.stringify({
         labels: [],
         lastViewed: '',
         priority: { iconUrl: '', name: '' },
-        progress: { percent: 0 },
+        progress: { progress: 0, total: 0 },
         project: { key: '', name: '' },
         reporter: newEmptyUser(),
         resolution: { name: '', description: '' },

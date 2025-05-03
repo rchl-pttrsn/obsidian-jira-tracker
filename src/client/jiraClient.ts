@@ -197,7 +197,7 @@ export default {
 
     async getSearchResults(query: string, options: { limit?: number, offset?: number, fields?: string[], account?: IJiraIssueAccountSettings } = {}): Promise<IJiraSearchResults> {
         const opt = {
-            fields: options.fields || [],
+            fields: options.fields || ['*navigable'],
             offset: options.offset || 0,
             limit: options.limit || 50,
             account: options.account || null,
@@ -211,7 +211,7 @@ export default {
         const searchResults = await sendRequest(
             {
                 method: 'GET',
-                path: `/search`,
+                path: `/search/jql`,
                 queryParameters: queryParameters,
                 account: opt.account,
             }
@@ -220,6 +220,7 @@ export default {
             issue.account = searchResults.account
             await fetchIssueImages(issue)
         }
+        searchResults.total = searchResults.issues.length
         return searchResults
     },
 

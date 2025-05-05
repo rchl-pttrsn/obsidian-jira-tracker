@@ -12,8 +12,7 @@ import { ViewPluginManager } from './rendering/inlineIssueViewPlugin'
 import { QuerySuggest } from './suggestions/querySuggest'
 import { setupIcons } from './icons/icons'
 import API from './api/api'
-
-// TODO: text on mobile and implement horizontal scrolling
+import { FolderSuggest } from './suggestions/FolderSuggest'
 
 export let ObsidianApp: App = null
 
@@ -22,45 +21,51 @@ export default class JiraIssuePlugin extends Plugin {
     private _columnsSuggest: ColumnsSuggest
     private _querySuggest: QuerySuggest
     private _inlineIssueViewPlugin: ViewPluginManager
-    public api = API
 
     async onload() {
         ObsidianApp = this.app
-        this.registerAPI()
+        // TODO: Verify API features; DISABLED until then.
+        // this.registerAPI()
+
+        // Register Settings
         this._settingTab = new JiraIssueSettingTab(this.app, this)
         await this._settingTab.loadSettings()
         this.addSettingTab(this._settingTab)
         JiraClient.updateCustomFieldsCache()
-        // Load icons
         setupIcons()
-        // Fence rendering
+
+        // Register Code Blocks
         this.registerMarkdownCodeBlockProcessor('jira-issue', IssueFenceRenderer)
         this.registerMarkdownCodeBlockProcessor('jira-search', SearchFenceRenderer)
         this.registerMarkdownCodeBlockProcessor('jira-count', CountFenceRenderer)
-        // Suggestion menu for columns inside jira-search fence
+
+        // Register Query Suggestions
         this.app.workspace.onLayoutReady(() => {
             this._columnsSuggest = new ColumnsSuggest(this.app)
             this.registerEditorSuggest(this._columnsSuggest)
         })
-        // Suggestion menu for query inside jira-search fence
-        this.app.workspace.onLayoutReady(() => {
-            this._querySuggest = new QuerySuggest(this.app)
-            this.registerEditorSuggest(this._querySuggest)
-        })
+
+        // TODO
+        // this.app.workspace.onLayoutReady(() => {
+        //     this._querySuggest = new QuerySuggest(this.app)
+        //     this.registerEditorSuggest(this._querySuggest)
+        // })
+
         // Reading mode inline issue rendering
         this.registerMarkdownPostProcessor(InlineIssueRenderer)
-        // Live preview inline issue rendering
+
+        // Render Live preview
         this._inlineIssueViewPlugin = new ViewPluginManager()
         this._inlineIssueViewPlugin.getViewPlugins().forEach(vp => this.registerEditorExtension(vp))
 
-        // Settings refresh
+        // Register Settings Refresh
         this._settingTab.onChange(() => {
             ObjectsCache.clear()
             JiraClient.updateCustomFieldsCache()
             this._inlineIssueViewPlugin.update()
         })
 
-        // Commands
+        // Register Commands
         this.addCommand({
             id: 'obsidian-jira-tracker-clear-cache',
             name: 'Clear cache',

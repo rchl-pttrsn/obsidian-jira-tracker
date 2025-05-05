@@ -1,6 +1,6 @@
 import { Platform, requestUrl, RequestUrlParam, RequestUrlResponse } from 'obsidian'
 import { AVATAR_RESOLUTION, EAuthenticationTypes, IJiraIssueAccountSettings } from '../interfaces/settingsInterfaces'
-import { ESprintState, IJiraAutocompleteField, IJiraBoard, IJiraDevStatus, IJiraField, IJiraIssue, IJiraSearchResults, IJiraSprint, IJiraUser } from '../interfaces/issueInterfaces'
+import { ESprintState, IJiraAutocompleteField, IJiraBoard, IJiraField, IJiraIssue, IJiraSearchResults, IJiraSprint, IJiraUser } from '../interfaces/issueInterfaces'
 import { SettingsData } from "../settings"
 
 interface RequestOptions {
@@ -285,24 +285,6 @@ export default {
                 account: account,
             }
         ) as IJiraUser
-    },
-
-    async getDevStatus(issueId: string, options: { account?: IJiraIssueAccountSettings } = {}): Promise<IJiraDevStatus> {
-        const opt = {
-            account: options.account || null,
-        }
-        const queryParameters = new URLSearchParams({
-            issueId: issueId,
-        })
-        return await sendRequest(
-            {
-                method: 'GET',
-                path: `/rest/dev-status/latest/issue/summary`,
-                queryParameters: queryParameters,
-                noBasePath: true,
-                account: opt.account,
-            }
-        ) as IJiraDevStatus
     },
 
     async getBoards(projectKeyOrId: string, options: { limit?: number, offset?: number, account?: IJiraIssueAccountSettings } = {}): Promise<IJiraBoard[]> {

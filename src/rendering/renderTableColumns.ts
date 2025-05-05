@@ -1,10 +1,11 @@
 import { setIcon, TFile } from "obsidian"
-import { IJiraDevStatus, IJiraIssue, IJiraProgress, IJiraSearchField, IJiraUser } from "../interfaces/issueInterfaces"
+import { IJiraIssue, IJiraProgress, IJiraSearchField, IJiraUser } from "../interfaces/issueInterfaces"
 import RC, { JIRA_STATUS_COLOR_MAP, JIRA_STATUS_COLOR_MAP_BY_NAME } from "./renderingCommon"
 import * as jsonpath from 'jsonpath'
 import ObjectsCache from "../objectsCache"
 import JiraClient from "../client/jiraClient"
-import { AVATAR_RESOLUTION, ESearchColumnsTypes, ISearchColumn } from "../interfaces/settingsInterfaces"
+import { AVATAR_RESOLUTION, ESearchColumnsTypes, IJiraIssueAccountSettings, ISearchColumn } from "../interfaces/settingsInterfaces"
+import { SettingsData } from "src/settings"
 
 
 export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIssue, row: HTMLTableRowElement): Promise<void> => {
@@ -12,14 +13,11 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
     for (const column of columns) {
         switch (column.type) {
             case ESearchColumnsTypes.KEY:
-                createEl('a', {
-                    cls: 'no-wrap',
-                    href: RC.issueUrl(issue.account, issue.key),
-                    text: column.compact ? '🔗' : issue.key,
-                    title: column.compact ? issue.key : RC.issueUrl(issue.account, issue.key),
-                    parent: createEl('td', { parent: row })
-                })
+                renderLinkField(column,row, issue.account, issue.key)
                 break
+            case ESearchColumnsTypes.PARENT:
+                renderLinkField(column,row, issue.account, issue.fields.parent?.key)
+                break    
             case ESearchColumnsTypes.SUMMARY:
                 renderLongTextField(column, row, issue.fields.summary)
                 break
@@ -55,10 +53,21 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                 JIRA_STATUS_COLOR_MAP[issue.fields.status.statusCategory.colorName] || 
                 'is-light'
                 if (column.compact) {
-                    // TODO IS this valid? name array?
-                    createSpan({ cls: `ji-tag no-wrap ${statusColor}`, text: issue.fields.status.name[0].toUpperCase(), title: issue.fields.status.name, attr: { 'data-status': issue.fields.status.name }, parent: createEl('td', { parent: row }) })
+                    createSpan({
+                        cls: `ji-tag no-wrap ${statusColor}`,
+                        text: issue.fields.status.name[0].toUpperCase(),
+                        title: issue.fields.status.name,
+                        attr: { 'data-status': issue.fields.status.name },
+                        parent: createEl('td', { parent: row })
+                    })
                 } else {
-                    createSpan({ cls: `ji-tag no-wrap ${statusColor}`, text: issue.fields.status.name, title: issue.fields.status.description, attr: { 'data-status': issue.fields.status.name }, parent: createEl('td', { parent: row }) })
+                    createSpan({
+                        cls: `ji-tag no-wrap ${statusColor}`,
+                        text: issue.fields.status.name,
+                        title: issue.fields.status.description,
+                        attr: { 'data-status': issue.fields.status.name },
+                        parent: createEl('td', { parent: row })
+                    })
                 }
                 break
             case ESearchColumnsTypes.DUE_DATE:
@@ -66,7 +75,9 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                 break
             case ESearchColumnsTypes.RESOLUTION:
                 if (issue.fields.resolution.description) {
-                    createEl('abbr', { text: issue.fields.resolution.name, title: issue.fields.resolution.description, parent: createEl('td', { parent: row }) })
+                    createEl('abbr',
+                        { text: issue.fields.resolution.name, title: issue.fields.resolution.description, parent: createEl('td', { parent: row }) }
+                    )
                 } else {
                     createEl('td', { text: issue.fields.resolution.name, title: issue.fields.resolution.description, parent: row })
                 }
@@ -128,6 +139,9 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
             case ESearchColumnsTypes.PROGRESS:
                 renderProgressField(column, row, issue.fields.progress)
                 break
+            case ESearchColumnsTypes.LINKED_ISSUES:
+                renderLinkedIssuesField(column, row, issue)
+                break
             case ESearchColumnsTypes.CUSTOM_FIELD:
                 createEl('td', { text: renderCustomField(issue, column.extra), parent: row })
                 break
@@ -147,43 +161,28 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                         }
                     }
                 } else {
-                    createEl('a', { text: '➕', title: 'Create new note', href: issue.key, cls: 'internal-link icon-link', parent: noteCell })
+                    const folder = SettingsData.noteFolder ?? "";
+                    const fullPath = `${folder}/${issue.key}.md`;
+
+                    const el = createEl('a', { text: '➕', title: 'Create new note', href: `${fullPath}`, cls: 'internal-link icon-link', parent: noteCell })
+
+                    if (SettingsData.noteTemplate && !RC.getAbstractFileByPath(fullPath)) 
+                    {
+                        el.addEventListener("click", async () => {
+                            if(folder && folder.length > 0 && !RC.getAbstractFileByPath(folder)){
+                                await RC.createFolder(folder);
+                            }
+
+                            RC.readNote(RC.getAbstractFileByPath(SettingsData.noteTemplate))
+                                .then((templateContents: any) => RC.createNote(fullPath, templateContents))
+                                .then((newNote: any) => newNote.edit())
+                                .catch((error: any) => console.debug("Error writing template",error))
+                        })
+                    }
                 }
                 break
             case ESearchColumnsTypes.LAST_VIEWED:
                 renderDateField(column, row, issue.fields.lastViewed)
-                break
-            case ESearchColumnsTypes.DEV_STATUS:
-                const cacheKey = 'dev-status-' + issue.id
-                let devStatus: IJiraDevStatus = null
-                const devStatusCacheItem = ObjectsCache.get(cacheKey)
-                if (devStatusCacheItem) {
-                    devStatus = devStatusCacheItem.data as IJiraDevStatus
-                } else {
-                    devStatus = await JiraClient.getDevStatus(issue.id, { account: issue.account })
-                    ObjectsCache.add(cacheKey, devStatus)
-                }
-                const cell = createEl('td', { parent: row })
-                const prDetails = devStatus.summary.pullrequest.overall.details
-                if (prDetails.openCount + prDetails.mergedCount + prDetails.declinedCount > 0) {
-                    if (prDetails.openCount > 0) {
-                        const prOpen = createSpan({ parent: cell, cls: `pull-request-tag pull-request-open ${RC.getTheme()}`, title: 'Open pull-request' })
-                        setIcon(prOpen, 'jira-issue-git-pull-request')
-                        prOpen.appendText(`${prDetails.openCount}`)
-                    }
-                    if (prDetails.mergedCount > 0) {
-                        const prMerged = createSpan({ parent: cell, cls: `pull-request-tag pull-request-merged ${RC.getTheme()}`, title: 'Merged pull-request' })
-                        setIcon(prMerged, 'jira-issue-git-merge')
-                        prMerged.appendText(`${prDetails.mergedCount}`)
-                    }
-                    if (prDetails.declinedCount > 0) {
-                        const prDeclined = createSpan({ parent: cell, cls: `pull-request-tag pull-request-delete ${RC.getTheme()}`, title: 'Declined pull-request' })
-                        setIcon(prDeclined, 'jira-issue-git-delete')
-                        prDeclined.appendText(`${prDetails.declinedCount}`)
-                    }
-                } else {
-                    createSpan({ parent: cell, title: 'No data available', text: '-' })
-                }
                 break
         }
     }
@@ -221,6 +220,45 @@ function renderCustomField(issue: IJiraIssue, customField: string): string {
     return JSON.stringify(value)
 }
 
+function renderLinkField(column: ISearchColumn, row: HTMLTableRowElement, account: IJiraIssueAccountSettings,issueKey: string) {
+    if (issueKey) {
+        createEl('a', {
+            cls: 'no-wrap',
+            href: RC.issueUrl(account, issueKey),
+            text: column.compact ? '🔗' : issueKey,
+            title: column.compact ? issueKey : RC.issueUrl(account, issueKey),
+            parent: createEl('td', { parent: row })
+        })
+    } else {
+        createEl('td', { parent: row })
+    }    
+}
+
+function renderLinkedIssuesField(column: ISearchColumn, row: HTMLTableRowElement, issue: IJiraIssue) {
+    const parentCell = createEl('td', { parent: row })
+    issue.fields.issuelinks.forEach(l => {
+        const div = createDiv({parent: parentCell})
+        let text = ''
+        let issueKey = ''
+
+        if(l.outwardIssue) {
+            text = l.type.inward
+            issueKey = l.outwardIssue.key;
+        } else {
+            text = l.type.outward
+            issueKey = l.inwardIssue.key;
+        }
+        createSpan({ text: text[0].toUpperCase() + text.substring(1) + ': ', title: text, parent: div })
+        createEl('a', {
+            cls: 'no-wrap',
+            href: RC.issueUrl(issue.account, issueKey),
+            text: column.compact ? '🔗' : issueKey,
+            title: column.compact ? issueKey : RC.issueUrl(issue.account, issueKey),
+            parent: div
+        })  
+    })
+}
+
 function renderUserField(column: ISearchColumn, row: HTMLTableRowElement, user: IJiraUser) {
     const userName = user.displayName || ''
     if (column.compact && userName && user.avatarUrls[AVATAR_RESOLUTION]) {
@@ -243,11 +281,6 @@ function renderIconField(column: ISearchColumn, parentCell: HTMLTableCellElement
             cls: 'letter-height',
             parent: parentCell
         })
-    } else {
-        // TODO: is this valid? name[]?
-        if (column.compact) {
-            createSpan({ text: icon.name[0].toUpperCase(), title: icon.name, parent: parentCell })
-        }
     }
     if (!column.compact) {
         createSpan({ text: ' ' + icon.name, parent: parentCell })

@@ -38,13 +38,8 @@ export interface IJiraIssueSettings {
     logImagesFetch: boolean
     showColorBand: boolean
     showJiraLink: boolean
-    
-    // Legacy credentials
-    host?: string
-    authenticationType?: EAuthenticationTypes
-    username?: string
-    password?: string
-    bareToken?: string
+    noteFolder?: string
+    noteTemplate?: string
 }
 
 export interface IJiraIssueAccountSettings {
@@ -91,34 +86,11 @@ export enum ESearchColumnsTypes {
     DUE_DATE = 'DUE_DATE',
     ENVIRONMENT = 'ENVIRONMENT',
     FIX_VERSIONS = 'FIX_VERSIONS',
-
-    // %%% HIGH PRIORITY %%% 
-    // "PARENT"
-    // TODO: additional asignee
-    // "ISSUELINKS",
-    // "TIMESPENT",
-
-    // %%% MID PRIORITY %%% 
-    // "CREATOR",
-    // "ENVIRONMENT",
-    // "SUBTASKS"
-    // "WATCHES",
-    
-    // %%% LOW PRIORITY %%% 
-    // ATTACHMENT = 'ATTACHMENT'
-    // "COMMENT",
-    // "ISSUERESTRICTION",
-    // "SECURITY",
-    // "THUMBNAIL",
-    // "TIMETRACKING",
-    // "VERSIONS",
-    // "VOTES",
-    // "WORKLOG",
-    // "WORKRATIO"
-
+    LINKED_ISSUES = "LINKED_ISSUES",
     KEY = 'KEY',
     LABELS = 'LABELS',
     LAST_VIEWED = 'LAST_VIEWED',
+    PARENT = "PARENT",
     PRIORITY = 'PRIORITY',
     PROGRESS = 'PROGRESS',
     PROJECT = 'PROJECT',
@@ -132,10 +104,19 @@ export enum ESearchColumnsTypes {
     TIME_SPENT = 'TIME_SPENT',
     TYPE = 'TYPE',
     UPDATED = 'UPDATED',
-
-
-    // not a part of the search results
-    DEV_STATUS = 'DEV_STATUS', //DOES NOT EXSIT!
+    CREATOR = "CREATOR",
+    SUB_TASKS = "SUB_TASKS",
+    WATCHES = "WATCHES",
+    ATTACHMENT = 'ATTACHMENT',
+    COMMENT = "COMMENT",
+    ISSUE_RESTRICTION = "ISSUE_RESTRICTION",
+    SECURITY = "SECURITY",
+    THUMBNAIL = "THUMBNAIL",
+    TIME_TRAKING = "TIME_TRACKING",
+    VERSIONS = "VERSIONS",
+    VOTES = "VOTES",
+    WORKLOG = "WORKLOG",
+    WORK_RATIO = "WORK_RATIO",
     CUSTOM_FIELD = 'CUSTOM_FIELD',
     NOTES = 'NOTES',
 }
@@ -151,28 +132,42 @@ export const SEARCH_COLUMNS_DESCRIPTION = {
     [ESearchColumnsTypes.PRIORITY]: 'Priority',
     [ESearchColumnsTypes.STATUS]: 'Status',
     [ESearchColumnsTypes.DUE_DATE]: 'Due Date',
+    [ESearchColumnsTypes.PARENT]: 'Parent',
     [ESearchColumnsTypes.RESOLUTION]: 'Resolution',
     [ESearchColumnsTypes.RESOLUTION_DATE]: 'Resolution Date',
     [ESearchColumnsTypes.PROJECT]: 'Project',
     [ESearchColumnsTypes.ENVIRONMENT]: 'Environment',
-    [ESearchColumnsTypes.AGGREGATE_PROGRESS]: '#Progress',
-    [ESearchColumnsTypes.AGGREGATE_TIME_ESTIMATED]: '#🕑Estimated',
-    [ESearchColumnsTypes.AGGREGATE_TIME_ORIGINAL_ESTIMATE]: '#🕑Original Estimate',
-    [ESearchColumnsTypes.AGGREGATE_TIME_SPENT]: '#🕑Spent',
-    [ESearchColumnsTypes.FIX_VERSIONS]: 'Fix Versions',
-    // [ESearchColumnsTypes.LINKS]: 'Links', // TODO
+    [ESearchColumnsTypes.PROGRESS]: 'Progress',
     [ESearchColumnsTypes.LABELS]: 'Labels',
     [ESearchColumnsTypes.COMPONENTS]: 'Components',
     [ESearchColumnsTypes.LAST_VIEWED]: 'Last Viewed',
-    [ESearchColumnsTypes.PROGRESS]: 'Progress',
-    // [ESearchColumnsTypes.SUBTASKS]: 'Subtasks', // TODO
-    [ESearchColumnsTypes.TIME_ESTIMATE]: '🕑Estimate',
-    [ESearchColumnsTypes.TIME_ORIGINAL_ESTIMATE]: '🕑Original Estimate',
-    [ESearchColumnsTypes.TIME_SPENT]: '🕑Spent',
-    [ESearchColumnsTypes.DEV_STATUS]: 'Dev Status',
-
+    [ESearchColumnsTypes.FIX_VERSIONS]: 'Fix Versions',
+    [ESearchColumnsTypes.LINKED_ISSUES]: 'Linked Issues',
+    [ESearchColumnsTypes.AGGREGATE_PROGRESS]: 'Σ Progress',
+    [ESearchColumnsTypes.AGGREGATE_TIME_ESTIMATED]: 'Σ Remaining Estimated',
+    [ESearchColumnsTypes.AGGREGATE_TIME_ORIGINAL_ESTIMATE]: 'Σ Original Estimate',
+    [ESearchColumnsTypes.AGGREGATE_TIME_SPENT]: 'Σ Time Spent',
+    [ESearchColumnsTypes.TIME_SPENT]: 'Time Spent',
+    [ESearchColumnsTypes.TIME_ESTIMATE]: 'Remaining Estimate',
+    [ESearchColumnsTypes.TIME_ORIGINAL_ESTIMATE]: 'Original Estimate',
+    // FIX ME
     [ESearchColumnsTypes.CUSTOM_FIELD]: 'Custom field',
     [ESearchColumnsTypes.NOTES]: 'Notes',
+    // coming soon
+    [ESearchColumnsTypes.CREATOR]: 'Creator (Coming Soon)',
+    [ESearchColumnsTypes.SUB_TASKS]: 'Sub Tasks (Coming Soon)',
+    [ESearchColumnsTypes.WATCHES]: 'Watches (Coming Soon)',
+    [ESearchColumnsTypes.TIME_TRAKING]: 'Time Tracking (Coming Soon)',
+    [ESearchColumnsTypes.VOTES]: 'Votes (Coming Soon)',
+    // wont support
+    [ESearchColumnsTypes.SECURITY]: 'Comment (Not Supported)',
+    [ESearchColumnsTypes.WORK_RATIO]: 'Work Ratio (Not Supported)',
+    [ESearchColumnsTypes.COMMENT]: 'Comment (Not Supported)',
+    [ESearchColumnsTypes.ATTACHMENT]: 'Attachment (Not Supported)',
+    [ESearchColumnsTypes.THUMBNAIL]: 'Thumbnail (Not Supported)',
+    [ESearchColumnsTypes.ISSUE_RESTRICTION]: 'Issue Restriction (Not Supported)',
+    [ESearchColumnsTypes.VERSIONS]: 'Versions (Not Supported)',
+    [ESearchColumnsTypes.WORKLOG]: 'Work Log (Not Supported)',
 }
 
 export interface ISearchColumn {

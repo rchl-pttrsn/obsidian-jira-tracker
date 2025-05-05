@@ -16,29 +16,28 @@ export type IJiraSearchField = components['schemas']['Fields'] & {
     readonly duedate?: string;
     readonly environment?: string;
     readonly fixVersions?: components['schemas']['Version'][];
-    // readonly issuelinks?: components['schemas']['IssueLinks']; NEW
+    readonly issuelinks?: components['schemas']['IssueLink'][];
     readonly issuetype?: components['schemas']['IssueTypeDetails'] & { iconUrl?: string}; 
-    // readonly issuerestriction?: components['schemas']['issuerestriction']; NEW
+    // readonly issuerestriction?: components['schemas']['issuerestriction'];
     readonly labels?: string[];
     readonly lastViewed?: string;
-    // readonly parent?: string; NEW
+    readonly parent?: IJiraIssue;
     readonly progress?: IJiraProgress;
     readonly project?: components['schemas']['ProjectDetails'];
     readonly reporter?: IJiraUser;
     readonly resolution?: components['schemas']['Resolution'];
     readonly resolutiondate?: string;
-    // readonly security?: components['schemas']['SecurityLevel']; NEW
+    // readonly security?: components['schemas']['SecurityLevel'];
     readonly statusCategory?: components['schemas']['StatusCategory'];
-    // readonly statuscategorychangedate?: string; NEW - WONT SUPPORT
-    // readonly subtasks?: components['schemas']['IssueLinks']; NEW
-    // readonly thumbnail?: string; NOT NEEDED?
+    // readonly subtasks?: components['schemas']['IssueLinks'];
+    // readonly thumbnail?: string;
     readonly timeestimate?: number;
     readonly timeoriginalestimate?: number;
     readonly timespent?: number;
     readonly updated?: string;
-    // readonly versions?: components['schemas']['Version'][]; NEW
-    // readonly votes?: components['schemas']['votes']; NEW
-    // readonly watches?: components['schemas']['watches']; NEW
+    // readonly versions?: components['schemas']['Version'][];
+    // readonly votes?: components['schemas']['votes'];
+    // readonly watches?: components['schemas']['watches'];
     readonly worklog?: {
         worklogs: IJiraWorklog[]
     };
@@ -48,8 +47,8 @@ export type IJiraIssue = components['schemas']['IssueBean'] & {
     readonly id: string;
     readonly key: string;
     readonly fields: IJiraSearchField
-    account: IJiraIssueAccountSettings
-}
+    account?: IJiraIssueAccountSettings
+}   
 
 export type IJiraProgress = {
     readonly progress: number;
@@ -104,47 +103,6 @@ export interface IJiraAutocompleteField {
         value: string
         displayName: string
     }]
-}
-
-export interface IJiraDevStatus {
-    errors: []
-    configErrors: []
-    summary: {
-        pullrequest: {
-            overall: {
-                count: number
-                lastUpdated: string
-                stateCount: number
-                state: string
-                details: {
-                    openCount: number
-                    mergedCount: number
-                    declinedCount: number
-                }
-                open: boolean
-            }
-        }
-        build: {
-            overall: {
-                count: number
-            }
-        }
-        review: {
-            overall: {
-                count: number
-            }
-        }
-        repository: {
-            overall: {
-                count: number
-            }
-        }
-        branch: {
-            overall: {
-                count: number
-            }
-        }
-    }
 }
 
 export interface IJiraBoard {

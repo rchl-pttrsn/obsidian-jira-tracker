@@ -2,7 +2,6 @@ jest.mock('../src/client/jiraClient', () => {
     return {
         getIssue: jest.fn(),
         getSearchResults: jest.fn(),
-        getDevStatus: jest.fn(),
         getLoggedUser: jest.fn(),
         getBoards: jest.fn(),
         getSprints: jest.fn(),

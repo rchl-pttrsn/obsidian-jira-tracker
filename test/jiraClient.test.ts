@@ -7,17 +7,6 @@ const requestUrlMock = jest.spyOn(obsidian, 'requestUrl')
 
 describe('JiraClient', () => {
     describe('Positive tests', () => {
-        // test('getIssue minimal', async () => {
-        //     requestUrlMock.mockReturnValue({ status: 200, json: {} } as any)
-        //     expect(await JiraClient.getIssue(kIssueKey)).toEqual(true)
-        //     expect(requestUrlMock.mock.calls[0][0]).toEqual({
-        //         contentType: 'application/json',
-        //         headers: {},
-        //         method: 'GET',
-        //         url: 'https://test-company.atlassian.net/rest/api/latest/project',
-        //     })
-        // })
-
         test('testConnection', async () => {
             requestUrlMock.mockReturnValue({ status: 200 } as any)
             expect(await JiraClient.testConnection(TestAccountOpen)).toEqual(true)
@@ -53,7 +42,6 @@ describe('JiraClient', () => {
     test.todo('updateStatusColorCache')
     test.todo('updateCustomFieldsCache')
     test.todo('getLoggedUser')
-    test.todo('getDevStatus')
 
     afterEach(() => {
         jest.clearAllMocks()

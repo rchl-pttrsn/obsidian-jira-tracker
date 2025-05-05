@@ -1,4 +1,4 @@
-import { ESprintState, IJiraBoard, IJiraDevStatus, IJiraIssue, IJiraSearchResults, IJiraSprint, IJiraUser } from "../interfaces/issueInterfaces"
+import { ESprintState, IJiraBoard, IJiraIssue, IJiraSearchResults, IJiraSprint, IJiraUser } from "../interfaces/issueInterfaces"
 import { IJiraIssueAccountSettings } from "../interfaces/settingsInterfaces"
 import ObjectsCache from "../objectsCache"
 import JiraClient from "../client/jiraClient"
@@ -26,10 +26,6 @@ export async function getIssue(issueKey: string, options: { fields?: string[], a
 
 export async function getSearchResults(query: string, options: { limit?: number, offset?: number, fields?: string[], account?: IJiraIssueAccountSettings } = {}): Promise<IJiraSearchResults> {
     return cacheWrapper(JiraClient.getSearchResults)(query, options)
-}
-
-export async function getDevStatus(issueId: string, options: { account?: IJiraIssueAccountSettings } = {}): Promise<IJiraDevStatus> {
-    return cacheWrapper(JiraClient.getDevStatus)(issueId, options)
 }
 
 export async function getBoards(projectKeyOrId: string, options: { limit?: number, offset?: number, account?: IJiraIssueAccountSettings } = {}): Promise<IJiraBoard[]> {

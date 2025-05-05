@@ -155,7 +155,7 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                 if (connectedNotes.length > 0) {
                     for (const note of connectedNotes) {
                         if (column.extra) {
-                            renderNoteFrontMatter(column, note, noteCell)
+                            renderNoteFrontMatter(column, note, noteCell) // TODO wat?
                         } else {
                             renderNoteFile(column, note, noteCell)
                         }
@@ -168,11 +168,8 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
 
                     if (SettingsData.noteTemplate && !RC.getAbstractFileByPath(fullPath)) 
                     {
+                        //TODO on(name: 'rename', callback: (file: TAbstractFile, oldPath: string) => any, ctx?: any): EventRef;
                         el.addEventListener("click", async () => {
-                            if(folder && folder.length > 0 && !RC.getAbstractFileByPath(folder)){
-                                await RC.createFolder(folder);
-                            }
-
                             RC.readNote(RC.getAbstractFileByPath(SettingsData.noteTemplate))
                                 .then((templateContents: any) => RC.createNote(fullPath, templateContents))
                                 .then((newNote: any) => newNote.edit())
@@ -189,6 +186,8 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
 }
 
 function renderNoteFile(column: ISearchColumn, note: TFile, noteCell: HTMLTableCellElement) {
+                        //TODO on(name: 'rename', callback: (file: TAbstractFile, oldPath: string) => any, ctx?: any): EventRef;
+
     if (column.compact) {
         createEl('a', { text: '📝', title: note.path, href: note.path, cls: 'internal-link', parent: noteCell })
     } else {

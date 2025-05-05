@@ -12,7 +12,7 @@ import { ViewPluginManager } from './rendering/inlineIssueViewPlugin'
 import { QuerySuggest } from './suggestions/querySuggest'
 import { setupIcons } from './icons/icons'
 import API from './api/api'
-import { FolderSuggest } from './suggestions/FolderSuggest'
+import { FolderSuggest } from './suggestions/contentSuggest'
 
 export let ObsidianApp: App = null
 

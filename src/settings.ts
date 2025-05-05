@@ -3,7 +3,7 @@ import JiraClient from './client/jiraClient'
 import { COLOR_SCHEMA_DESCRIPTION, EAuthenticationTypes, EColorSchema, ESearchColumnsTypes, IJiraIssueAccountSettings, IJiraIssueSettings, SEARCH_COLUMNS_DESCRIPTION } from './interfaces/settingsInterfaces'
 import JiraIssuePlugin from './main'
 import { getRandomHexColor } from './utils'
-import { FileSuggest, FolderSuggest } from './suggestions/FolderSuggest'
+import { FileSuggest, FolderSuggest } from './suggestions/contentSuggest'
 
 const AUTHENTICATION_TYPE_DESCRIPTION = {
     [EAuthenticationTypes.OPEN]: 'Open',

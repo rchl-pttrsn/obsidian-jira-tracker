@@ -12,7 +12,7 @@ import { AbstractInputSuggest, App, SearchResult, prepareFuzzySearch } from "obs
  * a comma separator.
  * 
  */
-abstract class AddTextSuggest extends AbstractInputSuggest<string> {
+abstract class ContentSuggest extends AbstractInputSuggest<string> {
     content: string[];
     targetMatch = /^(.*),\s*([^,]*)/
 
@@ -96,15 +96,15 @@ abstract class AddTextSuggest extends AbstractInputSuggest<string> {
     }
 }
 
-export class FolderSuggest extends AddTextSuggest {
+export class FolderSuggest extends ContentSuggest {
 	getContent() {
         return this.app.vault.getAllFolders().map(({path})=> path)
     }
 }
 
-export class FileSuggest extends AddTextSuggest {
+export class FileSuggest extends ContentSuggest {
 	getContent() {
-        return this.app.vault.getFiles().filter((f)=>f.extension === "md").map((f)=>f.basename)
+        return this.app.vault.getFiles().filter((f)=>f.extension === "md").map((f)=>f.path)
     }
     
     // wrapContent(content:string):string {

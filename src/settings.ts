@@ -478,7 +478,6 @@ export class JiraIssueSettingTab extends PluginSettingTab {
     displayNoteTemplateSettings() {
         const { containerEl } = this;
         containerEl.createEl("h3", { text: "Note template" });
-
         new Setting(containerEl)
             .setName('Note Template')
             .setDesc("Template to use when creating a new note from a Jira issue.")
@@ -505,7 +504,19 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                         SettingsData.noteFolder = value;
                         await this.saveSettings();
                     })
-            });
+            })
+
+            // function validateFolder(folder) {
+            //     if (!folder || folder === "/") {
+            //         return "";
+            //     }
+            //     const { vault } = window.app;
+            //     if (!vault.getAbstractFileByPath(obsidian.normalizePath(folder))) {
+            //         return "Folder not found in vault";
+            //     }
+            //     return "";
+            // }
+            
       }
 
     displaySearchColumnsSettings(isSearchColumnsDetailsOpen: boolean) {

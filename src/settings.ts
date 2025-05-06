@@ -1,9 +1,10 @@
-import { App, Notice, PluginSettingTab, Setting, TextComponent } from 'obsidian'
+import { App, normalizePath, Notice, PluginSettingTab, Setting, TextComponent } from 'obsidian'
 import JiraClient from './client/jiraClient'
 import { COLOR_SCHEMA_DESCRIPTION, EAuthenticationTypes, EColorSchema, ESearchColumnsTypes, IJiraIssueAccountSettings, IJiraIssueSettings, SEARCH_COLUMNS_DESCRIPTION } from './interfaces/settingsInterfaces'
 import JiraIssuePlugin from './main'
 import { getRandomHexColor } from './utils'
 import { FileSuggest, FolderSuggest } from './suggestions/contentSuggest'
+import RC from "./rendering/renderingCommon"
 
 const AUTHENTICATION_TYPE_DESCRIPTION = {
     [EAuthenticationTypes.OPEN]: 'Open',
@@ -76,7 +77,6 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
     async loadSettings(): Promise<void> {
         Object.assign(SettingsData, DEFAULT_SETTINGS, await this._plugin.loadData())
-        // TODO: WHY THIS? What does object assign do/does not do?
         for (const i in SettingsData.accounts) {
             SettingsData.accounts[i] = Object.assign({}, DEFAULT_ACCOUNT, SettingsData.accounts[i])
         }
@@ -476,7 +476,7 @@ export class JiraIssueSettingTab extends PluginSettingTab {
     }
 
     displayNoteTemplateSettings() {
-        const { containerEl } = this;
+        const { containerEl, app } = this;
         containerEl.createEl("h3", { text: "Note template" });
         new Setting(containerEl)
             .setName('Note Template')
@@ -495,29 +495,34 @@ export class JiraIssueSettingTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName('Note Folder')
             .setDesc("Folder where to save the new note.")
-            .addText(text => {
-                const thisText = text;
-                text
-                    .setValue(SettingsData.noteFolder)
-                    .onChange(async (value) => {
-                        new FolderSuggest(thisText.inputEl, this.app)
-                        SettingsData.noteFolder = value;
-                        await this.saveSettings();
-                    })
-            })
-
-            // function validateFolder(folder) {
-            //     if (!folder || folder === "/") {
-            //         return "";
-            //     }
-            //     const { vault } = window.app;
-            //     if (!vault.getAbstractFileByPath(obsidian.normalizePath(folder))) {
-            //         return "Folder not found in vault";
-            //     }
-            //     return "";
-            // }
-            
-      }
+            .addText(text => text
+                .setValue(SettingsData.noteFolder)
+                .onChange(async (value) => {
+                    SettingsData.noteFolder = value;
+                    await this.saveSettings();
+                })
+                .then(({inputEl}) => {
+                    new FolderSuggest(inputEl, this.app)
+                })
+            ).then((setting) => {
+                const inputEl = setting.controlEl.getElementsByTagName('input')[0];
+                const errorEl = setting.descEl.createEl('div', {text: "Folder not found in vault", cls: ['cm-invalidchar']})
+                errorEl.toggleVisibility(false);
+                        
+                inputEl.addEventListener('blur', (event) => {
+                    const folder = (event.target as HTMLInputElement).value;
+                    if (!folder || folder === "/") {
+                        return "";
+                    }
+                    if (!app.vault.getAbstractFileByPath(normalizePath(folder))) {
+                        errorEl.toggleVisibility(true)
+                    }
+                })
+                inputEl.addEventListener('focus', (event) => {
+                    errorEl.toggleVisibility(false);
+                })
+            });
+    }
 
     displaySearchColumnsSettings(isSearchColumnsDetailsOpen: boolean) {
         const { containerEl } = this

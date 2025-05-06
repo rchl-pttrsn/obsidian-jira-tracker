@@ -1,8 +1,10 @@
-import { App, Notice, PluginSettingTab, Setting, TextComponent } from 'obsidian'
+import { App, normalizePath, Notice, PluginSettingTab, Setting, TextComponent } from 'obsidian'
 import JiraClient from './client/jiraClient'
 import { COLOR_SCHEMA_DESCRIPTION, EAuthenticationTypes, EColorSchema, ESearchColumnsTypes, IJiraIssueAccountSettings, IJiraIssueSettings, SEARCH_COLUMNS_DESCRIPTION } from './interfaces/settingsInterfaces'
 import JiraIssuePlugin from './main'
 import { getRandomHexColor } from './utils'
+import { FileSuggest, FolderSuggest } from './suggestions/contentSuggest'
+import RC from "./rendering/renderingCommon"
 
 const AUTHENTICATION_TYPE_DESCRIPTION = {
     [EAuthenticationTypes.OPEN]: 'Open',
@@ -74,7 +76,6 @@ export class JiraIssueSettingTab extends PluginSettingTab {
     }
 
     async loadSettings(): Promise<void> {
-        // Read plugin data and fill new fields with default values
         Object.assign(SettingsData, DEFAULT_SETTINGS, await this._plugin.loadData())
         for (const i in SettingsData.accounts) {
             SettingsData.accounts[i] = Object.assign({}, DEFAULT_ACCOUNT, SettingsData.accounts[i])
@@ -82,25 +83,7 @@ export class JiraIssueSettingTab extends PluginSettingTab {
         SettingsData.cache = deepCopy(DEFAULT_SETTINGS.cache)
 
         if (SettingsData.accounts.length === 0 || SettingsData.accounts[0] === null) {
-            if (SettingsData.host) {
-                // Legacy credentials migration
-                SettingsData.accounts = [
-                    {
-                        priority: 1,
-                        host: SettingsData.host,
-                        authenticationType: SettingsData.authenticationType,
-                        username: SettingsData.username,
-                        password: SettingsData.password,
-                        bareToken: SettingsData.bareToken,
-                        alias: DEFAULT_ACCOUNT.alias,
-                        color: DEFAULT_ACCOUNT.color,
-                        cache: DEFAULT_ACCOUNT.cache,
-                    }
-                ]
-            } else {
-                // First installation
-                SettingsData.accounts = [DEFAULT_ACCOUNT]
-            }
+            SettingsData.accounts = [DEFAULT_ACCOUNT]
             this.saveSettings()
         }
         this.accountsConflictsFix()
@@ -109,7 +92,11 @@ export class JiraIssueSettingTab extends PluginSettingTab {
     async saveSettings() {
         const settingsToStore: IJiraIssueSettings = Object.assign({}, SettingsData, {
             // Global cache settings cleanup
-            cache: DEFAULT_SETTINGS.cache, jqlAutocomplete: null, customFieldsIdToName: null, customFieldsNameToId: null, statusColorCache: null
+            cache: DEFAULT_SETTINGS.cache,
+            jqlAutocomplete: null,
+            customFieldsIdToName: null,
+            customFieldsNameToId: null,
+            statusColorCache: null
         })
         // Account cache settings cleanup
         settingsToStore.accounts.forEach(account => account.cache = DEFAULT_ACCOUNT.cache)
@@ -142,6 +129,7 @@ export class JiraIssueSettingTab extends PluginSettingTab {
         this.displayHeader()
         this.displayAccountsSettings()
         this.displayRenderingSettings()
+        this.displayNoteTemplateSettings();
         this.displaySearchColumnsSettings(isSearchColumnsDetailsOpen)
         this.displayExtraSettings()
         this.displayFooter()
@@ -485,6 +473,68 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                     SettingsData.showJiraLink = value
                     await this.saveSettings()
                 }))
+    }
+
+    displayNoteTemplateSettings() {
+        const { containerEl, app } = this;
+        containerEl.createEl("h3", { text: "Note template" });
+        new Setting(containerEl)
+            .setName('Note Template')
+            .setDesc("Template to use when creating a new note from a Jira issue.")
+            .addText(text => {
+                const thisText = text;
+                text
+                    .setValue(SettingsData.noteTemplate)
+                    .onChange(async (value) => {
+                        SettingsData.noteTemplate = value;
+                        await this.saveSettings();
+                    })
+                    .then(({inputEl}) => {
+                        new FileSuggest(inputEl, this.app);
+                    })
+            }).then((setting) => {
+                function isValidFile(file: string) {
+                    return !file || !!app.vault.getFileByPath(normalizePath(file));
+                }
+                addErrorHandler(setting, 'File not found in vault', isValidFile);
+            });
+
+        new Setting(containerEl)
+            .setName('Note Folder')
+            .setDesc("Folder where to save the new note.")
+            .addText(text => text
+                .setValue(SettingsData.noteFolder)
+                .onChange(async (value) => {
+                    SettingsData.noteFolder = value;
+                    await this.saveSettings();
+                })
+                .then(({inputEl}) => {
+                    new FolderSuggest(inputEl, this.app)
+                })
+            ).then((setting) => {
+                function isValidFolder(folder: string) {
+                    return !folder || !!app.vault.getFolderByPath(normalizePath(folder));
+                }
+                addErrorHandler(setting, 'Folder not found in vault', isValidFolder);
+            });
+
+        function addErrorHandler(setting: Setting, errText: string, isValidCb: (value: any) => boolean) {
+            const inputEl = setting.controlEl.getElementsByTagName('input')[0];
+            const errorEl = setting.descEl.createEl('div', { text: errText, cls: ['error'] })
+            errorEl.toggleVisibility(false);
+                    
+            inputEl.addEventListener('blur', (event) => {
+                const value = (event.target as HTMLInputElement).value;
+                if(!isValidCb(value)) {
+                    errorEl.toggleVisibility(true);
+                    inputEl.addClass('error')
+                }
+            })
+            inputEl.addEventListener('focus', (_event) => {
+                errorEl.toggleVisibility(false);
+                inputEl.removeClass('error')
+            })
+        }
     }
 
     displaySearchColumnsSettings(isSearchColumnsDetailsOpen: boolean) {

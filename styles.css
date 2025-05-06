@@ -526,3 +526,11 @@ svg.svg-icon.jira-issue-hidden {
     stroke: none;
     fill: currentColor;
 }
+
+input[type='text'].error {
+    border: 1px solid var(--color-red);
+    color: var(--color-red);
+}
+.error {
+    color: var(--color-red);
+}

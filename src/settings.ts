@@ -486,10 +486,17 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                 text
                     .setValue(SettingsData.noteTemplate)
                     .onChange(async (value) => {
-                        new FileSuggest(thisText.inputEl, this.app)
                         SettingsData.noteTemplate = value;
                         await this.saveSettings();
                     })
+                    .then(({inputEl}) => {
+                        new FileSuggest(inputEl, this.app);
+                    })
+            }).then((setting) => {
+                function isValidFile(file: string) {
+                    return !file || !!app.vault.getFileByPath(normalizePath(file));
+                }
+                addErrorHandler(setting, 'File not found in vault', isValidFile);
             });
 
         new Setting(containerEl)
@@ -505,23 +512,29 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                     new FolderSuggest(inputEl, this.app)
                 })
             ).then((setting) => {
-                const inputEl = setting.controlEl.getElementsByTagName('input')[0];
-                const errorEl = setting.descEl.createEl('div', {text: "Folder not found in vault", cls: ['cm-invalidchar']})
-                errorEl.toggleVisibility(false);
-                        
-                inputEl.addEventListener('blur', (event) => {
-                    const folder = (event.target as HTMLInputElement).value;
-                    if (!folder || folder === "/") {
-                        return "";
-                    }
-                    if (!app.vault.getAbstractFileByPath(normalizePath(folder))) {
-                        errorEl.toggleVisibility(true)
-                    }
-                })
-                inputEl.addEventListener('focus', (event) => {
-                    errorEl.toggleVisibility(false);
-                })
+                function isValidFolder(folder: string) {
+                    return !folder || !!app.vault.getFolderByPath(normalizePath(folder));
+                }
+                addErrorHandler(setting, 'Folder not found in vault', isValidFolder);
             });
+
+        function addErrorHandler(setting: Setting, errText: string, isValidCb: (value: any) => boolean) {
+            const inputEl = setting.controlEl.getElementsByTagName('input')[0];
+            const errorEl = setting.descEl.createEl('div', { text: errText, cls: ['error'] })
+            errorEl.toggleVisibility(false);
+                    
+            inputEl.addEventListener('blur', (event) => {
+                const value = (event.target as HTMLInputElement).value;
+                if(!isValidCb(value)) {
+                    errorEl.toggleVisibility(true);
+                    inputEl.addClass('error')
+                }
+            })
+            inputEl.addEventListener('focus', (_event) => {
+                errorEl.toggleVisibility(false);
+                inputEl.removeClass('error')
+            })
+        }
     }
 
     displaySearchColumnsSettings(isSearchColumnsDetailsOpen: boolean) {

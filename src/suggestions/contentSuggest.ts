@@ -66,6 +66,6 @@ export class FolderSuggest extends ContentSuggest {
 
 export class FileSuggest extends ContentSuggest {
 	getContent() {
-        return this.app.vault.getFiles().filter((f)=>f.extension === "md").map((f)=>f.path)
+        return this.app.vault.getMarkdownFiles().map((f)=>f.path)
     }
 }

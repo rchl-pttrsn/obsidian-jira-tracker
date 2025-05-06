@@ -122,7 +122,7 @@ export default {
 
     renderIssue(issue: IJiraIssue, compact = false): HTMLElement {
         const tagsRow = createDiv('ji-tags has-addons')
-        this.renderAccountColorBand(issue.account, tagsRow)
+        createSpan({ cls: `ji-tag ${this.getTheme()} ji-band`, attr: { style: `background-color: ${issue.account.color}` }, title: issue.account.alias, parent: tagsRow })
         if (issue.fields.issuetype.iconUrl) {
             createEl('img', {
                 cls: 'fit-content',
@@ -148,11 +148,5 @@ export default {
         createSpan({ cls: 'ji-tag is-danger is-light', text: issueKey, parent: tagsRow })
         createSpan({ cls: 'ji-tag is-danger', text: message, parent: tagsRow })
         return tagsRow
-    },
-
-    renderAccountColorBand(account: IJiraIssueAccountSettings, parent: HTMLDivElement) {
-        if (SettingsData.showColorBand) {
-            createSpan({ cls: `ji-tag ${this.getTheme()} ji-band`, attr: { style: `background-color: ${account.color}` }, title: account.alias, parent: parent })
-        }
     },
 }

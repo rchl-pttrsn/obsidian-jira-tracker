@@ -17,6 +17,8 @@ const StoredSettings = {
         color: 'colorVal',
         host: 'hostVal',
         bareToken: 'bareToken',
+        priority: 1,
+        cache: {} as any
     }],
     apiBasePath: 'apiBasePathVal',
     cache: {
@@ -33,7 +35,6 @@ const StoredSettings = {
         // { type: ESearchColumnsTypes.CUSTOM_FIELD, compact: false, extra: 'customVal' },
     ],
     searchResultsLimit: 99,
-    showColorBand: true,
     showJiraLink: true,
 } as IJiraIssueSettings
 
@@ -42,7 +43,7 @@ describe('Settings', () => {
         loadData: jest.fn(),
         saveData: jest.fn(),
     }
-    const settingTab = new JiraIssueSettingTab(null, pluginMock as any)
+    const settingTab = new JiraIssueSettingTab(null as any, pluginMock as any)
 
     test('loadSettings empty settings to default', async () => {
         pluginMock.loadData.mockReturnValueOnce({})

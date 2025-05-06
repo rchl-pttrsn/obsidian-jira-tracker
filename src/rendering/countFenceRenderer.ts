@@ -6,8 +6,9 @@ import RC from "./renderingCommon"
 import { SearchView } from "../searchView"
 
 function renderSearchCount(el: HTMLElement, searchResults: IJiraSearchResults, searchView: SearchView): void {
-    const tagsRow = createDiv('ji-tags has-addons')
-    RC.renderAccountColorBand(searchResults.account, tagsRow)
+    const tagsRow = createDiv('ji-tags has-addons');
+    const account = searchResults.account;
+    createSpan({ cls: `ji-tag ${this.getTheme()} ji-band`, attr: { style: `background-color: ${account.color}` }, title: account.alias, parent: tagsRow })
     if (searchView.label !== '') {
         createSpan({ cls: `ji-tag is-link ${RC.getTheme()}`, text: searchView.label || `Count`, title: searchView.query, parent: tagsRow })
     }

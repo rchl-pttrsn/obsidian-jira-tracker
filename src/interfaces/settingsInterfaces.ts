@@ -36,7 +36,6 @@ export interface IJiraIssueSettings {
     searchColumns: ISearchColumn[]
     logRequestsResponses: boolean
     logImagesFetch: boolean
-    showColorBand: boolean
     showJiraLink: boolean
     noteFolder?: string
     noteTemplate?: string

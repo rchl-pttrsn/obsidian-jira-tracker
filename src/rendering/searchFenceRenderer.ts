@@ -30,7 +30,7 @@ async function renderSearchResultsTable(rootEl: HTMLElement, searchView: SearchV
 function renderSearchResultsTableHeader(table: HTMLElement, searchView: SearchView, account: IJiraIssueAccountSettings): void {
     const header = createEl('tr', {
         parent:
-            createEl('thead', { attr: { style: getAccountBandStyle(searchView.account) }, parent: table })
+            createEl('thead', { attr: { style: 'border-left: 3px solid ' + searchView.account.color }, parent: table })
     })
     const columns = searchView.columns.length > 0 ? searchView.columns : SettingsData.searchColumns
     for (const column of columns) {
@@ -71,13 +71,6 @@ function renderSearchResultsList(rootEl: HTMLElement, searchResults: IJiraSearch
         list.push(RC.renderIssue(issue))
     }
     rootEl.replaceChildren(RC.renderContainer(list))
-}
-
-function getAccountBandStyle(account: IJiraIssueAccountSettings): string {
-    if (SettingsData.showColorBand) {
-        return 'border-left: 3px solid ' + account.color
-    }
-    return ''
 }
 
 function renderSearchFooter(rootEl: HTMLElement, searchView: SearchView, searchResults: IJiraSearchResults): HTMLElement {

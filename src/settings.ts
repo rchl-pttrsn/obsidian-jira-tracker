@@ -1,6 +1,6 @@
 import { App, normalizePath, Notice, PluginSettingTab, Setting, TextComponent } from 'obsidian'
 import JiraClient from './client/jiraClient'
-import { COLOR_SCHEMA_DESCRIPTION, EAuthenticationTypes, EColorSchema, ESearchColumnsTypes, IJiraIssueAccountSettings, IJiraIssueSettings, SEARCH_COLUMNS_DESCRIPTION } from './interfaces/settingsInterfaces'
+import { EAuthenticationTypes, EColorSchema, ESearchColumnsTypes, IJiraIssueAccountSettings, IJiraIssueSettings, SEARCH_COLUMNS_DESCRIPTION } from './interfaces/settingsInterfaces'
 import JiraIssuePlugin from './main'
 import { getRandomHexColor } from './utils'
 import { FileSuggest, FolderSuggest } from './suggestions/contentSuggest'
@@ -123,20 +123,13 @@ export class JiraIssueSettingTab extends PluginSettingTab {
         const isSearchColumnsDetailsOpen = this._searchColumnsDetails
             && this._searchColumnsDetails.getAttribute('open') !== null
 
-        // Clean the page
         this.containerEl.empty()
-        this.displayHeader()
         this.displayAccountsSettings()
         this.displayRenderingSettings()
         this.displayNoteTemplateSettings();
         this.displaySearchColumnsSettings(isSearchColumnsDetailsOpen)
         this.displayExtraSettings()
         this.displayFooter()
-    }
-
-    displayHeader() {
-        
-
     }
 
     displayFooter() {
@@ -412,17 +405,6 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                     await this.saveSettings()
                 }))
         new Setting(containerEl)
-            .setName('Color schema')
-            // .setDesc('')
-            .addDropdown(dropdown => dropdown
-                .addOptions(COLOR_SCHEMA_DESCRIPTION)
-                .setValue(SettingsData.colorSchema)
-                .onChange(async value => {
-                    SettingsData.colorSchema = value as EColorSchema
-                    await this.saveSettings()
-                }))
-
-        new Setting(containerEl)
             .setName('Issue url to tags')
             .setDesc(`Convert links to issues to tags. Example: ${SettingsData.accounts[0].host}/browse/AAA-123`)
             .addToggle(toggle => toggle
@@ -431,7 +413,6 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                     SettingsData.inlineIssueUrlToTag = value
                     await this.saveSettings()
                 }))
-
         const inlineIssuePrefixDesc = (prefix: string) => 'Prefix to use when rendering inline issues. Keep this field empty to disable this feature. '
             + (prefix ? `Example: ${prefix}AAA-123` : 'Feature disabled.')
         const inlineIssuePrefixSetting = new Setting(containerEl)

@@ -11,11 +11,6 @@ export enum EColorSchema {
     LIGHT = 'LIGHT',
     DARK = 'DARK',
 }
-export const COLOR_SCHEMA_DESCRIPTION = {
-    [EColorSchema.FOLLOW_OBSIDIAN]: 'Follow Obsidian',
-    [EColorSchema.LIGHT]: 'Light',
-    [EColorSchema.DARK]: 'Dark',
-}
 
 export const COMPACT_SYMBOL = '-'
 export const AVATAR_RESOLUTION = '16x16'

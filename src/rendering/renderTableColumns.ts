@@ -149,7 +149,7 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                 if (!markdownNotes) {
                     markdownNotes = RC.getNotes()
                 }
-                const noteCell = createEl('td', { parent: row })
+                const noteCell = createEl('td', { parent: row, cls: 'text-align-center'})
                 const noteRegex = new RegExp('^' + issue.key + '[^0-9]')
                 const connectedNotes = markdownNotes.filter(n => n.name.match(noteRegex))
                 if (connectedNotes.length > 0) {
@@ -164,7 +164,7 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                     const folder = SettingsData.noteFolder ?? "";
                     const fullPath = `${folder}/${issue.key}.md`;
 
-                    const el = createEl('a', { text: '➕', title: 'Create new note', href: `${fullPath}`, cls: 'internal-link icon-link', parent: noteCell })
+                    const el = createEl('a', { text: '+', title: 'Create new note', href: `${fullPath}`, cls: 'internal-link icon-link', parent: noteCell })
 
                     if (SettingsData.noteTemplate && !RC.getAbstractFileByPath(fullPath)) 
                     {

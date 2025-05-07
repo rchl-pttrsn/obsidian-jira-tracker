@@ -19,7 +19,7 @@ async function renderSearchResults(rootEl: HTMLElement, searchView: SearchView, 
 }
 
 async function renderSearchResultsTable(rootEl: HTMLElement, searchView: SearchView, searchResults: IJiraSearchResults): Promise<void> {
-    const table = createEl('table', { cls: `table is-bordered is-striped is-narrow is-hoverable is-fullwidth ${RC.getTheme()}` })
+    const table = createEl('table', { cls: `is-bordered is-narrow is-hoverable is-fullwidth` })
     renderSearchResultsTableHeader(table, searchView, searchResults.account)
     await renderSearchResultsTableBody(table, searchView, searchResults)
 

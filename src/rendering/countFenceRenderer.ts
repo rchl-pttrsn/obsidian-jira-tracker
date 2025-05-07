@@ -8,11 +8,11 @@ import { SearchView } from "../searchView"
 function renderSearchCount(el: HTMLElement, searchResults: IJiraSearchResults, searchView: SearchView): void {
     const tagsRow = createDiv('ji-tags has-addons');
     const account = searchResults.account;
-    createSpan({ cls: `ji-tag ${this.getTheme()} ji-band`, attr: { style: `background-color: ${account.color}` }, title: account.alias, parent: tagsRow })
+    createSpan({ cls: `ji-tag ji-band`, attr: { style: `background-color: ${account.color}` }, title: account.alias, parent: tagsRow })
     if (searchView.label !== '') {
-        createSpan({ cls: `ji-tag is-link ${RC.getTheme()}`, text: searchView.label || `Count`, title: searchView.query, parent: tagsRow })
+        createSpan({ cls: `ji-tag is-link`, text: searchView.label || `Count`, title: searchView.query, parent: tagsRow })
     }
-    createSpan({ cls: `ji-tag ${RC.getTheme()}`, text: searchResults.total.toString(), title: searchView.query, parent: tagsRow })
+    createSpan({ cls: `ji-tag`, text: searchResults.total.toString(), title: searchView.query, parent: tagsRow })
     el.replaceChildren(RC.renderContainer([tagsRow]))
 }
 

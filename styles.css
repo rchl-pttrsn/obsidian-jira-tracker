@@ -8,18 +8,18 @@
     vertical-align: middle;
 }
 
-/* Generic */
 .jira-issue-container a {
     cursor: pointer;
     text-decoration: none;
 }
 
-.jira-issue-container img.fit-content {
-    height: 16px;
-    width: 16px;
+.jira-issue-container a:hover {
+    text-decoration: underline;
 }
 
 .jira-issue-container img.fit-content {
+    height: 16px;
+    width: 16px;
     max-width: fit-content;
     width: fit-content;
 }
@@ -32,10 +32,6 @@
 
 .jira-issue-container .issue-summary {
     flex-grow: 1;
-}
-
-.jira-issue-container a:hover {
-    text-decoration: underline;
 }
 
 /* Spinner */
@@ -108,44 +104,15 @@
     display: flex;
     flex-wrap: nowrap;
     justify-content: flex-start;
-}
-
-.jira-issue-container .ji-tags.has-addons .ji-tag:not(:last-child) {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-}
-
-.jira-issue-container .ji-tags.has-addons .ji-tag {
-    margin-right: 0;
-}
-
-.jira-issue-container .ji-tag.is-light {
-    background-color: #f5f5f5;
-    color: rgba(0, 0, 0, 0.7);
-}
-
-.jira-issue-container .ji-tag {
-    align-items: center;
-    background-color: #f5f5f5;
-    border-radius: 4px;
-    color: #4a4a4a;
-    display: inline-flex;
-    font-size: 0.75em;
-    justify-content: flex-start;
-    line-height: 1.5;
-    padding: 0.2em 0.75em;
-}
-
-.jira-issue-container .ji-tag.ji-sm-tag {
-    padding: 0.2em 0.4em;
-}
-
-.jira-issue-container .ji-tags {
     margin-bottom: 0.5em;
 }
 
 .jira-issue-container .ji-tags:last-child {
     margin-bottom: 0;
+}
+
+.jira-issue-container .ji-tags.has-addons .ji-tag {
+    margin-right: 0;
 }
 
 .jira-issue-container .ji-tags.has-addons .ji-tag:not(:first-child) {
@@ -154,26 +121,47 @@
     border-bottom-left-radius: 0;
 }
 
-.ji-tag.is-delete {
+.jira-issue-container .ji-tags.has-addons .ji-tag:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.jira-issue-container .ji-tag {
+    align-items: center;
+    border-radius: 4px;
+    display: inline-flex;
+    font-size: 0.75em;
+    justify-content: flex-start;
+    line-height: 1.5;
+    padding: 0.2em 0.75em;
+    background-color: var(--background-primary);
+    color: var(--text-normal);
+}
+
+.jira-issue-container .ji-tag.ji-sm-tag {
+    padding: 0.2em 0.4em;
+}
+
+/* ji-tags types*/
+.jira-issue-container .ji-tag.is-delete {
     margin-left: 1px;
     padding: 0;
     position: relative;
     width: 2em;
 }
 
-/* ji-tags is-delete */
-.ji-tag.is-delete::before {
+.jira-issue-container .ji-tag.is-delete::before {
     height: 1px;
     width: 50%;
 }
 
-.ji-tag.is-delete::after {
+.jira-issue-container .ji-tag.is-delete::after {
     height: 50%;
     width: 1px;
 }
 
-.ji-tag.is-delete::after,
-.ji-tag.is-delete::before {
+.jira-issue-container .ji-tag.is-delete::after,
+.jira-issue-container .ji-tag.is-delete::before {
     background-color: currentColor;
     content: "";
     display: block;
@@ -184,47 +172,31 @@
     transform-origin: center center;
 }
 
-/* ji-tags is-link */
-.jira-issue-container .ji-tag.is-link.is-light {
-    background-color: #eff1fa;
-    color: #3850b7;
+.jira-issue-container .ji-tag.is-link {
+    background-color: var(--background-primary);
+    color: var(--link-color);
 }
 
-.jira-issue-container .ji-tag.is-link.is-dark {
-    background-color: #485fc7;
-    color: #fff;
-}
-
-/* ji-tags is-info */
 .jira-issue-container .ji-tag.is-info {
     background-color: #3e8ed0;
     color: #fff;
 }
 
-/* ji-tags is-success */
 .jira-issue-container .ji-tag.is-success {
     background-color: #48c78e;
     color: #fff;
 }
 
-/* ji-tags is-warning */
 .ji-tag.is-warning {
     background-color: #ffe08a;
     color: rgba(0, 0, 0, 0.7);
 }
 
-/* ji-tags is-danger */
 .jira-issue-container .ji-tag.is-danger {
-    background-color: #f14668;
-    color: #fff;
+    background-color: var(--color-red-base);
+    color: var(--text-error);
 }
 
-.jira-issue-container .ji-tag.is-danger.is-light {
-    background-color: #feecf0;
-    color: #cc0f35;
-}
-
-/* ji-tags is-dark */
 .jira-issue-container .ji-tag.is-dark {
     background-color: #363636;
     color: #fff;
@@ -234,13 +206,17 @@
 .jira-issue-container table {
     border-collapse: collapse;
     border-spacing: 0;
+    margin-bottom: 0;
+    color: var(--text-normal);
+}
+
+.jira-issue-container table th:not([align]) {
+    text-align: inherit;
 }
 
 .jira-issue-container .table {
-    background-color: #fff;
-    color: #363636;
+    color: var(--text-normal);
     font-size: small;
-    margin-bottom: 0;
 }
 
 .jira-issue-container .table.is-fullwidth {
@@ -275,22 +251,16 @@
 .jira-issue-container .table thead td,
 .jira-issue-container .table thead th {
     border-width: 0 0 2px;
-    color: #363636;
-}
-
-.jira-issue-container table td:not([align]),
-.jira-issue-container table th:not([align]) {
-    text-align: inherit;
 }
 
 .jira-issue-container .table th {
-    color: #363636;
+    color: var(--text-normal);
     white-space: nowrap;
 }
 
 .jira-issue-container .table td,
 .jira-issue-container .table th {
-    border: 1px solid #dbdbdb;
+    border: 1px solid var(--background-modifier-border);
     border-width: 0 0 1px;
     padding: 0.5em 0.75em;
     vertical-align: top;
@@ -299,10 +269,6 @@
 .jira-issue-container td:not([align]),
 th:not([align]) {
     text-align: inherit;
-}
-
-.jira-issue-container table th {
-    color: #363636;
 }
 
 .jira-issue-container table td,
@@ -315,63 +281,8 @@ th {
     padding: 0;
 }
 
-.jira-issue-container .table.is-striped tbody tr:not(.is-selected):nth-child(even) {
-    background-color: #fafafa;
-}
-
-.jira-issue-container .table.is-hoverable.is-striped tbody tr:not(.is-selected):hover:nth-child(even) {
-    background-color: #f5f5f5;
-}
-
-.jira-issue-container .table.is-hoverable.is-striped tbody tr:not(.is-selected):hover {
-    background-color: #fafafa;
-}
-
-.jira-issue-container .table.is-striped tbody tr:not(.is-selected):nth-child(even) {
-    background-color: #fafafa;
-}
-
 .jira-issue-container .table.is-hoverable tbody tr:not(.is-selected):hover {
-    background-color: #fafafa;
-}
-
-.jira-issue-container .table.is-dark {
-    background-color: #000000;
-    color: #dadada;
-}
-
-.jira-issue-container .table.is-dark thead td,
-.jira-issue-container .table.is-dark thead th {
-    color: #dadada;
-}
-
-.jira-issue-container .table.is-dark td,
-.jira-issue-container .table.is-dark th {
-    border: 1px solid #333333;
-}
-
-.jira-issue-container table.is-dark th {
-    color: #dadada;
-}
-
-.jira-issue-container .table.is-striped.is-dark tbody tr:not(.is-selected):nth-child(even) {
-    background-color: #141414;
-}
-
-.jira-issue-container .table.is-hoverable.is-striped.is-dark tbody tr:not(.is-selected):hover:nth-child(even) {
-    background-color: #242424;
-}
-
-.jira-issue-container .table.is-hoverable.is-striped.is-dark tbody tr:not(.is-selected):hover {
-    background-color: #242424;
-}
-
-.jira-issue-container .table.is-striped.is-dark tbody tr:not(.is-selected):nth-child(even) {
-    background-color: #141414;
-}
-
-.jira-issue-container .table.is-hoverable.is-dark tbody tr:not(.is-selected):hover {
-    background-color: #141414;
+    background-color: var(--background-primary);
 }
 
 .jira-issue-container .internal-link {
@@ -449,7 +360,7 @@ th {
     text-decoration: line-through;
 }
 
-.jira-issue-container span.pull-request-tag {
+/* .jira-issue-container span.pull-request-tag {
     padding: 1px 3px;
     line-height: 1.5;
     padding: 0.2em 0.75em;
@@ -465,9 +376,9 @@ th {
 .jira-issue-container span.pull-request-tag:first-child {
     border-top-left-radius: 2px;
     border-bottom-left-radius: 2px;
-}
+} */
 
-.jira-issue-container span.pull-request-open.is-light {
+/* .jira-issue-container span.pull-request-open.is-light {
     background-color: #97AFD8;
 }
 
@@ -489,14 +400,14 @@ th {
 
 .jira-issue-container span.pull-request-delete.is-dark {
     background-color: #984447;
-}
+} */
 
-.jira-issue-container .pull-request-tag>svg {
+/* .jira-issue-container .pull-request-tag>svg {
     height: 1em;
     width: 1em;
     stroke: none;
     fill: currentColor;
-}
+} */
 
 .jira-issue-container .rotate-animation {
     animation-name: rotate-keyframes;
@@ -513,6 +424,10 @@ th {
     }
 }
 
+.jira-issue-container .icon-link {
+    font-weight: var(--font-extrabold);
+    font-size: var(--font-ui-large)
+}
 .jira-issue-container .icon-link:hover {
     text-decoration: none;
 }
@@ -528,9 +443,12 @@ svg.svg-icon.jira-issue-hidden {
 }
 
 input[type='text'].error {
-    border: 1px solid var(--color-red);
-    color: var(--color-red);
+    border: 1px solid var(--text-error);
+    color: var(--text-error);
 }
 .error {
-    color: var(--color-red);
+    color: var(--text-error);
+}
+.jira-issue-container .table td.text-align-center {
+    text-align: center;
 }

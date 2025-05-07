@@ -6,11 +6,6 @@ export enum EAuthenticationTypes {
     CLOUD = 'CLOUD',
     BEARER_TOKEN = 'BEARER_TOKEN',
 }
-export enum EColorSchema {
-    FOLLOW_OBSIDIAN = 'FOLLOW_OBSIDIAN',
-    LIGHT = 'LIGHT',
-    DARK = 'DARK',
-}
 
 export const COMPACT_SYMBOL = '-'
 export const AVATAR_RESOLUTION = '16x16'
@@ -25,13 +20,14 @@ export interface IJiraIssueSettings {
     cache: {
         columns: string[]
     }
-    colorSchema: EColorSchema
     inlineIssueUrlToTag: boolean
     inlineIssuePrefix: string
     searchColumns: ISearchColumn[]
     logRequestsResponses: boolean
     logImagesFetch: boolean
     showJiraLink: boolean
+    enableSearchByGroup: boolean
+    searchGroup: SearchColumnGroup
     noteFolder?: string
     noteTemplate?: string
 }
@@ -163,7 +159,17 @@ export const SEARCH_COLUMNS_DESCRIPTION = {
     [ESearchColumnsTypes.VERSIONS]: 'Versions (Not Supported)',
     [ESearchColumnsTypes.WORKLOG]: 'Work Log (Not Supported)',
 }
+export enum SearchColumnGroup {
+    ALL = 'ALL',
+    STANDARD = 'STANDARD',
+    CUSTOM = 'CUSTOM',
+}
 
+export const SEARCH_COLUMN_GROUP_DESCRIPTION = {
+    [SearchColumnGroup.ALL]: 'All',
+    [SearchColumnGroup.STANDARD]: 'Standard fields',
+    [SearchColumnGroup.CUSTOM]: 'Custom fields',
+}
 export interface ISearchColumn {
     type: ESearchColumnsTypes
     compact: boolean

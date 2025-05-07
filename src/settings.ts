@@ -1,6 +1,6 @@
 import { App, normalizePath, Notice, PluginSettingTab, Setting, TextComponent } from 'obsidian'
 import JiraClient from './client/jiraClient'
-import { EAuthenticationTypes, EColorSchema, ESearchColumnsTypes, IJiraIssueAccountSettings, IJiraIssueSettings, SEARCH_COLUMNS_DESCRIPTION } from './interfaces/settingsInterfaces'
+import { EAuthenticationTypes, ESearchColumnsTypes, IJiraIssueAccountSettings, IJiraIssueSettings, SEARCH_COLUMN_GROUP_DESCRIPTION, SEARCH_COLUMNS_DESCRIPTION, SearchColumnGroup } from './interfaces/settingsInterfaces'
 import JiraIssuePlugin from './main'
 import { getRandomHexColor } from './utils'
 import { FileSuggest, FolderSuggest } from './suggestions/contentSuggest'
@@ -21,7 +21,6 @@ export const DEFAULT_SETTINGS: IJiraIssueSettings = {
     cache: {
         columns: [],
     },
-    colorSchema: EColorSchema.FOLLOW_OBSIDIAN,
     inlineIssueUrlToTag: true,
     inlineIssuePrefix: 'JIRA:',
     showJiraLink: true,
@@ -38,6 +37,8 @@ export const DEFAULT_SETTINGS: IJiraIssueSettings = {
     ],
     logRequestsResponses: false,
     logImagesFetch: false,
+    enableSearchByGroup: false,
+    searchGroup: SearchColumnGroup.ALL
 }
 
 export const DEFAULT_ACCOUNT: IJiraIssueAccountSettings = {
@@ -395,16 +396,6 @@ export class JiraIssueSettingTab extends PluginSettingTab {
         const { containerEl } = this
         new Setting(containerEl).setName('Rendering').setHeading();
         new Setting(containerEl)
-            .setName('Default search results limit')
-            .setDesc('Maximum number of search results to retrieve when using jira-search without specifying a limit.')
-            .addText(text => text
-                // .setPlaceholder('Insert a number')
-                .setValue(SettingsData.searchResultsLimit.toString())
-                .onChange(async value => {
-                    SettingsData.searchResultsLimit = parseInt(value) || DEFAULT_SETTINGS.searchResultsLimit
-                    await this.saveSettings()
-                }))
-        new Setting(containerEl)
             .setName('Issue url to tags')
             .setDesc(`Convert links to issues to tags. Example: ${SettingsData.accounts[0].host}/browse/AAA-123`)
             .addToggle(toggle => toggle
@@ -423,15 +414,6 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                 .onChange(async value => {
                     SettingsData.inlineIssuePrefix = value
                     inlineIssuePrefixSetting.setDesc(inlineIssuePrefixDesc(SettingsData.inlineIssuePrefix))
-                    await this.saveSettings()
-                }))
-        new Setting(containerEl)
-            .setName('Show Jira link')
-            .setDesc('Make the result count in jira-search a link to the jira project with the jql from the search.')
-            .addToggle(toggle => toggle
-                .setValue(SettingsData.showJiraLink)
-                .onChange(async value => {
-                    SettingsData.showJiraLink = value
                     await this.saveSettings()
                 }))
     }
@@ -500,19 +482,49 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
     displaySearchColumnsSettings(isSearchColumnsDetailsOpen: boolean) {
         const { containerEl } = this
-        new Setting(containerEl).setName('Search columns').setHeading();
+        new Setting(containerEl)
+            .setName('Search')
+            .setHeading()
+            // .setDesc('Query constraints for `jira-search`');
 
-        const desc = document.createDocumentFragment()
-        desc.append(
-            "Columns to display in the jira-search table visualization.",
-        )
-        new Setting(containerEl).setDesc(desc)
-        this._searchColumnsDetails = containerEl.createEl('details',
-            { attr: isSearchColumnsDetailsOpen ? { open: true } : {} }
-        )
-        this._searchColumnsDetails.createEl('summary', { text: 'Show/Hide columns' })
+        new Setting(containerEl)
+            .setName('Link to project')
+            .setDesc('Link the search result total to Jira with the JQL applied')
+            .addToggle(toggle => toggle
+                .setValue(SettingsData.showJiraLink)
+                .onChange(async value => {
+                    SettingsData.showJiraLink = value
+                    await this.saveSettings()
+                }));    
+        new Setting(containerEl)
+            .setName('Limit')
+            .setDesc('Default number of results to be returned when a limit is not specified.')
+            .addText(text => text
+                .setValue(SettingsData.searchResultsLimit.toString())
+                .onChange(async value => {
+                    SettingsData.searchResultsLimit = parseInt(value) || DEFAULT_SETTINGS.searchResultsLimit
+                    await this.saveSettings()
+                }));
+        new Setting(containerEl)
+            .setName('All columns')
+            .setDesc('Return all columns from a query from jira provided or custom fields.')
+            .setDesc('Recommended as an aid to decide what values to return for a query')
+            .addDropdown(dropdown => dropdown
+                .addOptions(SEARCH_COLUMN_GROUP_DESCRIPTION)
+                .setValue(SettingsData.searchGroup)
+                .onChange(async value => {
+                    SettingsData.searchGroup = value as SearchColumnGroup
+                    await this.saveSettings()
+                    // Force refresh
+                    this.display()
+                })         
+            )
+        new Setting(containerEl)
+            .setName('Columns')
+            .setDesc('Default columns when columns are not specified.')
+       
         SettingsData.searchColumns.forEach((column, index) => {
-            const setting = new Setting(this._searchColumnsDetails)
+            const setting = new Setting(containerEl)//new Setting(this._searchColumnsDetails)
                 .addDropdown(dropdown => dropdown
                     .addOptions(SEARCH_COLUMNS_DESCRIPTION)
                     .setValue(column.type)
@@ -578,7 +590,8 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                 }))
             setting.infoEl.remove()
         })
-        new Setting(this._searchColumnsDetails)
+        new Setting(containerEl)
+        // new Setting(this._searchColumnsDetails)
             .addButton(button => button
                 .setButtonText("Reset columns")
                 .setWarning()

@@ -109,11 +109,10 @@ export default {
         }
         createEl('a', { cls: `ji-tag is-link no-wrap`, href: this.issueUrl(issue.account, issue.key), title: this.issueUrl(issue.account, issue.key), text: issue.key, parent: tagsRow })
         if (!compact) {
-            createSpan({ cls: `ji-tag issue-summary`, text: issue.fields.summary, parent: tagsRow })
+            createSpan({ cls: `ji-tag grow-1`, text: issue.fields.summary, parent: tagsRow })
         }
         const statusColor = JIRA_STATUS_COLOR_MAP_BY_NAME[issue.fields.status.name] ||
-            JIRA_STATUS_COLOR_MAP[issue.fields.status.statusCategory.colorName] ||
-            'is-light'
+            JIRA_STATUS_COLOR_MAP[issue.fields.status.statusCategory.colorName]
         createSpan({ cls: `ji-tag no-wrap ${statusColor}`, text: issue.fields.status.name, title: issue.fields.status.description, attr: { 'data-status': issue.fields.status.name }, parent: tagsRow })
         return tagsRow
     },

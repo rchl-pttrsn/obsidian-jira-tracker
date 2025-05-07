@@ -8,15 +8,18 @@
     vertical-align: middle;
 }
 
+/* Links */
 .jira-issue-container a {
     cursor: pointer;
     text-decoration: none;
 }
 
-.jira-issue-container a:hover {
-    text-decoration: underline;
+.jira-issue-container a.icon-link {
+    font-weight: var(--font-extrabold);
+    font-size: var(--font-ui-large);
 }
 
+/* Images */
 .jira-issue-container img.fit-content {
     height: 16px;
     width: 16px;
@@ -24,44 +27,27 @@
     width: fit-content;
 }
 
+.jira-issue-container img.letter-height {
+    height: auto;
+    max-height: 1em;
+}
+
+.jira-issue-container img.avatar {
+    height: auto;
+    width: 100%;
+    max-width: 16px;
+    max-height: 16px;
+}
+
+/* Get Flexy */
 .jira-issue-container .no-wrap {
     flex-grow: 0;
     flex-shrink: 0;
     white-space: nowrap;
 }
 
-.jira-issue-container .issue-summary {
+.jira-issue-container .grow-1 {
     flex-grow: 1;
-}
-
-/* Spinner */
-.jira-issue-container .spinner {
-    position: relative;
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-}
-
-.jira-issue-container .spinner::before {
-    content: "";
-    box-sizing: border-box;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 16px;
-    height: 16px;
-    margin-top: -8px;
-    margin-left: -8px;
-    border-radius: 50%;
-    border: 2px solid #ccc;
-    border-top-color: #000;
-    animation: spinner 0.6s linear infinite;
-}
-
-@keyframes spinner {
-    to {
-        transform: rotate(360deg);
-    }
 }
 
 /* search-footer */
@@ -134,8 +120,6 @@
     justify-content: flex-start;
     line-height: 1.5;
     padding: 0.2em 0.75em;
-    background-color: var(--background-primary);
-    color: var(--text-normal);
 }
 
 .jira-issue-container .ji-tag.ji-sm-tag {
@@ -143,6 +127,16 @@
 }
 
 /* ji-tags types*/
+.jira-issue-container .ji-tag.is-danger {
+    background-color: var(--color-red-base);
+    color: var(--text-error);
+}
+
+.jira-issue-container .ji-tag.is-dark {
+    background-color: #363636;
+    color: #fff;
+}
+
 .jira-issue-container .ji-tag.is-delete {
     margin-left: 1px;
     padding: 0;
@@ -192,101 +186,29 @@
     color: rgba(0, 0, 0, 0.7);
 }
 
-.jira-issue-container .ji-tag.is-danger {
-    background-color: var(--color-red-base);
-    color: var(--text-error);
-}
-
-.jira-issue-container .ji-tag.is-dark {
-    background-color: #363636;
-    color: #fff;
-}
-
 /* table */
 .jira-issue-container table {
-    border-collapse: collapse;
-    border-spacing: 0;
-    margin-bottom: 0;
-    color: var(--text-normal);
-}
-
-.jira-issue-container table th:not([align]) {
-    text-align: inherit;
-}
-
-.jira-issue-container .table {
-    color: var(--text-normal);
-    font-size: small;
-}
-
-.jira-issue-container .table.is-fullwidth {
     width: 100%;
 }
 
-.jira-issue-container .table thead,
-.jira-issue-container .table tfoot,
-.jira-issue-container .table tbody {
-    background-color: transparent;
+.jira-issue-container table th,
+.jira-issue-container table td {
+    vertical-align: top;
+    white-space: nowrap;
+    padding: 0.5em 0.75em;
 }
 
-.jira-issue-container .table.is-bordered tr:last-child td,
-.jira-issue-container .table.is-bordered tr:last-child th {
-    border-bottom-width: 1px;
-}
-
-.jira-issue-container .table.is-narrow td,
-.jira-issue-container .table.is-narrow th {
+.jira-issue-container table.is-narrow th,
+.jira-issue-container table.is-narrow td {
     padding: 0.25em 0.5em;
 }
 
-.jira-issue-container .table.is-bordered td,
-.jira-issue-container .table.is-bordered th {
-    border-width: 1px;
-}
-
-.jira-issue-container .table th:not([align]) {
-    text-align: inherit;
-}
-
-.jira-issue-container .table thead td,
-.jira-issue-container .table thead th {
-    border-width: 0 0 2px;
-}
-
-.jira-issue-container .table th {
-    color: var(--text-normal);
-    white-space: nowrap;
-}
-
-.jira-issue-container .table td,
-.jira-issue-container .table th {
-    border: 1px solid var(--background-modifier-border);
-    border-width: 0 0 1px;
-    padding: 0.5em 0.75em;
-    vertical-align: top;
-}
-
-.jira-issue-container td:not([align]),
-th:not([align]) {
-    text-align: inherit;
-}
-
-.jira-issue-container table td,
-table th {
-    vertical-align: top;
-}
-
-.jira-issue-container td,
-th {
-    padding: 0;
-}
-
-.jira-issue-container .table.is-hoverable tbody tr:not(.is-selected):hover {
+.jira-issue-container table tbody tr:hover {
     background-color: var(--background-primary);
 }
 
-.jira-issue-container .internal-link {
-    text-decoration: none;
+.jira-issue-container table td.text-align-center {
+    text-align: center;
 }
 
 /* Inline Issues */
@@ -299,30 +221,7 @@ th {
     padding: 0.1em 0.3em;
 }
 
-/* Settings */
-.setting-item-control select.flex-grow-1 {
-    flex-grow: 1;
-    max-width: none;
-}
-
-.setting-item-control input[type="text"].custom-field-text {
-    margin-left: 10px;
-    height: 2.5em;
-    border-radius: 8px;
-}
-
-.jira-issue-container .letter-height {
-    height: auto;
-    max-height: 1em;
-}
-
-.jira-issue-container img.avatar-image {
-    width: 100%;
-    max-width: 16px;
-    height: auto;
-    max-height: 16px;
-}
-
+/* Suggestions */
 .jira-issue-suggestion {
     font-size: small;
     margin-right: 5px;
@@ -344,11 +243,68 @@ th {
     color: red;
 }
 
+/* Inline plugin */
 .jira-issue-inline-mark {
     display: inline-block;
     padding: 2px 5px;
 }
 
+.HyperMD-task-line[data-task="x"] .ji-inline-issue.jira-issue-container {
+    text-decoration: line-through;
+}
+
+/* Spinner */
+.jira-issue-container .spinner {
+    position: relative;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+}
+
+.jira-issue-container .spinner::before {
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin-top: -8px;
+    margin-left: -8px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    border-top-color: #000;
+    animation: spinner 0.6s linear infinite;
+}
+
+@keyframes spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Settings */
+.setting-item-control select.flex-grow-1 {
+    flex-grow: 1;
+    max-width: none;
+}
+
+.setting-item-control input[type="text"].custom-field-text {
+    margin-left: 10px;
+    height: 2.5em;
+    border-radius: 8px;
+}
+
+.setting-item-control input[type='text'].error {
+    border: 1px solid var(--text-error);
+    color: var(--text-error);
+}
+
+.setting-item-description .error {
+    color: var(--text-error);
+}
+
+/* Other */
 .ji-inline-issue.jira-issue-container .ji-band,
 .jira-issue-container .ji-band {
     width: 3px;
@@ -356,9 +312,31 @@ th {
     padding: 0;
 }
 
-.HyperMD-task-line[data-task="x"] .ji-inline-issue.jira-issue-container {
-    text-decoration: line-through;
+.jira-issue-container .rotate-animation {
+    animation-name: rotate-keyframes;
+    animation-duration: 2s;
 }
+
+@keyframes rotate-keyframes {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+svg.svg-icon.jira-issue-visible {
+    stroke: none;
+    fill: currentColor;
+}
+
+svg.svg-icon.jira-issue-hidden {
+    stroke: none;
+    fill: currentColor;
+}
+
 
 /* .jira-issue-container span.pull-request-tag {
     padding: 1px 3px;
@@ -408,47 +386,3 @@ th {
     stroke: none;
     fill: currentColor;
 } */
-
-.jira-issue-container .rotate-animation {
-    animation-name: rotate-keyframes;
-    animation-duration: 2s;
-}
-
-@keyframes rotate-keyframes {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.jira-issue-container .icon-link {
-    font-weight: var(--font-extrabold);
-    font-size: var(--font-ui-large)
-}
-.jira-issue-container .icon-link:hover {
-    text-decoration: none;
-}
-
-svg.svg-icon.jira-issue-visible {
-    stroke: none;
-    fill: currentColor;
-}
-
-svg.svg-icon.jira-issue-hidden {
-    stroke: none;
-    fill: currentColor;
-}
-
-input[type='text'].error {
-    border: 1px solid var(--text-error);
-    color: var(--text-error);
-}
-.error {
-    color: var(--text-error);
-}
-.jira-issue-container .table td.text-align-center {
-    text-align: center;
-}

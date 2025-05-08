@@ -49,26 +49,16 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                 }
                 break
             case ESearchColumnsTypes.STATUS:
-                const statusColor = JIRA_STATUS_COLOR_MAP_BY_NAME[issue.fields.status.name] || 
-                JIRA_STATUS_COLOR_MAP[issue.fields.status.statusCategory.colorName] || 
-                'is-light'
-                if (column.compact) {
-                    createSpan({
-                        cls: `ji-tag no-wrap ${statusColor}`,
-                        text: issue.fields.status.name[0].toUpperCase(),
-                        title: issue.fields.status.name,
-                        attr: { 'data-status': issue.fields.status.name },
-                        parent: createEl('td', { parent: row })
-                    })
-                } else {
-                    createSpan({
-                        cls: `ji-tag no-wrap ${statusColor}`,
-                        text: issue.fields.status.name,
-                        title: issue.fields.status.description,
-                        attr: { 'data-status': issue.fields.status.name },
-                        parent: createEl('td', { parent: row })
-                    })
-                }
+                const { status } = issue.fields
+                const statusColor = JIRA_STATUS_COLOR_MAP_BY_NAME[status.name] || 
+                JIRA_STATUS_COLOR_MAP[issue.fields.status.statusCategory.colorName]
+                createSpan({
+                    cls: `ji-tag no-wrap ${statusColor}`,
+                    text: column.compact ? status.name[0].toUpperCase() : status.name,
+                    title: status.description,
+                    attr: { 'data-status': status.name },
+                    parent: createEl('td', { parent: row })
+                })
                 break
             case ESearchColumnsTypes.DUE_DATE:
                 renderDateField(column, row, issue.fields.duedate)
@@ -149,7 +139,7 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                 if (!markdownNotes) {
                     markdownNotes = RC.getNotes()
                 }
-                const noteCell = createEl('td', { parent: row })
+                const noteCell = createEl('td', { parent: row, cls: 'text-align-center'})
                 const noteRegex = new RegExp('^' + issue.key + '[^0-9]')
                 const connectedNotes = markdownNotes.filter(n => n.name.match(noteRegex))
                 if (connectedNotes.length > 0) {
@@ -164,7 +154,7 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                     const folder = SettingsData.noteFolder ?? "";
                     const fullPath = `${folder}/${issue.key}.md`;
 
-                    const el = createEl('a', { text: '➕', title: 'Create new note', href: `${fullPath}`, cls: 'internal-link icon-link', parent: noteCell })
+                    const el = createEl('a', { text: '+', title: 'Create new note', href: `${fullPath}`, cls: 'icon-link', parent: noteCell })
 
                     if (SettingsData.noteTemplate && !RC.getAbstractFileByPath(fullPath)) 
                     {
@@ -189,11 +179,11 @@ function renderNoteFile(column: ISearchColumn, note: TFile, noteCell: HTMLTableC
                         //TODO on(name: 'rename', callback: (file: TAbstractFile, oldPath: string) => any, ctx?: any): EventRef;
 
     if (column.compact) {
-        createEl('a', { text: '📝', title: note.path, href: note.path, cls: 'internal-link', parent: noteCell })
+        createEl('a', { text: '📙', title: note.path, href: note.path, cls: 'int-link', parent: noteCell })
     } else {
         const noteNameWithoutExtension = note.name.split('.')
         noteNameWithoutExtension.pop()
-        createEl('a', { text: noteNameWithoutExtension.join('.'), title: note.path, href: note.path, cls: 'internal-link', parent: noteCell })
+        createEl('a', { text: noteNameWithoutExtension.join('.'), title: note.path, href: note.path, parent: noteCell })
         createEl('br', { parent: noteCell })
     }
 }
@@ -203,7 +193,7 @@ function renderNoteFrontMatter(column: ISearchColumn, note: TFile, noteCell: HTM
     const values = jsonpath.query(frontMatter, '$.' + column.extra)
     for (let value of values) {
         value = typeof value === 'object' ? JSON.stringify(value) : value.toString()
-        createEl('a', { text: value, title: note.path, href: note.path, cls: 'internal-link', parent: noteCell })
+        createEl('a', { text: value, title: note.path, href: note.path, parent: noteCell })
         createEl('br', { parent: noteCell })
     }
 }
@@ -264,7 +254,7 @@ function renderUserField(column: ISearchColumn, row: HTMLTableRowElement, user: 
         createEl('img', {
             attr: { src: user.avatarUrls[AVATAR_RESOLUTION], alt: userName },
             title: userName,
-            cls: 'avatar-image',
+            cls: 'avatar',
             parent: createEl('td', { parent: row })
         })
     } else {

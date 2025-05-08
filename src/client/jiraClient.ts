@@ -98,7 +98,7 @@ async function sendRequest(requestOptions: RequestOptions): Promise<any> {
     } else if (response && response.status) {
         switch (response.status) {
             case 400:
-                throw new Error(`The query is not valid`)
+                throw new Error(`Invalid query`)
             case 404:
                 throw new Error(`Issue does not exist`)
             default:

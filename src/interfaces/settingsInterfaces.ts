@@ -6,16 +6,6 @@ export enum EAuthenticationTypes {
     CLOUD = 'CLOUD',
     BEARER_TOKEN = 'BEARER_TOKEN',
 }
-export enum EColorSchema {
-    FOLLOW_OBSIDIAN = 'FOLLOW_OBSIDIAN',
-    LIGHT = 'LIGHT',
-    DARK = 'DARK',
-}
-export const COLOR_SCHEMA_DESCRIPTION = {
-    [EColorSchema.FOLLOW_OBSIDIAN]: 'Follow Obsidian',
-    [EColorSchema.LIGHT]: 'Light',
-    [EColorSchema.DARK]: 'Dark',
-}
 
 export const COMPACT_SYMBOL = '-'
 export const AVATAR_RESOLUTION = '16x16'
@@ -30,14 +20,12 @@ export interface IJiraIssueSettings {
     cache: {
         columns: string[]
     }
-    colorSchema: EColorSchema
     inlineIssueUrlToTag: boolean
     inlineIssuePrefix: string
     searchColumns: ISearchColumn[]
     logRequestsResponses: boolean
     logImagesFetch: boolean
-    showColorBand: boolean
-    showJiraLink: boolean
+    allFields: boolean
     noteFolder?: string
     noteTemplate?: string
 }

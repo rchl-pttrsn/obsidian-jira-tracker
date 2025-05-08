@@ -1,10 +1,9 @@
 import { App, normalizePath, Notice, PluginSettingTab, Setting, TextComponent } from 'obsidian'
 import JiraClient from './client/jiraClient'
-import { COLOR_SCHEMA_DESCRIPTION, EAuthenticationTypes, EColorSchema, ESearchColumnsTypes, IJiraIssueAccountSettings, IJiraIssueSettings, SEARCH_COLUMNS_DESCRIPTION } from './interfaces/settingsInterfaces'
+import { EAuthenticationTypes, ESearchColumnsTypes, IJiraIssueAccountSettings, IJiraIssueSettings, SEARCH_COLUMNS_DESCRIPTION } from './interfaces/settingsInterfaces'
 import JiraIssuePlugin from './main'
 import { getRandomHexColor } from './utils'
 import { FileSuggest, FolderSuggest } from './suggestions/contentSuggest'
-import RC from "./rendering/renderingCommon"
 
 const AUTHENTICATION_TYPE_DESCRIPTION = {
     [EAuthenticationTypes.OPEN]: 'Open',
@@ -21,11 +20,8 @@ export const DEFAULT_SETTINGS: IJiraIssueSettings = {
     cache: {
         columns: [],
     },
-    colorSchema: EColorSchema.FOLLOW_OBSIDIAN,
     inlineIssueUrlToTag: true,
     inlineIssuePrefix: 'JIRA:',
-    showColorBand: true,
-    showJiraLink: true,
     searchColumns: [
         { type: ESearchColumnsTypes.KEY, compact: false },
         { type: ESearchColumnsTypes.SUMMARY, compact: false },
@@ -39,6 +35,7 @@ export const DEFAULT_SETTINGS: IJiraIssueSettings = {
     ],
     logRequestsResponses: false,
     logImagesFetch: false,
+    allFields: false
 }
 
 export const DEFAULT_ACCOUNT: IJiraIssueAccountSettings = {
@@ -67,7 +64,6 @@ function deepCopy(obj: any): any {
 export class JiraIssueSettingTab extends PluginSettingTab {
     private _plugin: JiraIssuePlugin
     private _onChangeListener: (() => void) | null = null
-    private _searchColumnsDetails: HTMLDetailsElement = null
     private _showPassword: boolean = false
 
     constructor(app: App, plugin: JiraIssuePlugin) {
@@ -91,25 +87,14 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
     async saveSettings() {
         const settingsToStore: IJiraIssueSettings = Object.assign({}, SettingsData, {
-            // Global cache settings cleanup
             cache: DEFAULT_SETTINGS.cache,
             jqlAutocomplete: null,
             customFieldsIdToName: null,
             customFieldsNameToId: null,
             statusColorCache: null
         })
-        // Account cache settings cleanup
         settingsToStore.accounts.forEach(account => account.cache = DEFAULT_ACCOUNT.cache)
-        // Delete old properties
-        delete (settingsToStore as any)['darkMode']
-        delete (settingsToStore as any)['host']
-        delete (settingsToStore as any)['authenticationType']
-        delete (settingsToStore as any)['username']
-        delete (settingsToStore as any)['password']
-        delete (settingsToStore as any)['customFieldsNames']
-
         await this._plugin.saveData(settingsToStore)
-
         if (this._onChangeListener) {
             this._onChangeListener()
         }
@@ -120,37 +105,18 @@ export class JiraIssueSettingTab extends PluginSettingTab {
     }
 
     display(): void {
-        // Backup the search columns details status before cleaning the page
-        const isSearchColumnsDetailsOpen = this._searchColumnsDetails
-            && this._searchColumnsDetails.getAttribute('open') !== null
-
-        // Clean the page
         this.containerEl.empty()
-        this.displayHeader()
-        this.displayAccountsSettings()
         this.displayRenderingSettings()
-        this.displayNoteTemplateSettings();
-        this.displaySearchColumnsSettings(isSearchColumnsDetailsOpen)
+        this.displayNoteTemplateSettings()
+        this.displayAccountsSettings()
+        this.displaySearchColumnsSettings()
         this.displayExtraSettings()
         this.displayFooter()
     }
 
-    displayHeader() {
-        const { containerEl } = this
-        containerEl.createEl('h2', { text: 'Jira Issue' })
-        const description = containerEl.createEl('p')
-        description.appendText('Need help? Explore the ')
-        description.appendChild(createEl('a', {
-            text: 'Jira Issue documentation',
-            href: 'https://marc0l92.github.io/obsidian-jira-issue/',
-        }))
-        description.appendText('.')
-
-    }
-
     displayFooter() {
         const { containerEl } = this
-        containerEl.createEl('h3', { text: 'Support development' })
+        new Setting(containerEl).setName('Support development').setHeading
         const description = containerEl.createEl('p')
         description.appendText('If you enjoy JiraIssue, consider giving me your feedback on the ')
         description.appendChild(createEl('a', {
@@ -174,17 +140,29 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
     displayAccountsSettings() {
         const { containerEl } = this
-        containerEl.createEl('h3', { text: 'Accounts' })
+        new Setting(containerEl).setHeading();
+        new Setting(containerEl)
+            .setName('Accounts')
+            .setHeading()
+            .addButton(button => button
+                .setIcon('plus')
+                .setTooltip('Add account')
+                .onClick(async () => {
+                    SettingsData.accounts.push(this.createNewEmptyAccount())
+                    this.accountsConflictsFix()
+                    await this.saveSettings()
+                    // Force refresh
+                    this.display()
+                }));
 
         for (const account of SettingsData.accounts) {
             const accountSetting = new Setting(containerEl)
-                .setName(`${account.priority}: ${account.alias}`)
+                .setName(account.alias)
                 .setDesc(account.host)
                 .addExtraButton(button => button
                     .setIcon('pencil')
                     .setTooltip('Modify')
                     .onClick(async () => {
-                        // Change page
                         this.displayModifyAccountPage(account)
                     }))
                 .addExtraButton(button => button
@@ -200,24 +178,13 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                     }))
             accountSetting.infoEl.setAttr('style', 'padding-left:5px;border-left:5px solid ' + account.color)
         }
-        new Setting(containerEl)
-            .addButton(button => button
-                .setButtonText("Add account")
-                .setCta()
-                .onClick(async value => {
-                    SettingsData.accounts.push(this.createNewEmptyAccount())
-                    this.accountsConflictsFix()
-                    await this.saveSettings()
-                    // Force refresh
-                    this.display()
-                }))
     }
 
     displayModifyAccountPage(prevAccount: IJiraIssueAccountSettings, newAccount: IJiraIssueAccountSettings = null) {
         if (!newAccount) newAccount = Object.assign({}, prevAccount)
         const { containerEl } = this
         containerEl.empty()
-        containerEl.createEl('h3', { text: 'Modify account' })
+        new Setting(containerEl).setName('Modify account').setHeading()
 
         new Setting(containerEl)
             .setName('Alias')
@@ -409,29 +376,6 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
     displayRenderingSettings() {
         const { containerEl } = this
-        containerEl.createEl('h3', { text: 'Rendering' })
-
-        new Setting(containerEl)
-            .setName('Default search results limit')
-            .setDesc('Maximum number of search results to retrieve when using jira-search without specifying a limit.')
-            .addText(text => text
-                // .setPlaceholder('Insert a number')
-                .setValue(SettingsData.searchResultsLimit.toString())
-                .onChange(async value => {
-                    SettingsData.searchResultsLimit = parseInt(value) || DEFAULT_SETTINGS.searchResultsLimit
-                    await this.saveSettings()
-                }))
-        new Setting(containerEl)
-            .setName('Color schema')
-            // .setDesc('')
-            .addDropdown(dropdown => dropdown
-                .addOptions(COLOR_SCHEMA_DESCRIPTION)
-                .setValue(SettingsData.colorSchema)
-                .onChange(async value => {
-                    SettingsData.colorSchema = value as EColorSchema
-                    await this.saveSettings()
-                }))
-
         new Setting(containerEl)
             .setName('Issue url to tags')
             .setDesc(`Convert links to issues to tags. Example: ${SettingsData.accounts[0].host}/browse/AAA-123`)
@@ -441,7 +385,6 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                     SettingsData.inlineIssueUrlToTag = value
                     await this.saveSettings()
                 }))
-
         const inlineIssuePrefixDesc = (prefix: string) => 'Prefix to use when rendering inline issues. Keep this field empty to disable this feature. '
             + (prefix ? `Example: ${prefix}AAA-123` : 'Feature disabled.')
         const inlineIssuePrefixSetting = new Setting(containerEl)
@@ -455,29 +398,19 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                     await this.saveSettings()
                 }))
         new Setting(containerEl)
-            .setName('Show color band')
-            .setDesc('Display color band near by inline issue to simplify the account identification.')
-            .addToggle(toggle => toggle
-                .setValue(SettingsData.showColorBand)
+            .setName('Cache')
+            .setDesc('How often the data refreshes. A low value will make more requests to the JIRA.')
+            .addText(text => text
+                .setPlaceholder('Example: 15m, 24h, 5s')
+                .setValue(SettingsData.cacheTime)
                 .onChange(async value => {
-                    SettingsData.showColorBand = value
-                    await this.saveSettings()
-                }))
-
-        new Setting(containerEl)
-            .setName('Show Jira link')
-            .setDesc('Make the result count in jira-search a link to the jira project with the jql from the search.')
-            .addToggle(toggle => toggle
-                .setValue(SettingsData.showJiraLink)
-                .onChange(async value => {
-                    SettingsData.showJiraLink = value
+                    SettingsData.cacheTime = value
                     await this.saveSettings()
                 }))
     }
 
     displayNoteTemplateSettings() {
         const { containerEl, app } = this;
-        containerEl.createEl("h3", { text: "Note template" });
         new Setting(containerEl)
             .setName('Note Template')
             .setDesc("Template to use when creating a new note from a Jira issue.")
@@ -537,21 +470,39 @@ export class JiraIssueSettingTab extends PluginSettingTab {
         }
     }
 
-    displaySearchColumnsSettings(isSearchColumnsDetailsOpen: boolean) {
+    displaySearchColumnsSettings() {
         const { containerEl } = this
-        containerEl.createEl('h3', { text: 'Search columns' })
+        new Setting(containerEl)
+            .setName('Search constraints')
+            .setHeading()
+            // .setDesc('Query constraints for `jira-search`');
 
-        const desc = document.createDocumentFragment()
-        desc.append(
-            "Columns to display in the jira-search table visualization.",
-        )
-        new Setting(containerEl).setDesc(desc)
-        this._searchColumnsDetails = containerEl.createEl('details',
-            { attr: isSearchColumnsDetailsOpen ? { open: true } : {} }
-        )
-        this._searchColumnsDetails.createEl('summary', { text: 'Show/Hide columns' })
+        new Setting(containerEl)
+            .setName('Limit')
+            .setDesc('Default number of results to be returned when a limit is not specified.')
+            .addText(text => text
+                .setValue(SettingsData.searchResultsLimit.toString())
+                .onChange(async value => {
+                    SettingsData.searchResultsLimit = parseInt(value) || DEFAULT_SETTINGS.searchResultsLimit
+                    await this.saveSettings()
+                }));
+
+        new Setting(containerEl)
+            .setName('All fields')
+            .setDesc('Overrides default fields to displays all fields')
+            .addToggle(toggle => toggle
+                .setValue(SettingsData.allFields)
+                .onChange(async value => {
+                    SettingsData.allFields = value
+                    await this.saveSettings()
+                }));            
+
+        new Setting(containerEl)
+            .setName('Default fields')
+            .setDesc('Default fields when fields are not specified in the query.')
+       
         SettingsData.searchColumns.forEach((column, index) => {
-            const setting = new Setting(this._searchColumnsDetails)
+            const setting = new Setting(containerEl)
                 .addDropdown(dropdown => dropdown
                     .addOptions(SEARCH_COLUMNS_DESCRIPTION)
                     .setValue(column.type)
@@ -563,16 +514,6 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                     }).selectEl.addClass('flex-grow-1')
                 )
 
-            // if (column.type === ESearchColumnsTypes.CUSTOM) {
-            //     setting.addText(text => text
-            //         .setPlaceholder('Custom field name')
-            //         .setValue(column.customField)
-            //         .onChange(async value => {
-            //             settingData.searchColumns[index].customField = value
-            //             await this.saveSettings()
-            //         }).inputEl.addClass('custom-field-text')
-            //     )
-            // }
             setting.addExtraButton(button => button
                 .setIcon(SettingsData.searchColumns[index].compact ? 'compress-glyph' : 'enlarge-glyph')
                 .setTooltip(SettingsData.searchColumns[index].compact ? 'Compact' : 'Full width')
@@ -617,7 +558,8 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                 }))
             setting.infoEl.remove()
         })
-        new Setting(this._searchColumnsDetails)
+        new Setting(containerEl)
+        // new Setting(this._searchColumnsDetails)
             .addButton(button => button
                 .setButtonText("Reset columns")
                 .setWarning()
@@ -640,20 +582,8 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
     displayExtraSettings() {
         const { containerEl } = this
-        containerEl.createEl('h3', { text: 'Cache' })
-
-        new Setting(containerEl)
-            .setName('Cache time')
-            .setDesc('Time before the cached issue status expires. A low value will refresh the data very often but do a lot of requests to the server.')
-            .addText(text => text
-                .setPlaceholder('Example: 15m, 24h, 5s')
-                .setValue(SettingsData.cacheTime)
-                .onChange(async value => {
-                    SettingsData.cacheTime = value
-                    await this.saveSettings()
-                }))
-
-        containerEl.createEl('h3', { text: 'Troubleshooting' })
+        
+        new Setting(containerEl).setName('Troubleshooting').setHeading();
         new Setting(containerEl)
             .setName('Log data request and responses')
             .setDesc('Log in the console (CTRL+Shift+I) all the API requests and responses performed by the plugin.')
@@ -672,6 +602,13 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                     SettingsData.logImagesFetch = value
                     await this.saveSettings()
                 }))
+        const description = containerEl.createEl('p')
+        description.appendText('Need help? Explore the ')
+        description.appendChild(createEl('a', {
+            text: 'Jira Issue documentation',
+            href: 'https://marc0l92.github.io/obsidian-jira-issue/',
+        }))
+        description.appendText('.')
     }
 
     createNewEmptyAccount() {

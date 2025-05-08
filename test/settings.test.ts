@@ -1,7 +1,7 @@
 jest.mock('obsidian')
 jest.mock('../src/client/jiraClient')
 
-import { EAuthenticationTypes, EColorSchema, IJiraIssueSettings } from "../src/interfaces/settingsInterfaces"
+import { EAuthenticationTypes, IJiraIssueSettings } from "../src/interfaces/settingsInterfaces"
 import { DEFAULT_ACCOUNT, DEFAULT_SETTINGS, JiraIssueSettingTab, SettingsData } from "../src/settings"
 
 function deepCopy(obj: any): any {
@@ -17,13 +17,14 @@ const StoredSettings = {
         color: 'colorVal',
         host: 'hostVal',
         bareToken: 'bareToken',
+        priority: 1,
+        cache: {} as any
     }],
     apiBasePath: 'apiBasePathVal',
     cache: {
         columns: ['column1', 'column2']
     },
     cacheTime: 'cacheTimeVal',
-    colorSchema: EColorSchema.LIGHT,
     inlineIssuePrefix: 'inlineIssuePrefixVal',
     inlineIssueUrlToTag: true,
     logImagesFetch: false,
@@ -33,8 +34,7 @@ const StoredSettings = {
         // { type: ESearchColumnsTypes.CUSTOM_FIELD, compact: false, extra: 'customVal' },
     ],
     searchResultsLimit: 99,
-    showColorBand: true,
-    showJiraLink: true,
+    allFields: false
 } as IJiraIssueSettings
 
 describe('Settings', () => {
@@ -42,7 +42,7 @@ describe('Settings', () => {
         loadData: jest.fn(),
         saveData: jest.fn(),
     }
-    const settingTab = new JiraIssueSettingTab(null, pluginMock as any)
+    const settingTab = new JiraIssueSettingTab(null as any, pluginMock as any)
 
     test('loadSettings empty settings to default', async () => {
         pluginMock.loadData.mockReturnValueOnce({})

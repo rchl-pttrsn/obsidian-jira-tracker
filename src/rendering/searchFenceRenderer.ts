@@ -77,18 +77,11 @@ function renderSearchFooter(rootEl: HTMLElement, searchView: SearchView, searchR
     const searchFooter = createDiv({ cls: 'search-footer' })
     const searchCount = `Total results: ${searchResults.total.toString()} - ${searchResults.account.alias}`
 
-    if(SettingsData.showJiraLink) {
-        createEl('a', {
-            text: searchCount,
-            href: RC.searchUrl(searchView.account, searchView.query),
-            parent: searchFooter,
-        })
-    } else {
-        createDiv({
-            text: searchCount,
-            parent: searchFooter,
-        })
-    }
+    createEl('a', {
+        text: searchCount,
+        href: RC.searchUrl(searchView.account, searchView.query),
+        parent: searchFooter,
+    })
 
     const lastUpdateContainer = createDiv({ parent: searchFooter })
     createSpan({

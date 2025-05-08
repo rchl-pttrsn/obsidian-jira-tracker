@@ -1,10 +1,9 @@
 import { App, normalizePath, Notice, PluginSettingTab, Setting, TextComponent } from 'obsidian'
 import JiraClient from './client/jiraClient'
-import { EAuthenticationTypes, ESearchColumnsTypes, IJiraIssueAccountSettings, IJiraIssueSettings, SEARCH_COLUMN_GROUP_DESCRIPTION, SEARCH_COLUMNS_DESCRIPTION, SearchColumnGroup } from './interfaces/settingsInterfaces'
+import { EAuthenticationTypes, ESearchColumnsTypes, IJiraIssueAccountSettings, IJiraIssueSettings, SEARCH_COLUMNS_DESCRIPTION } from './interfaces/settingsInterfaces'
 import JiraIssuePlugin from './main'
 import { getRandomHexColor } from './utils'
 import { FileSuggest, FolderSuggest } from './suggestions/contentSuggest'
-import RC from "./rendering/renderingCommon"
 
 const AUTHENTICATION_TYPE_DESCRIPTION = {
     [EAuthenticationTypes.OPEN]: 'Open',
@@ -23,7 +22,6 @@ export const DEFAULT_SETTINGS: IJiraIssueSettings = {
     },
     inlineIssueUrlToTag: true,
     inlineIssuePrefix: 'JIRA:',
-    showJiraLink: true,
     searchColumns: [
         { type: ESearchColumnsTypes.KEY, compact: false },
         { type: ESearchColumnsTypes.SUMMARY, compact: false },
@@ -37,8 +35,7 @@ export const DEFAULT_SETTINGS: IJiraIssueSettings = {
     ],
     logRequestsResponses: false,
     logImagesFetch: false,
-    enableSearchByGroup: false,
-    searchGroup: SearchColumnGroup.ALL
+    allFields: false
 }
 
 export const DEFAULT_ACCOUNT: IJiraIssueAccountSettings = {
@@ -67,7 +64,6 @@ function deepCopy(obj: any): any {
 export class JiraIssueSettingTab extends PluginSettingTab {
     private _plugin: JiraIssuePlugin
     private _onChangeListener: (() => void) | null = null
-    private _searchColumnsDetails: HTMLDetailsElement = null
     private _showPassword: boolean = false
 
     constructor(app: App, plugin: JiraIssuePlugin) {
@@ -91,25 +87,14 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
     async saveSettings() {
         const settingsToStore: IJiraIssueSettings = Object.assign({}, SettingsData, {
-            // Global cache settings cleanup
             cache: DEFAULT_SETTINGS.cache,
             jqlAutocomplete: null,
             customFieldsIdToName: null,
             customFieldsNameToId: null,
             statusColorCache: null
         })
-        // Account cache settings cleanup
         settingsToStore.accounts.forEach(account => account.cache = DEFAULT_ACCOUNT.cache)
-        // Delete old properties
-        delete (settingsToStore as any)['darkMode']
-        delete (settingsToStore as any)['host']
-        delete (settingsToStore as any)['authenticationType']
-        delete (settingsToStore as any)['username']
-        delete (settingsToStore as any)['password']
-        delete (settingsToStore as any)['customFieldsNames']
-
         await this._plugin.saveData(settingsToStore)
-
         if (this._onChangeListener) {
             this._onChangeListener()
         }
@@ -120,15 +105,11 @@ export class JiraIssueSettingTab extends PluginSettingTab {
     }
 
     display(): void {
-        // Backup the search columns details status before cleaning the page
-        const isSearchColumnsDetailsOpen = this._searchColumnsDetails
-            && this._searchColumnsDetails.getAttribute('open') !== null
-
         this.containerEl.empty()
-        this.displayAccountsSettings()
         this.displayRenderingSettings()
-        this.displayNoteTemplateSettings();
-        this.displaySearchColumnsSettings(isSearchColumnsDetailsOpen)
+        this.displayNoteTemplateSettings()
+        this.displayAccountsSettings()
+        this.displaySearchColumnsSettings()
         this.displayExtraSettings()
         this.displayFooter()
     }
@@ -159,6 +140,7 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
     displayAccountsSettings() {
         const { containerEl } = this
+        new Setting(containerEl).setHeading();
         new Setting(containerEl)
             .setName('Accounts')
             .setHeading()
@@ -394,7 +376,6 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
     displayRenderingSettings() {
         const { containerEl } = this
-        new Setting(containerEl).setName('Rendering').setHeading();
         new Setting(containerEl)
             .setName('Issue url to tags')
             .setDesc(`Convert links to issues to tags. Example: ${SettingsData.accounts[0].host}/browse/AAA-123`)
@@ -416,11 +397,20 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                     inlineIssuePrefixSetting.setDesc(inlineIssuePrefixDesc(SettingsData.inlineIssuePrefix))
                     await this.saveSettings()
                 }))
+        new Setting(containerEl)
+            .setName('Cache')
+            .setDesc('How often the data refreshes. A low value will make more requests to the JIRA.')
+            .addText(text => text
+                .setPlaceholder('Example: 15m, 24h, 5s')
+                .setValue(SettingsData.cacheTime)
+                .onChange(async value => {
+                    SettingsData.cacheTime = value
+                    await this.saveSettings()
+                }))
     }
 
     displayNoteTemplateSettings() {
         const { containerEl, app } = this;
-        new Setting(containerEl).setName('Notes').setHeading();
         new Setting(containerEl)
             .setName('Note Template')
             .setDesc("Template to use when creating a new note from a Jira issue.")
@@ -480,22 +470,13 @@ export class JiraIssueSettingTab extends PluginSettingTab {
         }
     }
 
-    displaySearchColumnsSettings(isSearchColumnsDetailsOpen: boolean) {
+    displaySearchColumnsSettings() {
         const { containerEl } = this
         new Setting(containerEl)
-            .setName('Search')
+            .setName('Search constraints')
             .setHeading()
             // .setDesc('Query constraints for `jira-search`');
 
-        new Setting(containerEl)
-            .setName('Link to project')
-            .setDesc('Link the search result total to Jira with the JQL applied')
-            .addToggle(toggle => toggle
-                .setValue(SettingsData.showJiraLink)
-                .onChange(async value => {
-                    SettingsData.showJiraLink = value
-                    await this.saveSettings()
-                }));    
         new Setting(containerEl)
             .setName('Limit')
             .setDesc('Default number of results to be returned when a limit is not specified.')
@@ -505,26 +486,23 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                     SettingsData.searchResultsLimit = parseInt(value) || DEFAULT_SETTINGS.searchResultsLimit
                     await this.saveSettings()
                 }));
+
         new Setting(containerEl)
-            .setName('All columns')
-            .setDesc('Return all columns from a query from jira provided or custom fields.')
-            .setDesc('Recommended as an aid to decide what values to return for a query')
-            .addDropdown(dropdown => dropdown
-                .addOptions(SEARCH_COLUMN_GROUP_DESCRIPTION)
-                .setValue(SettingsData.searchGroup)
+            .setName('All fields')
+            .setDesc('Overrides default fields to displays all fields')
+            .addToggle(toggle => toggle
+                .setValue(SettingsData.allFields)
                 .onChange(async value => {
-                    SettingsData.searchGroup = value as SearchColumnGroup
+                    SettingsData.allFields = value
                     await this.saveSettings()
-                    // Force refresh
-                    this.display()
-                })         
-            )
+                }));            
+
         new Setting(containerEl)
-            .setName('Columns')
-            .setDesc('Default columns when columns are not specified.')
+            .setName('Default fields')
+            .setDesc('Default fields when fields are not specified in the query.')
        
         SettingsData.searchColumns.forEach((column, index) => {
-            const setting = new Setting(containerEl)//new Setting(this._searchColumnsDetails)
+            const setting = new Setting(containerEl)
                 .addDropdown(dropdown => dropdown
                     .addOptions(SEARCH_COLUMNS_DESCRIPTION)
                     .setValue(column.type)
@@ -536,16 +514,6 @@ export class JiraIssueSettingTab extends PluginSettingTab {
                     }).selectEl.addClass('flex-grow-1')
                 )
 
-            // if (column.type === ESearchColumnsTypes.CUSTOM) {
-            //     setting.addText(text => text
-            //         .setPlaceholder('Custom field name')
-            //         .setValue(column.customField)
-            //         .onChange(async value => {
-            //             settingData.searchColumns[index].customField = value
-            //             await this.saveSettings()
-            //         }).inputEl.addClass('custom-field-text')
-            //     )
-            // }
             setting.addExtraButton(button => button
                 .setIcon(SettingsData.searchColumns[index].compact ? 'compress-glyph' : 'enlarge-glyph')
                 .setTooltip(SettingsData.searchColumns[index].compact ? 'Compact' : 'Full width')
@@ -614,17 +582,6 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
     displayExtraSettings() {
         const { containerEl } = this
-        new Setting(containerEl).setName('Cache').setHeading();
-        new Setting(containerEl)
-            .setName('Cache time')
-            .setDesc('Time before the cached issue status expires. A low value will refresh the data very often but do a lot of requests to the server.')
-            .addText(text => text
-                .setPlaceholder('Example: 15m, 24h, 5s')
-                .setValue(SettingsData.cacheTime)
-                .onChange(async value => {
-                    SettingsData.cacheTime = value
-                    await this.saveSettings()
-                }))
         
         new Setting(containerEl).setName('Troubleshooting').setHeading();
         new Setting(containerEl)

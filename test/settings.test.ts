@@ -35,7 +35,7 @@ const StoredSettings = {
         // { type: ESearchColumnsTypes.CUSTOM_FIELD, compact: false, extra: 'customVal' },
     ],
     searchResultsLimit: 99,
-    showJiraLink: true,
+    allFields: false
 } as IJiraIssueSettings
 
 describe('Settings', () => {

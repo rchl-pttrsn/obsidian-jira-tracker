@@ -25,9 +25,7 @@ export interface IJiraIssueSettings {
     searchColumns: ISearchColumn[]
     logRequestsResponses: boolean
     logImagesFetch: boolean
-    showJiraLink: boolean
-    enableSearchByGroup: boolean
-    searchGroup: SearchColumnGroup
+    allFields: boolean
     noteFolder?: string
     noteTemplate?: string
 }
@@ -159,17 +157,7 @@ export const SEARCH_COLUMNS_DESCRIPTION = {
     [ESearchColumnsTypes.VERSIONS]: 'Versions (Not Supported)',
     [ESearchColumnsTypes.WORKLOG]: 'Work Log (Not Supported)',
 }
-export enum SearchColumnGroup {
-    ALL = 'ALL',
-    STANDARD = 'STANDARD',
-    CUSTOM = 'CUSTOM',
-}
 
-export const SEARCH_COLUMN_GROUP_DESCRIPTION = {
-    [SearchColumnGroup.ALL]: 'All',
-    [SearchColumnGroup.STANDARD]: 'Standard fields',
-    [SearchColumnGroup.CUSTOM]: 'Custom fields',
-}
 export interface ISearchColumn {
     type: ESearchColumnsTypes
     compact: boolean

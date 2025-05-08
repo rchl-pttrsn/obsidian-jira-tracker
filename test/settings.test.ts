@@ -1,7 +1,7 @@
 jest.mock('obsidian')
 jest.mock('../src/client/jiraClient')
 
-import { EAuthenticationTypes, EColorSchema, IJiraIssueSettings } from "../src/interfaces/settingsInterfaces"
+import { EAuthenticationTypes, IJiraIssueSettings } from "../src/interfaces/settingsInterfaces"
 import { DEFAULT_ACCOUNT, DEFAULT_SETTINGS, JiraIssueSettingTab, SettingsData } from "../src/settings"
 
 function deepCopy(obj: any): any {
@@ -25,7 +25,6 @@ const StoredSettings = {
         columns: ['column1', 'column2']
     },
     cacheTime: 'cacheTimeVal',
-    colorSchema: EColorSchema.LIGHT,
     inlineIssuePrefix: 'inlineIssuePrefixVal',
     inlineIssueUrlToTag: true,
     logImagesFetch: false,

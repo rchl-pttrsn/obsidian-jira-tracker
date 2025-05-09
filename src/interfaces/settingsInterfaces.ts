@@ -25,7 +25,6 @@ export interface IJiraIssueSettings {
     searchColumns: ISearchColumn[]
     logRequestsResponses: boolean
     logImagesFetch: boolean
-    allFields: boolean
     noteFolder?: string
     noteTemplate?: string
 }

@@ -14,7 +14,6 @@ import { AbstractInputSuggest, App, SearchResult, prepareFuzzySearch } from "obs
 abstract class ContentSuggest extends AbstractInputSuggest<string> {
     content: string[];
 
-
     constructor(private inputEl: HTMLInputElement, app: App) {
         super(app, inputEl);
         this.content = this.getContent();

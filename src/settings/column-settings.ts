@@ -1,22 +1,26 @@
-import { Setting } from 'obsidian'
+import { App, Setting } from 'obsidian'
 import {
 	ESearchColumnsTypes,
 	SEARCH_COLUMNS_DESCRIPTION,
 } from 'src/interfaces/settingsInterfaces'
 import { DEFAULT_SETTINGS, SettingsData } from 'src/settings'
+import { ColumnSuggest } from 'src/suggestions/contentSuggest'
 
 export class ColumnSettings {
 	containerEl: HTMLElement
 	saveCb: () => Promise<void>
 	displayCb: () => Promise<void>
+	app: App
 	constructor(
 		containerEl: HTMLElement,
 		saveCb: () => Promise<void>,
-		displayCb: () => Promise<void>
+		displayCb: () => Promise<void>,
+		app: App
 	) {
 		this.containerEl = containerEl
 		this.saveCb = saveCb
 		this.displayCb = displayCb
+		this.app = app
 	}
 
 	public render() {
@@ -168,7 +172,13 @@ export class ColumnSettings {
 		new Setting(this.containerEl)
 			.setName('Search')
 			.setDesc('Select the available columns in your JIRA project')
-			.addSearch((search) => search.setPlaceholder('Select columns'))
+			.addSearch((search) =>
+				search
+					.setPlaceholder('Select columns')
+					.then((search) => 
+						new ColumnSuggest(search.inputEl, this.app)
+				)
+			)
 		new Setting(this.containerEl)
 			.setName('Selected')
 			.setDesc(

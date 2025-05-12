@@ -287,7 +287,9 @@
 .setting-item-control .search-input-container{
     width: 100%;
 }
-
+/* .suggestion-container {
+    width: 25%;
+} */
 .setting-item.search-column-container {
     border-bottom: var(--border-width) solid var(--background-modifier-border);
     /* border-radius: var(--radius-s); */

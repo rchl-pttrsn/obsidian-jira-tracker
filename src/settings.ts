@@ -11,8 +11,7 @@ import {
 	EAuthenticationTypes,
 	ESearchColumnsTypes,
 	IJiraIssueAccountSettings,
-	IJiraIssueSettings,
-	SEARCH_COLUMNS_DESCRIPTION,
+	IJiraIssueSettings
 } from './interfaces/settingsInterfaces'
 import JiraIssuePlugin from './main'
 import { getRandomHexColor } from './utils'
@@ -604,7 +603,8 @@ export class JiraIssueSettingTab extends PluginSettingTab {
         new ColumnSettings(
 					this.containerEl,
 					this.saveSettings.bind(this),
-					this.display.bind(this)
+            this.display.bind(this),
+                    this.app
 				).render()
 		
 	}

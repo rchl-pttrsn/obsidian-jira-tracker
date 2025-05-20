@@ -35,6 +35,52 @@ export const DEFAULT_SETTINGS: IJiraIssueSettings = {
 	},
 	inlineIssueUrlToTag: true,
 	inlineIssuePrefix: 'JIRA:',
+	jiraFieldOptions: {
+		[ESearchColumnsTypes.AGGREGATE_PROGRESS]: false,
+		[ESearchColumnsTypes.AGGREGATE_TIME_ESTIMATED]: false,
+		[ESearchColumnsTypes.AGGREGATE_TIME_ORIGINAL_ESTIMATE]: false,
+		[ESearchColumnsTypes.AGGREGATE_TIME_SPENT]: false,
+		[ESearchColumnsTypes.ASSIGNEE]: false,
+		[ESearchColumnsTypes.COMPONENTS]: false,
+		[ESearchColumnsTypes.CREATED]: false,
+		[ESearchColumnsTypes.DESCRIPTION]: false,
+		[ESearchColumnsTypes.DUE_DATE]: false,
+		[ESearchColumnsTypes.ENVIRONMENT]: false,
+		[ESearchColumnsTypes.FIX_VERSIONS]: false,
+		[ESearchColumnsTypes.LINKED_ISSUES]: false,
+		[ESearchColumnsTypes.KEY]: false,
+		[ESearchColumnsTypes.LABELS]: false,
+		[ESearchColumnsTypes.LAST_VIEWED]: false,
+		[ESearchColumnsTypes.PARENT]: false,
+		[ESearchColumnsTypes.PRIORITY]: false,
+		[ESearchColumnsTypes.PROGRESS]: false,
+		[ESearchColumnsTypes.PROJECT]: false,
+		[ESearchColumnsTypes.REPORTER]: false,
+		[ESearchColumnsTypes.RESOLUTION]: false,
+		[ESearchColumnsTypes.RESOLUTION_DATE]: false,
+		[ESearchColumnsTypes.STATUS]: false,
+		[ESearchColumnsTypes.SUMMARY]: false,
+		[ESearchColumnsTypes.TIME_ESTIMATE]: false,
+		[ESearchColumnsTypes.TIME_ORIGINAL_ESTIMATE]: false,
+		[ESearchColumnsTypes.TIME_SPENT]: false,
+		[ESearchColumnsTypes.TYPE]: false,
+		[ESearchColumnsTypes.UPDATED]: false,
+		[ESearchColumnsTypes.CREATOR]: false,
+		[ESearchColumnsTypes.SUB_TASKS]: false,
+		[ESearchColumnsTypes.WATCHES]: false,
+		[ESearchColumnsTypes.ATTACHMENT]: false,
+		[ESearchColumnsTypes.COMMENT]: false,
+		[ESearchColumnsTypes.ISSUE_RESTRICTION]: false,
+		[ESearchColumnsTypes.SECURITY]: false,
+		[ESearchColumnsTypes.THUMBNAIL]: false,
+		[ESearchColumnsTypes.TIME_TRAKING]: false,
+		[ESearchColumnsTypes.VERSIONS]: false,
+		[ESearchColumnsTypes.VOTES]: false,
+		[ESearchColumnsTypes.WORKLOG]: false,
+		[ESearchColumnsTypes.WORK_RATIO]: false,
+		[ESearchColumnsTypes.CUSTOM_FIELD]: false,
+		[ESearchColumnsTypes.NOTES]: false
+	},
 	searchColumns: [
 		{ type: ESearchColumnsTypes.KEY, compact: false },
 		{ type: ESearchColumnsTypes.SUMMARY, compact: false },
@@ -141,55 +187,40 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
 	displayFooter() {
 		const { containerEl } = this
-		new Setting(containerEl).setName('Support development').setHeading
-		const description = containerEl.createEl('p')
-		description.appendText(
-			'If you enjoy JiraIssue, consider giving me your feedback on the '
-		)
-		description.appendChild(
-			createEl('a', {
-				text: 'github repository',
-				href: 'https://github.com/marc0l92/obsidian-jira-issue/issues',
-			})
-		)
-		description.appendText(', and maybe ')
-		description.appendChild(
-			createEl('a', {
-				text: 'buying me a coffee',
-				href: 'https://ko-fi.com/marc0l92',
-			})
-		)
-		description.appendText(' ☕.')
-		const buyMeACoffee = containerEl.createEl('a', {
-			href: 'https://ko-fi.com/marc0l92',
+		// Custom GitHub star button
+		
+		new Setting(containerEl).setName('🦖 Support development').setHeading
+
+		const starDiv = containerEl.createDiv({ cls: 'styleSettingsButton prism-star' })
+		const starLink = starDiv.createEl('a', {
+			href: 'https://marc0l92.github.io/obsidian-jira-issue/',
+			attr: { target: '_blank', rel: 'noopener nofollow' }
 		})
-		buyMeACoffee.appendChild(
-			createEl('img', {
-				attr: {
-					src: 'https://ko-fi.com/img/githubbutton_sm.svg',
-					height: '30',
-				},
-			})
-		)
+		const starEmoji = starLink.createSpan({ cls: 'styleSettingsButtonEmoji' })
+		starEmoji.textContent = '🌠'
+		starLink.append('Star the project on GitHub')
+		const issueDiv = containerEl.createDiv({ cls: 'styleSettingsButton prism-issue' })
+		const issueLink = issueDiv.createEl('a', {
+			href: 'https://github.com/marc0l92/obsidian-jira-issue/issues',
+			attr: { target: '_blank', rel: 'noopener nofollow' }
+		})
+		const issueEmoji = issueLink.createSpan({ cls: 'styleSettingsButtonEmoji' })
+		issueEmoji.textContent = '⚠️'
+		issueLink.append('Submit an issue')
+
+		const coffeeDiv = containerEl.createDiv({ cls: 'styleSettingsButton prism-coffee' })
+		const coffeeLink = coffeeDiv.createEl('a', {
+			href: 'https://ko-fi.com/marc0l92',
+			attr: { target: '_blank', rel: 'noopener nofollow' }
+		})
+		const coffeeEmoji = coffeeLink.createSpan({ cls: 'styleSettingsButtonEmoji' })
+		coffeeEmoji.textContent = '☕'
+		coffeeLink.append('Buy me a coffee')
 	}
 
 	displayAccountsSettings() {
 		const { containerEl } = this
-		new Setting(containerEl)
-			.setName('Account')
-			.setHeading()
-			.addButton((button) =>
-				button
-					.setIcon('plus')
-					.setTooltip('Add account')
-					.onClick(async () => {
-						SettingsData.accounts.push(this.createNewEmptyAccount())
-						this.accountsConflictsFix()
-						await this.saveSettings()
-						// Force refresh
-						this.display()
-					})
-			)
+		new Setting(containerEl).setName('Account').setHeading()
 
 		for (const account of SettingsData.accounts) {
 			const accountSetting = new Setting(containerEl)
@@ -481,10 +512,43 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
 	displayRenderingSettings() {
 		const { containerEl } = this
+		new Setting(containerEl).setName('Inline display').setHeading()
 		new Setting(containerEl)
-			.setName('Issue url to tags')
+			.setName('Alias prefix')
 			.setDesc(
-				`Convert links to issues to tags. Example: ${SettingsData.accounts[0].host}/browse/AAA-123`
+				(() => {
+					const frag = document.createDocumentFragment()
+					frag.append('Prefix used to display alias. Leave empty to disable.')
+					frag.appendChild(document.createElement('br'))
+					frag.append('Example: JIRA:AAA-123')
+					return frag
+				})()
+			)
+			.addText((text) =>
+				text
+					.setValue(SettingsData.inlineIssuePrefix)
+					.onChange(async (value) => {
+						SettingsData.inlineIssuePrefix = value
+						await this.saveSettings()
+					})
+			)
+
+		new Setting(containerEl)
+			.setName('Convert to aliases')
+			.setDesc(
+				(() => {
+					const frag = document.createDocumentFragment()
+					frag.append('Convert Jira work item URLs to an alias. Example:')
+					frag.appendChild(document.createElement('br'))
+					const url = document.createElement('em')
+					url.textContent = 'https://yourcompany.atlassian.net/browse/AAA-123'
+					frag.appendChild(url)
+					frag.append(' converts to ')
+					const alias = document.createElement('em')
+					alias.textContent = 'JIRA:AAA-123'
+					frag.appendChild(alias)
+					return frag
+				})()
 			)
 			.addToggle((toggle) =>
 				toggle
@@ -494,44 +558,14 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 						await this.saveSettings()
 					})
 			)
-		const inlineIssuePrefixDesc = (prefix: string) =>
-			'Prefix to use when rendering inline issues. Keep this field empty to disable this feature. ' +
-			(prefix ? `Example: ${prefix}AAA-123` : 'Feature disabled.')
-		const inlineIssuePrefixSetting = new Setting(containerEl)
-			.setName('Inline issue prefix')
-			.setDesc(inlineIssuePrefixDesc(SettingsData.inlineIssuePrefix))
-			.addText((text) =>
-				text
-					.setValue(SettingsData.inlineIssuePrefix)
-					.onChange(async (value) => {
-						SettingsData.inlineIssuePrefix = value
-						inlineIssuePrefixSetting.setDesc(
-							inlineIssuePrefixDesc(SettingsData.inlineIssuePrefix)
-						)
-						await this.saveSettings()
-					})
-			)
-		new Setting(containerEl)
-			.setName('Cache')
-			.setDesc(
-				'How often the data refreshes. A low value will make more requests to the JIRA.'
-			)
-			.addText((text) =>
-				text
-					.setPlaceholder('Example: 15m, 24h, 5s')
-					.setValue(SettingsData.cacheTime)
-					.onChange(async (value) => {
-						SettingsData.cacheTime = value
-						await this.saveSettings()
-					})
-			)
 	}
 
 	displayNoteTemplateSettings() {
 		const { containerEl, app } = this
+		new Setting(containerEl).setName('Work item notes').setHeading()
 		new Setting(containerEl)
-			.setName('Note Template')
-			.setDesc('Template to use when creating a new note from a Jira issue.')
+			.setName('Template')
+			.setDesc('Template to track work item notes. Leave blank to ignore')
 			.addText((text) => {
 				const thisText = text
 				text
@@ -552,8 +586,8 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 			})
 
 		new Setting(containerEl)
-			.setName('Note Folder')
-			.setDesc('Folder where to save the new note.')
+			.setName('Folder')
+			.setDesc('Jira notes are saved here. Default is root folder.')
 			.addText((text) =>
 				text
 					.setValue(SettingsData.noteFolder)
@@ -599,19 +633,33 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 	}
 
 	displaySearchColumnsSettings() {
-        new ColumnSettings(
-					this.containerEl,
-					this.saveSettings.bind(this),
-            this.display.bind(this),
-                    this.app
-				).render()
-		
+		new ColumnSettings(
+			this.containerEl,
+			this.saveSettings.bind(this),
+			this.display.bind(this),
+			this.app
+		).render()
 	}
 
 	displayExtraSettings() {
 		const { containerEl } = this
 
-		new Setting(containerEl).setName('Troubleshooting').setHeading()
+		new Setting(containerEl).setName('Advanced').setHeading()
+		new Setting(containerEl)
+			.setName('Cache')
+			.setDesc(
+				'How often the data refreshes. A low value will make more requests to Jira.'
+			)
+			.addText((text) =>
+				text
+					.setPlaceholder('Example: 15m, 24h, 5s')
+					.setValue(SettingsData.cacheTime)
+					.onChange(async (value) => {
+						SettingsData.cacheTime = value
+						await this.saveSettings()
+					})
+		)
+		
 		new Setting(containerEl)
 			.setName('Log data request and responses')
 			.setDesc(
@@ -635,16 +683,7 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 					SettingsData.logImagesFetch = value
 					await this.saveSettings()
 				})
-			)
-		const description = containerEl.createEl('p')
-		description.appendText('Need help? Explore the ')
-		description.appendChild(
-			createEl('a', {
-				text: 'Jira Issue documentation',
-				href: 'https://marc0l92.github.io/obsidian-jira-issue/',
-			})
 		)
-		description.appendText('.')
 	}
 
 	createNewEmptyAccount() {

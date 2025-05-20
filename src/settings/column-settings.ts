@@ -26,18 +26,18 @@ export class ColumnSettings {
 	public render() {
 		const { containerEl } = this
 		new Setting(containerEl)
-			.setName('Default Jira search settings')
+			.setName('Search query defaults')
 			.setHeading()
 
 		this.containerEl.createDiv({
-			text: 'Configure the default behavior and display options for your Jira search queries.',
+			text: 'Configure the default behavior and display options for `jira-search` queries.',
 			cls: 'setting-item-description',
 			attr: {
 				style: 'margin-bottom: 8px;',
 			},
 		})
 		new Setting(containerEl)
-			.setName('Link to note')
+			.setName('Link note')
 			.setDesc(
 				'Add a backlink to your Jira issue note in the default search results.'
 			)
@@ -85,21 +85,7 @@ export class ColumnSettings {
 			)
 			.addButton((button) =>
 				button
-					.setButtonText('Add Column')
-					.setCta()
-					.onClick(async (_value) => {
-						SettingsData.searchColumns.push({
-							type: ESearchColumnsTypes.KEY,
-							compact: false,
-						})
-						await this.saveCb()
-						// Force refresh
-						this.displayCb()
-					})
-			)
-			.addButton((button) =>
-				button
-					.setButtonText('Configure Column')
+					.setButtonText('Change Columns')
 					.setCta()
 					.onClick(async (_value) => {
 						this.renderModifySettings()
@@ -171,21 +157,18 @@ export class ColumnSettings {
 				const scIdx = SettingsData.searchColumns.findIndex(
 					(sc) => sc.type === field
 				)
-				console.log({ scIdx })
 				if (scIdx === -1) {
 					SettingsData.searchColumns.push({
 						type: field as ESearchColumnsTypes,
 						compact: false,
 					})
-					console.log(SettingsData.searchColumns)
 				} else {
 					const start = SettingsData.searchColumns.slice(0, scIdx)
 					const endSc = SettingsData.searchColumns.slice(scIdx + 1)
-					console.log({ start, endSc })
 					SettingsData.searchColumns = [...start, ...endSc]
-					await this.saveCb()
-					this.renderModifySettings()
 				}
+				await this.saveCb()
+				this.renderModifySettings()
 			})
 			label.createSpan({
 				text: desc,

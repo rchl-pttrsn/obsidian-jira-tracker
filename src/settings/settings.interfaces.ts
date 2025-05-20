@@ -1,19 +1,26 @@
 import { IJiraAutocompleteDataField, IJiraFieldSchema } from "../interfaces/issueInterfaces"
 
-export enum EAuthenticationTypes {
+export const COMPACT_SYMBOL = '-'
+export const AVATAR_RESOLUTION = '16x16'
+export const COMMENT_REGEX = /^\s*#/
+export const JIRA_KEY_REGEX = '[A-Z][A-Z0-9_]*-[0-9]+'
+
+export enum AuthenticationTypes {
     OPEN = 'OPEN',
     BASIC = 'BASIC',
     CLOUD = 'CLOUD',
     BEARER_TOKEN = 'BEARER_TOKEN',
 }
 
-export const COMPACT_SYMBOL = '-'
-export const AVATAR_RESOLUTION = '16x16'
-export const COMMENT_REGEX = /^\s*#/
-export const JIRA_KEY_REGEX = '[A-Z][A-Z0-9_]*-[0-9]+'
+export const AUTHENTICATION_TYPES = {
+	[AuthenticationTypes.OPEN]: 'Open',
+	[AuthenticationTypes.BASIC]: 'Basic Authentication',
+	[AuthenticationTypes.CLOUD]: 'Jira Cloud',
+	[AuthenticationTypes.BEARER_TOKEN]: 'Bearer Token',
+}
 
-export interface IJiraIssueSettings {
-	accounts: IJiraIssueAccountSettings[]
+export interface JiraTrackerSettings {
+	accounts: JiraAccountSettings[]
 	apiBasePath: string
 	cacheTime: string
 	searchResultsLimit: number
@@ -23,17 +30,17 @@ export interface IJiraIssueSettings {
 	inlineIssueUrlToTag: boolean
 	inlineIssuePrefix: string
 	searchColumns: ISearchColumn[]
-	jiraFieldOptions: IJiraFieldOptions
+	jiraFieldOptions: JiraFieldVisibility
 	logRequestsResponses: boolean
 	logImagesFetch: boolean
 	noteFolder?: string
 	noteTemplate?: string
 }
 
-export interface IJiraIssueAccountSettings {
+export interface JiraAccountSettings {
     alias: string
     host: string
-    authenticationType: EAuthenticationTypes
+    authenticationType: AuthenticationTypes
     username?: string
     password?: string
     bareToken?: string
@@ -53,16 +60,16 @@ export interface IJiraIssueAccountSettings {
     }
 }
 
-export enum ESearchResultsRenderingTypes {
+export enum SearchResultFormats {
     TABLE = 'TABLE',
     LIST = 'LIST',
 }
-export const SEARCH_RESULTS_RENDERING_TYPE_DESCRIPTION = {
-    [ESearchResultsRenderingTypes.TABLE]: 'Table',
-    [ESearchResultsRenderingTypes.LIST]: 'List',
+export const SEARCH_RESULTS_FORMATS: Record<SearchResultFormats, string> = {
+	[SearchResultFormats.TABLE]: 'Table',
+	[SearchResultFormats.LIST]: 'List',
 }
 
-export enum ESearchColumnsTypes {
+export enum JiraFields {
     AGGREGATE_PROGRESS = 'AGGREGATE_PROGRESS',
     AGGREGATE_TIME_ESTIMATED = 'AGGREGATE_TIME_ESTIMATED',
     AGGREGATE_TIME_ORIGINAL_ESTIMATE = 'AGGREGATE_TIME_ORIGINAL_ESTIMATE',
@@ -100,7 +107,7 @@ export enum ESearchColumnsTypes {
     ISSUE_RESTRICTION = "ISSUE_RESTRICTION",
     SECURITY = "SECURITY",
     THUMBNAIL = "THUMBNAIL",
-    TIME_TRAKING = "TIME_TRACKING",
+    TIME_TRACKING = "TIME_TRACKING",
     VERSIONS = "VERSIONS",
     VOTES = "VOTES",
     WORKLOG = "WORKLOG",
@@ -108,60 +115,60 @@ export enum ESearchColumnsTypes {
     CUSTOM_FIELD = 'CUSTOM_FIELD',
     NOTES = 'NOTES',
 }
-export const SEARCH_COLUMNS_DESCRIPTION = {
-    [ESearchColumnsTypes.KEY]: 'Key',
-    [ESearchColumnsTypes.SUMMARY]: 'Summary',
-    [ESearchColumnsTypes.DESCRIPTION]: 'Description',
-    [ESearchColumnsTypes.TYPE]: 'Type',
-    [ESearchColumnsTypes.CREATED]: 'Created',
-    [ESearchColumnsTypes.UPDATED]: 'Updated',
-    [ESearchColumnsTypes.REPORTER]: 'Reporter',
-    [ESearchColumnsTypes.ASSIGNEE]: 'Assignee',
-    [ESearchColumnsTypes.PRIORITY]: 'Priority',
-    [ESearchColumnsTypes.STATUS]: 'Status',
-    [ESearchColumnsTypes.DUE_DATE]: 'Due Date',
-    [ESearchColumnsTypes.PARENT]: 'Parent',
-    [ESearchColumnsTypes.RESOLUTION]: 'Resolution',
-    [ESearchColumnsTypes.RESOLUTION_DATE]: 'Resolution Date',
-    [ESearchColumnsTypes.PROJECT]: 'Project',
-    [ESearchColumnsTypes.ENVIRONMENT]: 'Environment',
-    [ESearchColumnsTypes.PROGRESS]: 'Progress',
-    [ESearchColumnsTypes.LABELS]: 'Labels',
-    [ESearchColumnsTypes.COMPONENTS]: 'Components',
-    [ESearchColumnsTypes.LAST_VIEWED]: 'Last Viewed',
-    [ESearchColumnsTypes.FIX_VERSIONS]: 'Fix Versions',
-    [ESearchColumnsTypes.LINKED_ISSUES]: 'Linked Issues',
-    [ESearchColumnsTypes.AGGREGATE_PROGRESS]: 'Σ Progress',
-    [ESearchColumnsTypes.AGGREGATE_TIME_ESTIMATED]: 'Σ Remaining Estimated',
-    [ESearchColumnsTypes.AGGREGATE_TIME_ORIGINAL_ESTIMATE]: 'Σ Original Estimate',
-    [ESearchColumnsTypes.AGGREGATE_TIME_SPENT]: 'Σ Time Spent',
-    [ESearchColumnsTypes.TIME_SPENT]: 'Time Spent',
-    [ESearchColumnsTypes.TIME_ESTIMATE]: 'Remaining Estimate',
-    [ESearchColumnsTypes.TIME_ORIGINAL_ESTIMATE]: 'Original Estimate',
-    // FIX ME
-    [ESearchColumnsTypes.CUSTOM_FIELD]: 'Custom field',
-    [ESearchColumnsTypes.NOTES]: 'Notes',
-    // coming soon
-    // [ESearchColumnsTypes.CREATOR]: 'Creator (Coming Soon)',
-    // [ESearchColumnsTypes.SUB_TASKS]: 'Sub Tasks (Coming Soon)',
-    // [ESearchColumnsTypes.WATCHES]: 'Watches (Coming Soon)',
-    // [ESearchColumnsTypes.TIME_TRAKING]: 'Time Tracking (Coming Soon)',
-    // [ESearchColumnsTypes.VOTES]: 'Votes (Coming Soon)',
-    // // wont support
-    // [ESearchColumnsTypes.SECURITY]: 'Comment (Not Supported)',
-    // [ESearchColumnsTypes.WORK_RATIO]: 'Work Ratio (Not Supported)',
-    // [ESearchColumnsTypes.COMMENT]: 'Comment (Not Supported)',
-    // [ESearchColumnsTypes.ATTACHMENT]: 'Attachment (Not Supported)',
-    // [ESearchColumnsTypes.THUMBNAIL]: 'Thumbnail (Not Supported)',
-    // [ESearchColumnsTypes.ISSUE_RESTRICTION]: 'Issue Restriction (Not Supported)',
-    // [ESearchColumnsTypes.VERSIONS]: 'Versions (Not Supported)',
-    // [ESearchColumnsTypes.WORKLOG]: 'Work Log (Not Supported)',
+export const JIRA_FIELDS = {
+	[JiraFields.KEY]: 'Key',
+	[JiraFields.SUMMARY]: 'Summary',
+	[JiraFields.DESCRIPTION]: 'Description',
+	[JiraFields.TYPE]: 'Type',
+	[JiraFields.CREATED]: 'Created',
+	[JiraFields.UPDATED]: 'Updated',
+	[JiraFields.REPORTER]: 'Reporter',
+	[JiraFields.ASSIGNEE]: 'Assignee',
+	[JiraFields.PRIORITY]: 'Priority',
+	[JiraFields.STATUS]: 'Status',
+	[JiraFields.DUE_DATE]: 'Due Date',
+	[JiraFields.PARENT]: 'Parent',
+	[JiraFields.RESOLUTION]: 'Resolution',
+	[JiraFields.RESOLUTION_DATE]: 'Resolution Date',
+	[JiraFields.PROJECT]: 'Project',
+	[JiraFields.ENVIRONMENT]: 'Environment',
+	[JiraFields.PROGRESS]: 'Progress',
+	[JiraFields.LABELS]: 'Labels',
+	[JiraFields.COMPONENTS]: 'Components',
+	[JiraFields.LAST_VIEWED]: 'Last Viewed',
+	[JiraFields.FIX_VERSIONS]: 'Fix Versions',
+	[JiraFields.LINKED_ISSUES]: 'Linked Issues',
+	[JiraFields.AGGREGATE_PROGRESS]: 'Σ Progress',
+	[JiraFields.AGGREGATE_TIME_ESTIMATED]: 'Σ Remaining Estimated',
+	[JiraFields.AGGREGATE_TIME_ORIGINAL_ESTIMATE]: 'Σ Original Estimate',
+	[JiraFields.AGGREGATE_TIME_SPENT]: 'Σ Time Spent',
+	[JiraFields.TIME_SPENT]: 'Time Spent',
+	[JiraFields.TIME_ESTIMATE]: 'Remaining Estimate',
+	[JiraFields.TIME_ORIGINAL_ESTIMATE]: 'Original Estimate',
+	// FIX ME
+	[JiraFields.CUSTOM_FIELD]: 'Custom field',
+	[JiraFields.NOTES]: 'Notes',
+	// coming soon
+	[JiraFields.CREATOR]: 'Creator (Coming Soon)',
+	[JiraFields.SUB_TASKS]: 'Sub Tasks (Coming Soon)',
+	[JiraFields.WATCHES]: 'Watches (Coming Soon)',
+	[JiraFields.TIME_TRACKING]: 'Time Tracking (Coming Soon)',
+	[JiraFields.VOTES]: 'Votes (Coming Soon)',
+	// // wont support
+	[JiraFields.SECURITY]: 'Comment (Not Supported)',
+	[JiraFields.WORK_RATIO]: 'Work Ratio (Not Supported)',
+	[JiraFields.COMMENT]: 'Comment (Not Supported)',
+	[JiraFields.ATTACHMENT]: 'Attachment (Not Supported)',
+	[JiraFields.THUMBNAIL]: 'Thumbnail (Not Supported)',
+	[JiraFields.ISSUE_RESTRICTION]: 'Issue Restriction (Not Supported)',
+	[JiraFields.VERSIONS]: 'Versions (Not Supported)',
+	[JiraFields.WORKLOG]: 'Work Log (Not Supported)',
 }
 
 export interface ISearchColumn {
-    type: ESearchColumnsTypes
+    type: JiraFields
     compact: boolean
     extra?: string
 }
 
-export type IJiraFieldOptions = Record<ESearchColumnsTypes, boolean>
+export type JiraFieldVisibility = Record<JiraFields, boolean>

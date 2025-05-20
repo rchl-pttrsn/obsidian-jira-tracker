@@ -1,7 +1,7 @@
 import { App, Setting } from 'obsidian'
 import {
-	ESearchColumnsTypes,
-	SEARCH_COLUMNS_DESCRIPTION,
+	JiraFields,
+	JIRA_FIELDS,
 } from 'src/settings/settings.interfaces'
 import { DEFAULT_SETTINGS, SettingsData } from 'src/settings'
 import { ColumnSuggest } from 'src/suggestions/contentSuggest'
@@ -125,7 +125,7 @@ export class ColumnSettings {
 		})
 		// Flexbox for up to 3 items per row, aligned
 		let allFields: Record<string, boolean>
-		const fields = Object.keys(ESearchColumnsTypes)
+		const fields = Object.keys(JiraFields)
 			.filter((field) => isNaN(Number(field)))
 			.reduce((prev, curr) => {
 				prev[curr] = false
@@ -138,7 +138,7 @@ export class ColumnSettings {
 		allFields = Object.assign(fields, selectedFields)
 
 		const itemsPerRow = 3
-		Object.entries(SEARCH_COLUMNS_DESCRIPTION).forEach(([field, desc]) => {
+		Object.entries(JIRA_FIELDS).forEach(([field, desc]) => {
 			const label = fieldOptionsContainerEl.createEl('label', {
 				cls: 'field-option-label',
 			})
@@ -154,7 +154,7 @@ export class ColumnSettings {
 				)
 				if (scIdx === -1) {
 					SettingsData.searchColumns.push({
-						type: field as ESearchColumnsTypes,
+						type: field as JiraFields,
 						compact: false,
 					})
 				} else {
@@ -204,8 +204,8 @@ export class ColumnSettings {
 				`
 				setting.settingEl.prepend(dragHandle)
 				setting.infoEl.createDiv({
-					text: SEARCH_COLUMNS_DESCRIPTION[
-						column.type as keyof typeof SEARCH_COLUMNS_DESCRIPTION
+					text: JIRA_FIELDS[
+						column.type as keyof typeof JIRA_FIELDS
 					],
 				})
 

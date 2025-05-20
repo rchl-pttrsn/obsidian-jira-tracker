@@ -4,7 +4,7 @@ import RC, { JIRA_STATUS_COLOR_MAP, JIRA_STATUS_COLOR_MAP_BY_NAME } from "./rend
 import * as jsonpath from 'jsonpath'
 import ObjectsCache from "../objectsCache"
 import JiraClient from "../client/jiraClient"
-import { AVATAR_RESOLUTION, ESearchColumnsTypes, IJiraIssueAccountSettings, ISearchColumn } from "../settings/settings.interfaces"
+import { AVATAR_RESOLUTION, JiraFields, JiraAccountSettings, ISearchColumn } from "../settings/settings.interfaces"
 import { SettingsData } from "src/settings"
 
 
@@ -12,35 +12,35 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
     let markdownNotes: TFile[] = null
     for (const column of columns) {
         switch (column.type) {
-            case ESearchColumnsTypes.KEY:
+            case JiraFields.KEY:
                 renderLinkField(column,row, issue.account, issue.key)
                 break
-            case ESearchColumnsTypes.PARENT:
+            case JiraFields.PARENT:
                 renderLinkField(column,row, issue.account, issue.fields.parent?.key)
                 break    
-            case ESearchColumnsTypes.SUMMARY:
+            case JiraFields.SUMMARY:
                 renderLongTextField(column, row, issue.fields.summary)
                 break
-            case ESearchColumnsTypes.DESCRIPTION:
+            case JiraFields.DESCRIPTION:
                 renderLongTextField(column, row, issue.fields.description)
                 break
-            case ESearchColumnsTypes.TYPE:
+            case JiraFields.TYPE:
                 const typeCell = createEl('td', { parent: row })
                 renderIconField(column, typeCell, issue.fields.issuetype)
                 break
-            case ESearchColumnsTypes.CREATED:
+            case JiraFields.CREATED:
                 renderDateField(column, row, issue.fields.created)
                 break
-            case ESearchColumnsTypes.UPDATED:
+            case JiraFields.UPDATED:
                 renderDateField(column, row, issue.fields.updated)
                 break
-            case ESearchColumnsTypes.REPORTER:
+            case JiraFields.REPORTER:
                 renderUserField(column, row, issue.fields.reporter)
                 break
-            case ESearchColumnsTypes.ASSIGNEE:
+            case JiraFields.ASSIGNEE:
                 renderUserField(column, row, issue.fields.assignee)
                 break
-            case ESearchColumnsTypes.PRIORITY:
+            case JiraFields.PRIORITY:
                 const parentCell = createEl('td', { parent: row })
                 if (issue.fields.priority && issue.fields.priority.name) {
                     renderIconField(column, parentCell, issue.fields.priority)
@@ -48,7 +48,7 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                     parentCell.setText('-')
                 }
                 break
-            case ESearchColumnsTypes.STATUS:
+            case JiraFields.STATUS:
                 const { status } = issue.fields
                 const statusColor = JIRA_STATUS_COLOR_MAP_BY_NAME[status.name] || 
                 JIRA_STATUS_COLOR_MAP[issue.fields.status.statusCategory.colorName]
@@ -60,10 +60,10 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                     parent: createEl('td', { parent: row })
                 })
                 break
-            case ESearchColumnsTypes.DUE_DATE:
+            case JiraFields.DUE_DATE:
                 renderDateField(column, row, issue.fields.duedate)
                 break
-            case ESearchColumnsTypes.RESOLUTION:
+            case JiraFields.RESOLUTION:
                 if (issue.fields.resolution.description) {
                     createEl('abbr',
                         { text: issue.fields.resolution.name, title: issue.fields.resolution.description, parent: createEl('td', { parent: row }) }
@@ -72,23 +72,23 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                     createEl('td', { text: issue.fields.resolution.name, title: issue.fields.resolution.description, parent: row })
                 }
                 break
-            case ESearchColumnsTypes.RESOLUTION_DATE:
+            case JiraFields.RESOLUTION_DATE:
                 renderDateField(column, row, issue.fields.resolutiondate)
                 break
-            case ESearchColumnsTypes.ENVIRONMENT:
+            case JiraFields.ENVIRONMENT:
                 renderLongTextField(column, row, issue.fields.environment)
                 break
-            case ESearchColumnsTypes.LABELS:
+            case JiraFields.LABELS:
                 if (column.compact) {
                     createEl('td', { text: '🏷️', title: issue.fields.labels.join('\n'), parent: row })
                 } else {
                     createEl('td', { text: issue.fields.labels.join(', '), parent: row })
                 }
                 break
-            case ESearchColumnsTypes.PROJECT:
+            case JiraFields.PROJECT:
                 createEl('td', { text: issue.fields.project.key, title: issue.fields.project.name, parent: row })
                 break
-            case ESearchColumnsTypes.FIX_VERSIONS:
+            case JiraFields.FIX_VERSIONS:
                 const fixVersionsCell = createEl('td', { parent: row })
                 for (let i = 0; i < issue.fields.fixVersions.length; i++) {
                     const fixVersion = issue.fields.fixVersions[i]
@@ -102,40 +102,40 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                     }
                 }
                 break
-            case ESearchColumnsTypes.COMPONENTS:
+            case JiraFields.COMPONENTS:
                 createEl('td', { text: issue.fields.components.flatMap(c => c.name).join(', '), parent: row })
                 break
-            case ESearchColumnsTypes.AGGREGATE_TIME_ESTIMATED:
+            case JiraFields.AGGREGATE_TIME_ESTIMATED:
                 renderEstimatorField(column, row, issue.fields.aggregatetimeestimate)
                 break
-            case ESearchColumnsTypes.AGGREGATE_TIME_ORIGINAL_ESTIMATE:
+            case JiraFields.AGGREGATE_TIME_ORIGINAL_ESTIMATE:
                 renderEstimatorField(column, row, issue.fields.aggregatetimeoriginalestimate)
                 break
-            case ESearchColumnsTypes.AGGREGATE_TIME_SPENT:
+            case JiraFields.AGGREGATE_TIME_SPENT:
                 renderEstimatorField(column, row, issue.fields.aggregatetimespent)
                 break
-            case ESearchColumnsTypes.TIME_ESTIMATE:
+            case JiraFields.TIME_ESTIMATE:
                 renderEstimatorField(column, row, issue.fields.timeestimate)
                 break
-            case ESearchColumnsTypes.TIME_ORIGINAL_ESTIMATE:
+            case JiraFields.TIME_ORIGINAL_ESTIMATE:
                 renderEstimatorField(column, row, issue.fields.timeoriginalestimate)
                 break
-            case ESearchColumnsTypes.TIME_SPENT:
+            case JiraFields.TIME_SPENT:
                 renderEstimatorField(column, row, issue.fields.timespent)
                 break
-            case ESearchColumnsTypes.AGGREGATE_PROGRESS:
+            case JiraFields.AGGREGATE_PROGRESS:
                 renderProgressField(column, row, issue.fields.aggregateprogress)
                 break
-            case ESearchColumnsTypes.PROGRESS:
+            case JiraFields.PROGRESS:
                 renderProgressField(column, row, issue.fields.progress)
                 break
-            case ESearchColumnsTypes.LINKED_ISSUES:
+            case JiraFields.LINKED_ISSUES:
                 renderLinkedIssuesField(column, row, issue)
                 break
-            case ESearchColumnsTypes.CUSTOM_FIELD:
+            case JiraFields.CUSTOM_FIELD:
                 createEl('td', { text: renderCustomField(issue, column.extra), parent: row })
                 break
-            case ESearchColumnsTypes.NOTES:
+            case JiraFields.NOTES:
                 if (!markdownNotes) {
                     markdownNotes = RC.getNotes()
                 }
@@ -168,7 +168,7 @@ export const renderTableColumn = async (columns: ISearchColumn[], issue: IJiraIs
                     }
                 }
                 break
-            case ESearchColumnsTypes.LAST_VIEWED:
+            case JiraFields.LAST_VIEWED:
                 renderDateField(column, row, issue.fields.lastViewed)
                 break
         }
@@ -209,7 +209,7 @@ function renderCustomField(issue: IJiraIssue, customField: string): string {
     return JSON.stringify(value)
 }
 
-function renderLinkField(column: ISearchColumn, row: HTMLTableRowElement, account: IJiraIssueAccountSettings,issueKey: string) {
+function renderLinkField(column: ISearchColumn, row: HTMLTableRowElement, account: JiraAccountSettings,issueKey: string) {
     if (issueKey) {
         createEl('a', {
             cls: 'no-wrap',

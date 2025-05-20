@@ -1,8 +1,8 @@
-import { IJiraIssueAccountSettings } from "./settings/settings.interfaces"
+import { JiraAccountSettings } from "./settings/settings.interfaces"
 import { SettingsData } from "./settings"
 const colorsys = require('colorsys')
 
-export function getAccountByAlias(alias: string): IJiraIssueAccountSettings {
+export function getAccountByAlias(alias: string): JiraAccountSettings {
     if (alias) {
         const account = SettingsData.accounts.find(account => account.alias.toUpperCase() === alias.toUpperCase())
         if (!account) {
@@ -14,7 +14,7 @@ export function getAccountByAlias(alias: string): IJiraIssueAccountSettings {
     }
 }
 
-export function getAccountByHost(host: string): IJiraIssueAccountSettings {
+export function getAccountByHost(host: string): JiraAccountSettings {
     if (host) {
         return SettingsData.accounts.find(account => account.host === host) || null
     } else {

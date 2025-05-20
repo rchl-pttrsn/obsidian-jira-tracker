@@ -1,5 +1,5 @@
 import { App, Editor, EditorPosition, EditorSuggest, EditorSuggestContext, EditorSuggestTriggerInfo, TFile } from "obsidian"
-import { COMPACT_SYMBOL, ESearchColumnsTypes } from "../settings/settings.interfaces"
+import { COMPACT_SYMBOL, JiraFields } from "../settings/settings.interfaces"
 import { SettingsData } from "../settings"
 
 interface SuggestionEntry {
@@ -60,9 +60,9 @@ export class ColumnsSuggest extends EditorSuggest<SuggestionEntry> {
 
         // Standard fields
         if (!query.startsWith('$')) {
-            for (const column of Object.values(ESearchColumnsTypes)) {
+            for (const column of Object.values(JiraFields)) {
                 if (suggestions.length >= this.limit) break
-                if (column.startsWith(query) && column !== ESearchColumnsTypes.CUSTOM_FIELD) {
+                if (column.startsWith(query) && column !== JiraFields.CUSTOM_FIELD) {
                     suggestions.push({
                         name: column,
                         isCompact: isCompact,

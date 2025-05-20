@@ -1,6 +1,6 @@
 import { FrontMatterCache, TFile, TFolder } from "obsidian"
 import { IJiraIssue } from "../interfaces/issueInterfaces"
-import { IJiraIssueAccountSettings } from "../settings/settings.interfaces"
+import { JiraAccountSettings } from "../settings/settings.interfaces"
 import { ObsidianApp } from "../main"
 import { SearchView } from "../searchView"
 
@@ -26,13 +26,13 @@ export const JIRA_STATUS_COLOR_MAP_BY_NAME: Record<string, string> = {
 }
 
 export default {
-    issueUrl(account: IJiraIssueAccountSettings, issueKey: string): string {
+    issueUrl(account: JiraAccountSettings, issueKey: string): string {
         try {
             return (new URL(`${account.host}/browse/${issueKey}`)).toString()
         } catch (e) { return '' }
     },
 
-    searchUrl(account: IJiraIssueAccountSettings, searchQuery: string): string {
+    searchUrl(account: JiraAccountSettings, searchQuery: string): string {
         try {
             return (new URL(`${account.host}/issues/?jql=${searchQuery}`)).toString()
         } catch (e) { return '' }

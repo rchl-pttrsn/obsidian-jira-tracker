@@ -1,5 +1,5 @@
 import { Platform, requestUrl, RequestUrlParam, RequestUrlResponse } from 'obsidian'
-import { AVATAR_RESOLUTION, EAuthenticationTypes, IJiraIssueAccountSettings } from '../settings/settings.interfaces'
+import { AVATAR_RESOLUTION, AuthenticationTypes, JiraAccountSettings } from '../settings/settings.interfaces'
 import { ESprintState, IJiraAutocompleteField, IJiraBoard, IJiraField, IJiraIssue, IJiraSearchResults, IJiraSprint, IJiraUser } from '../interfaces/issueInterfaces'
 import { SettingsData } from "../settings"
 
@@ -7,7 +7,7 @@ interface RequestOptions {
     method: string
     path: string
     queryParameters?: URLSearchParams
-    account?: IJiraIssueAccountSettings
+    account?: JiraAccountSettings
     noBasePath?: boolean
 }
 
@@ -62,11 +62,11 @@ function buildUrl(host: string, requestOptions: RequestOptions): string {
     return url.toString()
 }
 
-function buildHeaders(account: IJiraIssueAccountSettings): Record<string, string> {
+function buildHeaders(account: JiraAccountSettings): Record<string, string> {
     const requestHeaders: Record<string, string> = {}
-    if (account.authenticationType === EAuthenticationTypes.BASIC || account.authenticationType === EAuthenticationTypes.CLOUD) {
+    if (account.authenticationType === AuthenticationTypes.BASIC || account.authenticationType === AuthenticationTypes.CLOUD) {
         requestHeaders['Authorization'] = 'Basic ' + base64Encode(`${account.username}:${account.password}`)
-    } else if (account.authenticationType === EAuthenticationTypes.BEARER_TOKEN) {
+    } else if (account.authenticationType === AuthenticationTypes.BEARER_TOKEN) {
         requestHeaders['Authorization'] = `Bearer ${account.bareToken}`
     }
     return requestHeaders
@@ -109,7 +109,7 @@ async function sendRequest(requestOptions: RequestOptions): Promise<any> {
     }
 }
 
-async function sendRequestWithAccount(account: IJiraIssueAccountSettings, requestOptions: RequestOptions): Promise<RequestUrlResponse> {
+async function sendRequestWithAccount(account: JiraAccountSettings, requestOptions: RequestOptions): Promise<RequestUrlResponse> {
     let response
     const requestUrlParam: RequestUrlParam = {
         method: requestOptions.method,
@@ -127,7 +127,7 @@ async function sendRequestWithAccount(account: IJiraIssueAccountSettings, reques
     return response
 }
 
-async function preFetchImage(account: IJiraIssueAccountSettings, url: string): Promise<string> {
+async function preFetchImage(account: JiraAccountSettings, url: string): Promise<string> {
     // Pre fetch only images hosted on the Jira server
     if (!url.startsWith(account.host)) {
         return url
@@ -175,7 +175,7 @@ async function fetchIssueImages(issue: IJiraIssue) {
 
 export default {
 
-    async getIssue(issueKey: string, options: { fields?: string[], account?: IJiraIssueAccountSettings } = {}): Promise<IJiraIssue> {
+    async getIssue(issueKey: string, options: { fields?: string[], account?: JiraAccountSettings } = {}): Promise<IJiraIssue> {
         const opt = {
             fields: options.fields || [],
             account: options.account || null,
@@ -195,7 +195,7 @@ export default {
         return issue
     },
 
-    async getSearchResults(query: string, options: { limit?: number, offset?: number, fields?: string[], account?: IJiraIssueAccountSettings } = {}): Promise<IJiraSearchResults> {
+    async getSearchResults(query: string, options: { limit?: number, offset?: number, fields?: string[], account?: JiraAccountSettings } = {}): Promise<IJiraSearchResults> {
         const opt = {
             fields: options.fields || ['*navigable'],
             offset: options.offset || 0,
@@ -224,7 +224,7 @@ export default {
         return searchResults
     },
 
-    async updateStatusColorCache(status: string, account: IJiraIssueAccountSettings): Promise<void> {
+    async updateStatusColorCache(status: string, account: JiraAccountSettings): Promise<void> {
         if (status in account.cache.statusColor) {
             return
         }
@@ -266,7 +266,7 @@ export default {
         }
     },
 
-    async testConnection(account: IJiraIssueAccountSettings): Promise<boolean> {
+    async testConnection(account: JiraAccountSettings): Promise<boolean> {
         await sendRequest(
             {
                 method: 'GET',
@@ -277,7 +277,7 @@ export default {
         return true
     },
 
-    async getLoggedUser(account: IJiraIssueAccountSettings = null): Promise<IJiraUser> {
+    async getLoggedUser(account: JiraAccountSettings = null): Promise<IJiraUser> {
         return await sendRequest(
             {
                 method: 'GET',
@@ -287,7 +287,7 @@ export default {
         ) as IJiraUser
     },
 
-    async getBoards(projectKeyOrId: string, options: { limit?: number, offset?: number, account?: IJiraIssueAccountSettings } = {}): Promise<IJiraBoard[]> {
+    async getBoards(projectKeyOrId: string, options: { limit?: number, offset?: number, account?: JiraAccountSettings } = {}): Promise<IJiraBoard[]> {
         const opt = {
             offset: options.offset || 0,
             limit: options.limit || 50,
@@ -313,7 +313,7 @@ export default {
         return []
     },
 
-    async getSprints(boardId: number, options: { limit?: number, offset?: number, state?: ESprintState[], account?: IJiraIssueAccountSettings } = {}): Promise<IJiraSprint[]> {
+    async getSprints(boardId: number, options: { limit?: number, offset?: number, state?: ESprintState[], account?: JiraAccountSettings } = {}): Promise<IJiraSprint[]> {
         const opt = {
             state: options.state || [],
             offset: options.offset || 0,
@@ -340,7 +340,7 @@ export default {
         return []
     },
 
-    async getSprint(sprintId: number, options: { account?: IJiraIssueAccountSettings } = {}): Promise<IJiraSprint> {
+    async getSprint(sprintId: number, options: { account?: JiraAccountSettings } = {}): Promise<IJiraSprint> {
         const opt = {
             account: options.account || null
         }

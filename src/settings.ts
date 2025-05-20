@@ -8,24 +8,18 @@ import {
 } from 'obsidian'
 import JiraClient from './client/jiraClient'
 import {
-	EAuthenticationTypes,
-	ESearchColumnsTypes,
-	IJiraIssueAccountSettings,
-	IJiraIssueSettings
+	AuthenticationTypes,
+	JiraFields,
+	JiraAccountSettings,
+	JiraTrackerSettings,
+	AUTHENTICATION_TYPES
 } from './settings/settings.interfaces'
 import JiraIssuePlugin from './main'
 import { getRandomHexColor } from './utils'
 import { FileSuggest, FolderSuggest } from './suggestions/contentSuggest'
 import { ColumnSettings } from './settings/column-settings'
 
-const AUTHENTICATION_TYPE_DESCRIPTION = {
-	[EAuthenticationTypes.OPEN]: 'Open',
-	[EAuthenticationTypes.BASIC]: 'Basic Authentication',
-	[EAuthenticationTypes.CLOUD]: 'Jira Cloud',
-	[EAuthenticationTypes.BEARER_TOKEN]: 'Bearer Token',
-}
-
-export const DEFAULT_SETTINGS: IJiraIssueSettings = {
+export const DEFAULT_SETTINGS: JiraTrackerSettings = {
 	accounts: [],
 	apiBasePath: '/rest/api/latest',
 	cacheTime: '15m',
@@ -36,70 +30,70 @@ export const DEFAULT_SETTINGS: IJiraIssueSettings = {
 	inlineIssueUrlToTag: true,
 	inlineIssuePrefix: 'JIRA:',
 	jiraFieldOptions: {
-		[ESearchColumnsTypes.AGGREGATE_PROGRESS]: false,
-		[ESearchColumnsTypes.AGGREGATE_TIME_ESTIMATED]: false,
-		[ESearchColumnsTypes.AGGREGATE_TIME_ORIGINAL_ESTIMATE]: false,
-		[ESearchColumnsTypes.AGGREGATE_TIME_SPENT]: false,
-		[ESearchColumnsTypes.ASSIGNEE]: false,
-		[ESearchColumnsTypes.COMPONENTS]: false,
-		[ESearchColumnsTypes.CREATED]: false,
-		[ESearchColumnsTypes.DESCRIPTION]: false,
-		[ESearchColumnsTypes.DUE_DATE]: false,
-		[ESearchColumnsTypes.ENVIRONMENT]: false,
-		[ESearchColumnsTypes.FIX_VERSIONS]: false,
-		[ESearchColumnsTypes.LINKED_ISSUES]: false,
-		[ESearchColumnsTypes.KEY]: false,
-		[ESearchColumnsTypes.LABELS]: false,
-		[ESearchColumnsTypes.LAST_VIEWED]: false,
-		[ESearchColumnsTypes.PARENT]: false,
-		[ESearchColumnsTypes.PRIORITY]: false,
-		[ESearchColumnsTypes.PROGRESS]: false,
-		[ESearchColumnsTypes.PROJECT]: false,
-		[ESearchColumnsTypes.REPORTER]: false,
-		[ESearchColumnsTypes.RESOLUTION]: false,
-		[ESearchColumnsTypes.RESOLUTION_DATE]: false,
-		[ESearchColumnsTypes.STATUS]: false,
-		[ESearchColumnsTypes.SUMMARY]: false,
-		[ESearchColumnsTypes.TIME_ESTIMATE]: false,
-		[ESearchColumnsTypes.TIME_ORIGINAL_ESTIMATE]: false,
-		[ESearchColumnsTypes.TIME_SPENT]: false,
-		[ESearchColumnsTypes.TYPE]: false,
-		[ESearchColumnsTypes.UPDATED]: false,
-		[ESearchColumnsTypes.CREATOR]: false,
-		[ESearchColumnsTypes.SUB_TASKS]: false,
-		[ESearchColumnsTypes.WATCHES]: false,
-		[ESearchColumnsTypes.ATTACHMENT]: false,
-		[ESearchColumnsTypes.COMMENT]: false,
-		[ESearchColumnsTypes.ISSUE_RESTRICTION]: false,
-		[ESearchColumnsTypes.SECURITY]: false,
-		[ESearchColumnsTypes.THUMBNAIL]: false,
-		[ESearchColumnsTypes.TIME_TRAKING]: false,
-		[ESearchColumnsTypes.VERSIONS]: false,
-		[ESearchColumnsTypes.VOTES]: false,
-		[ESearchColumnsTypes.WORKLOG]: false,
-		[ESearchColumnsTypes.WORK_RATIO]: false,
-		[ESearchColumnsTypes.CUSTOM_FIELD]: false,
-		[ESearchColumnsTypes.NOTES]: false
+		[JiraFields.AGGREGATE_PROGRESS]: false,
+		[JiraFields.AGGREGATE_TIME_ESTIMATED]: false,
+		[JiraFields.AGGREGATE_TIME_ORIGINAL_ESTIMATE]: false,
+		[JiraFields.AGGREGATE_TIME_SPENT]: false,
+		[JiraFields.ASSIGNEE]: false,
+		[JiraFields.COMPONENTS]: false,
+		[JiraFields.CREATED]: false,
+		[JiraFields.DESCRIPTION]: false,
+		[JiraFields.DUE_DATE]: false,
+		[JiraFields.ENVIRONMENT]: false,
+		[JiraFields.FIX_VERSIONS]: false,
+		[JiraFields.LINKED_ISSUES]: false,
+		[JiraFields.KEY]: false,
+		[JiraFields.LABELS]: false,
+		[JiraFields.LAST_VIEWED]: false,
+		[JiraFields.PARENT]: false,
+		[JiraFields.PRIORITY]: false,
+		[JiraFields.PROGRESS]: false,
+		[JiraFields.PROJECT]: false,
+		[JiraFields.REPORTER]: false,
+		[JiraFields.RESOLUTION]: false,
+		[JiraFields.RESOLUTION_DATE]: false,
+		[JiraFields.STATUS]: false,
+		[JiraFields.SUMMARY]: false,
+		[JiraFields.TIME_ESTIMATE]: false,
+		[JiraFields.TIME_ORIGINAL_ESTIMATE]: false,
+		[JiraFields.TIME_SPENT]: false,
+		[JiraFields.TYPE]: false,
+		[JiraFields.UPDATED]: false,
+		[JiraFields.CREATOR]: false,
+		[JiraFields.SUB_TASKS]: false,
+		[JiraFields.WATCHES]: false,
+		[JiraFields.ATTACHMENT]: false,
+		[JiraFields.COMMENT]: false,
+		[JiraFields.ISSUE_RESTRICTION]: false,
+		[JiraFields.SECURITY]: false,
+		[JiraFields.THUMBNAIL]: false,
+		[JiraFields.TIME_TRACKING]: false,
+		[JiraFields.VERSIONS]: false,
+		[JiraFields.VOTES]: false,
+		[JiraFields.WORKLOG]: false,
+		[JiraFields.WORK_RATIO]: false,
+		[JiraFields.CUSTOM_FIELD]: false,
+		[JiraFields.NOTES]: false
 	},
 	searchColumns: [
-		{ type: ESearchColumnsTypes.KEY, compact: false },
-		{ type: ESearchColumnsTypes.SUMMARY, compact: false },
-		{ type: ESearchColumnsTypes.TYPE, compact: true },
-		{ type: ESearchColumnsTypes.CREATED, compact: false },
-		{ type: ESearchColumnsTypes.UPDATED, compact: false },
-		{ type: ESearchColumnsTypes.REPORTER, compact: false },
-		{ type: ESearchColumnsTypes.ASSIGNEE, compact: false },
-		{ type: ESearchColumnsTypes.PRIORITY, compact: true },
-		{ type: ESearchColumnsTypes.STATUS, compact: false },
+		{ type: JiraFields.KEY, compact: false },
+		{ type: JiraFields.SUMMARY, compact: false },
+		{ type: JiraFields.TYPE, compact: true },
+		{ type: JiraFields.CREATED, compact: false },
+		{ type: JiraFields.UPDATED, compact: false },
+		{ type: JiraFields.REPORTER, compact: false },
+		{ type: JiraFields.ASSIGNEE, compact: false },
+		{ type: JiraFields.PRIORITY, compact: true },
+		{ type: JiraFields.STATUS, compact: false },
 	],
 	logRequestsResponses: false,
 	logImagesFetch: false,
 }
 
-export const DEFAULT_ACCOUNT: IJiraIssueAccountSettings = {
+export const DEFAULT_ACCOUNT: JiraAccountSettings = {
 	alias: 'Default',
 	host: 'https://mycompany.atlassian.net',
-	authenticationType: EAuthenticationTypes.OPEN,
+	authenticationType: AuthenticationTypes.OPEN,
 	password: '',
 	priority: 1,
 	color: '#000000',
@@ -151,7 +145,7 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 	}
 
 	async saveSettings() {
-		const settingsToStore: IJiraIssueSettings = Object.assign(
+		const settingsToStore: JiraTrackerSettings = Object.assign(
 			{},
 			SettingsData,
 			{
@@ -255,8 +249,8 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 	}
 
 	displayModifyAccountPage(
-		prevAccount: IJiraIssueAccountSettings,
-		newAccount: IJiraIssueAccountSettings = null
+		prevAccount: JiraAccountSettings,
+		newAccount: JiraAccountSettings = null
 	) {
 		if (!newAccount) newAccount = Object.assign({}, prevAccount)
 		const { containerEl } = this
@@ -290,16 +284,16 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 			.setDesc('Select how the plugin should authenticate in your Jira server.')
 			.addDropdown((dropdown) =>
 				dropdown
-					.addOptions(AUTHENTICATION_TYPE_DESCRIPTION)
+					.addOptions(AUTHENTICATION_TYPES)
 					.setValue(newAccount.authenticationType)
 					.onChange(async (value) => {
-						newAccount.authenticationType = value as EAuthenticationTypes
+						newAccount.authenticationType = value as AuthenticationTypes
 						this._showPassword = false
 						// Force refresh
 						this.displayModifyAccountPage(prevAccount, newAccount)
 					})
 			)
-		if (newAccount.authenticationType === EAuthenticationTypes.BASIC) {
+		if (newAccount.authenticationType === AuthenticationTypes.BASIC) {
 			new Setting(containerEl)
 				.setName('Username')
 				.setDesc(
@@ -339,7 +333,7 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 							this.displayModifyAccountPage(prevAccount, newAccount)
 						})
 				)
-		} else if (newAccount.authenticationType === EAuthenticationTypes.CLOUD) {
+		} else if (newAccount.authenticationType === AuthenticationTypes.CLOUD) {
 			new Setting(containerEl)
 				.setName('Email')
 				.setDesc('Email of your Jira Cloud account.')
@@ -383,7 +377,7 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 			)
 			apiTokenDescription.appendText(').')
 		} else if (
-			newAccount.authenticationType === EAuthenticationTypes.BEARER_TOKEN
+			newAccount.authenticationType === AuthenticationTypes.BEARER_TOKEN
 		) {
 			new Setting(containerEl)
 				.setName('Bearer token')
@@ -714,4 +708,4 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 		return options
 	}
 }
-export const SettingsData: IJiraIssueSettings = deepCopy(DEFAULT_SETTINGS)
+export const SettingsData: JiraTrackerSettings = deepCopy(DEFAULT_SETTINGS)

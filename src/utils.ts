@@ -1,4 +1,4 @@
-import { IJiraIssueAccountSettings } from "./interfaces/settingsInterfaces"
+import { IJiraIssueAccountSettings } from "./settings/settings.interfaces"
 import { SettingsData } from "./settings"
 const colorsys = require('colorsys')
 

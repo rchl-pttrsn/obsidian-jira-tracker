@@ -33,8 +33,7 @@ const StoredSettings = {
         // { type: ESearchColumnsTypes.KEY, compact: true },
         // { type: ESearchColumnsTypes.CUSTOM_FIELD, compact: false, extra: 'customVal' },
     ],
-    searchResultsLimit: 99,
-    allFields: false
+    searchResultsLimit: 99
 } as IJiraIssueSettings
 
 describe('Settings', () => {

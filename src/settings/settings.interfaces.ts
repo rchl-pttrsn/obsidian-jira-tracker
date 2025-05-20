@@ -1,4 +1,4 @@
-import { IJiraAutocompleteDataField, IJiraFieldSchema } from "./issueInterfaces"
+import { IJiraAutocompleteDataField, IJiraFieldSchema } from "../interfaces/issueInterfaces"
 
 export enum EAuthenticationTypes {
     OPEN = 'OPEN',
@@ -13,21 +13,21 @@ export const COMMENT_REGEX = /^\s*#/
 export const JIRA_KEY_REGEX = '[A-Z][A-Z0-9_]*-[0-9]+'
 
 export interface IJiraIssueSettings {
-    accounts: IJiraIssueAccountSettings[]
-    apiBasePath: string
-    cacheTime: string
-    searchResultsLimit: number
-    cache: {
-        columns: string[]
-    }
-    inlineIssueUrlToTag: boolean
-    inlineIssuePrefix: string
-    searchColumns: ISearchColumn[]
-    logRequestsResponses: boolean
-    logImagesFetch: boolean
-    allFields: boolean
-    noteFolder?: string
-    noteTemplate?: string
+	accounts: IJiraIssueAccountSettings[]
+	apiBasePath: string
+	cacheTime: string
+	searchResultsLimit: number
+	cache: {
+		columns: string[]
+	}
+	inlineIssueUrlToTag: boolean
+	inlineIssuePrefix: string
+	searchColumns: ISearchColumn[]
+	jiraFieldOptions: IJiraFieldOptions
+	logRequestsResponses: boolean
+	logImagesFetch: boolean
+	noteFolder?: string
+	noteTemplate?: string
 }
 
 export interface IJiraIssueAccountSettings {
@@ -142,20 +142,20 @@ export const SEARCH_COLUMNS_DESCRIPTION = {
     [ESearchColumnsTypes.CUSTOM_FIELD]: 'Custom field',
     [ESearchColumnsTypes.NOTES]: 'Notes',
     // coming soon
-    [ESearchColumnsTypes.CREATOR]: 'Creator (Coming Soon)',
-    [ESearchColumnsTypes.SUB_TASKS]: 'Sub Tasks (Coming Soon)',
-    [ESearchColumnsTypes.WATCHES]: 'Watches (Coming Soon)',
-    [ESearchColumnsTypes.TIME_TRAKING]: 'Time Tracking (Coming Soon)',
-    [ESearchColumnsTypes.VOTES]: 'Votes (Coming Soon)',
-    // wont support
-    [ESearchColumnsTypes.SECURITY]: 'Comment (Not Supported)',
-    [ESearchColumnsTypes.WORK_RATIO]: 'Work Ratio (Not Supported)',
-    [ESearchColumnsTypes.COMMENT]: 'Comment (Not Supported)',
-    [ESearchColumnsTypes.ATTACHMENT]: 'Attachment (Not Supported)',
-    [ESearchColumnsTypes.THUMBNAIL]: 'Thumbnail (Not Supported)',
-    [ESearchColumnsTypes.ISSUE_RESTRICTION]: 'Issue Restriction (Not Supported)',
-    [ESearchColumnsTypes.VERSIONS]: 'Versions (Not Supported)',
-    [ESearchColumnsTypes.WORKLOG]: 'Work Log (Not Supported)',
+    // [ESearchColumnsTypes.CREATOR]: 'Creator (Coming Soon)',
+    // [ESearchColumnsTypes.SUB_TASKS]: 'Sub Tasks (Coming Soon)',
+    // [ESearchColumnsTypes.WATCHES]: 'Watches (Coming Soon)',
+    // [ESearchColumnsTypes.TIME_TRAKING]: 'Time Tracking (Coming Soon)',
+    // [ESearchColumnsTypes.VOTES]: 'Votes (Coming Soon)',
+    // // wont support
+    // [ESearchColumnsTypes.SECURITY]: 'Comment (Not Supported)',
+    // [ESearchColumnsTypes.WORK_RATIO]: 'Work Ratio (Not Supported)',
+    // [ESearchColumnsTypes.COMMENT]: 'Comment (Not Supported)',
+    // [ESearchColumnsTypes.ATTACHMENT]: 'Attachment (Not Supported)',
+    // [ESearchColumnsTypes.THUMBNAIL]: 'Thumbnail (Not Supported)',
+    // [ESearchColumnsTypes.ISSUE_RESTRICTION]: 'Issue Restriction (Not Supported)',
+    // [ESearchColumnsTypes.VERSIONS]: 'Versions (Not Supported)',
+    // [ESearchColumnsTypes.WORKLOG]: 'Work Log (Not Supported)',
 }
 
 export interface ISearchColumn {
@@ -163,3 +163,5 @@ export interface ISearchColumn {
     compact: boolean
     extra?: string
 }
+
+export type IJiraFieldOptions = Record<ESearchColumnsTypes, boolean>

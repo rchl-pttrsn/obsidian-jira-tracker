@@ -1,5 +1,5 @@
 import { Platform, requestUrl, RequestUrlParam, RequestUrlResponse } from 'obsidian'
-import { AVATAR_RESOLUTION, EAuthenticationTypes, IJiraIssueAccountSettings } from '../interfaces/settingsInterfaces'
+import { AVATAR_RESOLUTION, EAuthenticationTypes, IJiraIssueAccountSettings } from '../settings/settings.interfaces'
 import { ESprintState, IJiraAutocompleteField, IJiraBoard, IJiraField, IJiraIssue, IJiraSearchResults, IJiraSprint, IJiraUser } from '../interfaces/issueInterfaces'
 import { SettingsData } from "../settings"
 

@@ -1,3 +1,4 @@
+/* --- Jira Issue Container --- */
 .jira-issue-container {
     display: flex;
     align-items: flex-start;
@@ -8,30 +9,27 @@
     vertical-align: middle;
 }
 
-/* Links */
+/* --- Links --- */
 .jira-issue-container a {
     cursor: pointer;
     text-decoration: none;
 }
-
 .jira-issue-container a.icon-link {
     font-weight: var(--font-extrabold);
     font-size: var(--font-ui-large);
 }
 
-/* Images */
+/* --- Images --- */
 .jira-issue-container img.fit-content {
     height: 16px;
     width: 16px;
     max-width: fit-content;
     width: fit-content;
 }
-
 .jira-issue-container img.letter-height {
     height: auto;
     max-height: 1em;
 }
-
 .jira-issue-container img.avatar {
     height: auto;
     width: 100%;
@@ -39,52 +37,18 @@
     max-height: 16px;
 }
 
-/* Get Flexy */
+/* --- Flex Utilities --- */
 .jira-issue-container .no-wrap {
     flex-grow: 0;
     flex-shrink: 0;
     white-space: nowrap;
 }
-
 .jira-issue-container .grow-1 {
     flex-grow: 1;
 }
 
-/* search-footer */
-.jira-issue-container .search-footer {
-    margin-top: 3px;
-    font-size: x-small;
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-}
 
-.jira-issue-container .search-footer button {
-    border: 0;
-    padding: 0;
-    margin: 0;
-    outline: 0;
-    box-shadow: none;
-    height: 1.5em;
-    max-height: fit-content;
-    cursor: pointer;
-    font-size: x-small;
-    vertical-align: middle;
-    margin-left: 3px;
-}
-
-.jira-issue-container .search-footer button:hover {
-    opacity: 0.8;
-}
-
-.jira-issue-container .search-footer button>svg {
-    height: 1.5em;
-    width: 1.5em;
-    fill: none;
-    stroke: currentColor;
-}
-
-/* ji-tags */
+/* --- Tags --- */
 .jira-issue-container .ji-tags {
     align-items: stretch;
     display: flex;
@@ -92,26 +56,21 @@
     justify-content: flex-start;
     margin-bottom: 0.5em;
 }
-
 .jira-issue-container .ji-tags:last-child {
     margin-bottom: 0;
 }
-
 .jira-issue-container .ji-tags.has-addons .ji-tag {
     margin-right: 0;
 }
-
 .jira-issue-container .ji-tags.has-addons .ji-tag:not(:first-child) {
     margin-left: 0;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
 }
-
 .jira-issue-container .ji-tags.has-addons .ji-tag:not(:last-child) {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
 }
-
 .jira-issue-container .ji-tag {
     align-items: center;
     border-radius: 4px;
@@ -121,39 +80,33 @@
     line-height: 1.5;
     padding: 0.2em 0.75em;
 }
-
 .jira-issue-container .ji-tag.ji-sm-tag {
     padding: 0.2em 0.4em;
 }
 
-/* ji-tags types*/
+/* --- Tag Types --- */
 .jira-issue-container .ji-tag.is-danger {
     background-color: var(--color-red-base);
     color: var(--text-error);
 }
-
 .jira-issue-container .ji-tag.is-dark {
     background-color: #363636;
     color: #fff;
 }
-
 .jira-issue-container .ji-tag.is-delete {
     margin-left: 1px;
     padding: 0;
     position: relative;
     width: 2em;
 }
-
 .jira-issue-container .ji-tag.is-delete::before {
     height: 1px;
     width: 50%;
 }
-
 .jira-issue-container .ji-tag.is-delete::after {
     height: 50%;
     width: 1px;
 }
-
 .jira-issue-container .ji-tag.is-delete::after,
 .jira-issue-container .ji-tag.is-delete::before {
     background-color: currentColor;
@@ -165,102 +118,87 @@
     transform: translateX(-50%) translateY(-50%) rotate(45deg);
     transform-origin: center center;
 }
-
 .jira-issue-container .ji-tag.is-link {
     background-color: var(--background-primary);
     color: var(--link-color);
 }
-
 .jira-issue-container .ji-tag.is-info {
     background-color: #3e8ed0;
     color: #fff;
 }
-
 .jira-issue-container .ji-tag.is-success {
     background-color: #48c78e;
     color: #fff;
 }
-
 .ji-tag.is-warning {
     background-color: #ffe08a;
     color: rgba(0, 0, 0, 0.7);
 }
 
-/* table */
+/* --- Table --- */
 .jira-issue-container table {
     width: 100%;
 }
-
 .jira-issue-container table th,
 .jira-issue-container table td {
     vertical-align: top;
     white-space: nowrap;
     padding: 0.5em 0.75em;
 }
-
 .jira-issue-container table.is-narrow th,
 .jira-issue-container table.is-narrow td {
     padding: 0.25em 0.5em;
 }
-
 .jira-issue-container table tbody tr:hover {
     background-color: var(--background-primary);
 }
-
 .jira-issue-container table td.text-align-center {
     text-align: center;
 }
 
-/* Inline Issues */
+/* --- Inline Issues --- */
 .jira-issue-container.ji-inline-issue {
     display: inline-block;
     margin: 0;
 }
-
 .jira-issue-container.ji-inline-issue .ji-tag {
     padding: 0.1em 0.3em;
 }
 
-/* Suggestions */
+/* --- Suggestions --- */
 .jira-issue-suggestion {
     font-size: small;
     margin-right: 5px;
 }
-
 .jira-issue-suggestion:last-child {
     margin-right: 0;
 }
-
 .jira-issue-suggestion.is-compact {
     color: green;
 }
-
 .jira-issue-suggestion.is-custom-field {
     color: orange;
 }
-
 .jira-issue-suggestion.is-function {
     color: red;
 }
 
-/* Inline plugin */
+/* --- Inline Plugin --- */
 .jira-issue-inline-mark {
     display: inline-block;
     padding: 2px 5px;
 }
-
 .HyperMD-task-line[data-task="x"] .ji-inline-issue.jira-issue-container {
     text-decoration: line-through;
 }
 
-/* Spinner */
+/* --- Spinner --- */
 .jira-issue-container .spinner {
     position: relative;
     display: inline-block;
     width: 16px;
     height: 16px;
 }
-
 .jira-issue-container .spinner::before {
     content: "";
     box-sizing: border-box;
@@ -276,44 +214,13 @@
     border-top-color: #000;
     animation: spinner 0.6s linear infinite;
 }
-
 @keyframes spinner {
     to {
         transform: rotate(360deg);
     }
 }
 
-/* Settings */
-.setting-item-control .search-input-container{
-    width: 100%;
-}
-
-.setting-item.search-column-container {
-    margin-bottom: var(--size-4-1);
-    background: var(--background-secondary-blur);
-    padding: var(--size-4-2) var(--size-4-1);
-}
-.setting-item-control select.flex-grow-1 {
-    flex-grow: 1;
-    max-width: none;
-}
-
-.setting-item-control input[type="text"].custom-field-text {
-    margin-left: 10px;
-    height: 2.5em;
-    border-radius: var(--size-4-2);
-}
-
-.setting-item-control input[type='text'].error {
-    border: 1px solid var(--text-error);
-    color: var(--text-error);
-}
-
-.setting-item-description .error {
-    color: var(--text-error);
-}
-
-/* Other */
+/* --- Miscellaneous --- */
 .ji-inline-issue.jira-issue-container .ji-band,
 .jira-issue-container .ji-band {
     width: 3px;
@@ -346,14 +253,39 @@ svg.svg-icon.jira-issue-hidden {
     fill: currentColor;
 }
 
-/* Column Settings UI */
+/* --- Settings Panel --- */
+.setting-item-control .search-input-container {
+    width: 100%;
+}
+.setting-item.search-column-container {
+    margin-bottom: var(--size-4-1);
+    background: var(--background-secondary-blur);
+    padding: var(--size-4-2) var(--size-4-1);
+}
+.setting-item-control select.flex-grow-1 {
+    flex-grow: 1;
+    max-width: none;
+}
+.setting-item-control input[type="text"].custom-field-text {
+    margin-left: 10px;
+    height: 2.5em;
+    border-radius: var(--size-4-2);
+}
+.setting-item-control input[type='text'].error {
+    border: 1px solid var(--text-error);
+    color: var(--text-error);
+}
+.setting-item-description .error {
+    color: var(--text-error);
+}
+
+/* --- Settings Panel Jira Fields Config --- */
 .column-settings-fields {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: var(--size-4-2);
 }
-
 .field-options-container {
     display: flex;
     flex-wrap: wrap;
@@ -367,7 +299,6 @@ svg.svg-icon.jira-issue-hidden {
     overflow-y: scroll;
     background: var(--background-secondary-blur);
 }
-
 .field-option-label {
     flex: 1 1 min(33.333%, 200px);
     display: flex;
@@ -377,14 +308,12 @@ svg.svg-icon.jira-issue-hidden {
     box-sizing: border-box;
     max-width: 100%;
 }
-
 .field-option-label-text {
     margin-left: 6px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
 .field-option-spacer {
     flex: 1 1 min(33.333%, 200px);
     margin-bottom: var(--size-4-2);
@@ -392,17 +321,18 @@ svg.svg-icon.jira-issue-hidden {
     max-width: 100%;
 }
 
-/* Responsive: minimum 1 per row on small screens */
-@media (max-width: 700px) {
-    .field-option-label {
-        flex: 1 1 100% !important;
-        max-width: 100% !important;
-    }
-}
-
+/* --- Drag and Drop --- */
 .selected-columns-dnd-container .search-column-container.dragging {
     opacity: 0.5;
 }
 .selected-columns-dnd-container .search-column-container.drag-over {
     border: 2px dashed var(--color-accent);
+}
+
+/* --- Responsive --- */
+@media (max-width: 700px) {
+    .field-option-label {
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+    }
 }

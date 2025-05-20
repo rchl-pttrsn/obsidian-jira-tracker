@@ -131,9 +131,9 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
 	display(): void {
 		this.containerEl.empty()
+		this.displayAccountsSettings()
 		this.displayRenderingSettings()
 		this.displayNoteTemplateSettings()
-		this.displayAccountsSettings()
 		this.displaySearchColumnsSettings()
 		this.displayExtraSettings()
 		this.displayFooter()
@@ -175,9 +175,8 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
 	displayAccountsSettings() {
 		const { containerEl } = this
-		new Setting(containerEl).setHeading()
 		new Setting(containerEl)
-			.setName('Accounts')
+			.setName('Account')
 			.setHeading()
 			.addButton((button) =>
 				button

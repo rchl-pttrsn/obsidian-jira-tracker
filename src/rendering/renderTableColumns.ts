@@ -4,7 +4,7 @@ import RC, { JIRA_STATUS_COLOR_MAP, JIRA_STATUS_COLOR_MAP_BY_NAME } from "./rend
 import * as jsonpath from 'jsonpath'
 import ObjectsCache from "../objectsCache"
 import JiraClient from "../client/jiraClient"
-import { AVATAR_RESOLUTION, ESearchColumnsTypes, IJiraIssueAccountSettings, ISearchColumn } from "../settings/settingsInterfaces"
+import { AVATAR_RESOLUTION, ESearchColumnsTypes, IJiraIssueAccountSettings, ISearchColumn } from "../settings/settings.interfaces"
 import { SettingsData } from "src/settings"
 
 

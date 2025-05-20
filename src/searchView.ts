@@ -1,4 +1,4 @@
-import { COMMENT_REGEX, COMPACT_SYMBOL, ESearchColumnsTypes, ESearchResultsRenderingTypes, IJiraIssueAccountSettings, ISearchColumn } from "./settings/settingsInterfaces"
+import { COMMENT_REGEX, COMPACT_SYMBOL, ESearchColumnsTypes, ESearchResultsRenderingTypes, IJiraIssueAccountSettings, ISearchColumn } from "./settings/settings.interfaces"
 import { SettingsData } from "./settings"
 import { getAccountByAlias } from "./utils"
 

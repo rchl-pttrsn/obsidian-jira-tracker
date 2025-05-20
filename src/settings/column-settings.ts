@@ -2,7 +2,7 @@ import { App, Setting } from 'obsidian'
 import {
 	ESearchColumnsTypes,
 	SEARCH_COLUMNS_DESCRIPTION,
-} from 'src/settings/settingsInterfaces'
+} from 'src/settings/settings.interfaces'
 import { DEFAULT_SETTINGS, SettingsData } from 'src/settings'
 import { ColumnSuggest } from 'src/suggestions/contentSuggest'
 

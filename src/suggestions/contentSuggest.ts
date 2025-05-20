@@ -4,7 +4,7 @@ import {
 	SearchResult,
 	prepareFuzzySearch,
 } from 'obsidian'
-import { SEARCH_COLUMNS_DESCRIPTION } from 'src/settings/settingsInterfaces'
+import { SEARCH_COLUMNS_DESCRIPTION } from 'src/settings/settings.interfaces'
 import { SettingsData } from 'src/settings'
 
 /*

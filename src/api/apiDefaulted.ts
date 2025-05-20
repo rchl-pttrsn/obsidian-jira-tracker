@@ -1,5 +1,5 @@
 import { IJiraIssue, IJiraSearchResults, toDefaultedIssue } from "../interfaces/issueInterfaces"
-import { IJiraIssueAccountSettings } from "../settings/settingsInterfaces"
+import { IJiraIssueAccountSettings } from "../settings/settings.interfaces"
 import API from "./api"
 
 export async function getIssueDefaulted(issueKey: string, options: { fields?: string[], account?: IJiraIssueAccountSettings } = {}): Promise<IJiraIssue> {

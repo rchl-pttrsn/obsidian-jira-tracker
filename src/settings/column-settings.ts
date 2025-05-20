@@ -2,7 +2,7 @@ import { App, Setting } from 'obsidian'
 import {
 	ESearchColumnsTypes,
 	SEARCH_COLUMNS_DESCRIPTION,
-} from 'src/interfaces/settingsInterfaces'
+} from 'src/settings/settingsInterfaces'
 import { DEFAULT_SETTINGS, SettingsData } from 'src/settings'
 import { ColumnSuggest } from 'src/suggestions/contentSuggest'
 
@@ -25,9 +25,7 @@ export class ColumnSettings {
 
 	public render() {
 		const { containerEl } = this
-		new Setting(containerEl)
-			.setName('Search query defaults')
-			.setHeading()
+		new Setting(containerEl).setName('Search query defaults').setHeading()
 
 		this.containerEl.createDiv({
 			text: 'Configure the default behavior and display options for `jira-search` queries.',
@@ -127,21 +125,18 @@ export class ColumnSettings {
 		})
 		// Flexbox for up to 3 items per row, aligned
 		let allFields: Record<string, boolean>
-		if (!SettingsData.jiraFieldOptions) {
-			const fields = Object.keys(ESearchColumnsTypes)
-				.filter((field) => isNaN(Number(field)))
-				.reduce((prev, curr) => {
-					prev[curr] = false
-					return prev
-				}, {} as Record<string, boolean>)
-			const selectedFields = SettingsData.searchColumns.reduce((prev, curr) => {
-				prev[curr.type] = true
+		const fields = Object.keys(ESearchColumnsTypes)
+			.filter((field) => isNaN(Number(field)))
+			.reduce((prev, curr) => {
+				prev[curr] = false
 				return prev
 			}, {} as Record<string, boolean>)
-			allFields = Object.assign(fields, selectedFields)
-		} else {
-			allFields = { ...SettingsData.jiraFieldOptions }
-		}
+		const selectedFields = SettingsData.searchColumns.reduce((prev, curr) => {
+			prev[curr.type] = true
+			return prev
+		}, {} as Record<string, boolean>)
+		allFields = Object.assign(fields, selectedFields)
+
 		const itemsPerRow = 3
 		Object.entries(SEARCH_COLUMNS_DESCRIPTION).forEach(([field, desc]) => {
 			const label = fieldOptionsContainerEl.createEl('label', {

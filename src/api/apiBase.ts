@@ -1,5 +1,5 @@
 import { ESprintState, IJiraBoard, IJiraIssue, IJiraSearchResults, IJiraSprint, IJiraUser } from "../interfaces/issueInterfaces"
-import { IJiraIssueAccountSettings } from "../interfaces/settingsInterfaces"
+import { IJiraIssueAccountSettings } from "../settings/settingsInterfaces"
 import ObjectsCache from "../objectsCache"
 import JiraClient from "../client/jiraClient"
 

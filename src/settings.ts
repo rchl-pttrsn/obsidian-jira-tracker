@@ -12,7 +12,7 @@ import {
 	ESearchColumnsTypes,
 	IJiraIssueAccountSettings,
 	IJiraIssueSettings
-} from './interfaces/settingsInterfaces'
+} from './settings/settingsInterfaces'
 import JiraIssuePlugin from './main'
 import { getRandomHexColor } from './utils'
 import { FileSuggest, FolderSuggest } from './suggestions/contentSuggest'

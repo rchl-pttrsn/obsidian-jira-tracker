@@ -1,6 +1,6 @@
 import { FrontMatterCache, TFile, TFolder } from "obsidian"
 import { IJiraIssue } from "../interfaces/issueInterfaces"
-import { IJiraIssueAccountSettings } from "../interfaces/settingsInterfaces"
+import { IJiraIssueAccountSettings } from "../settings/settingsInterfaces"
 import { ObsidianApp } from "../main"
 import { SearchView } from "../searchView"
 

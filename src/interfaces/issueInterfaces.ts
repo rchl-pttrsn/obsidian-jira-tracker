@@ -1,5 +1,5 @@
 import { components } from "src/client/jira.schema"
-import { IJiraIssueAccountSettings } from "./settingsInterfaces"
+import { IJiraIssueAccountSettings } from "../settings/settingsInterfaces"
 
 export type IJiraSearchField = components['schemas']['Fields'] & {
     [key: string]: unknown;

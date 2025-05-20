@@ -1,4 +1,4 @@
-import { IJiraAutocompleteDataField, IJiraFieldSchema } from "./issueInterfaces"
+import { IJiraAutocompleteDataField, IJiraFieldSchema } from "../interfaces/issueInterfaces"
 
 export enum EAuthenticationTypes {
     OPEN = 'OPEN',

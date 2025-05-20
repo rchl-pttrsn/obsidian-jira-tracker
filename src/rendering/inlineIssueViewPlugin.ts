@@ -8,7 +8,7 @@ import { SettingsData } from "../settings"
 import RC from "./renderingCommon"
 import escapeStringRegexp from 'escape-string-regexp'
 import { getAccountByHost } from "../utils"
-import { COMPACT_SYMBOL, JIRA_KEY_REGEX } from "../interfaces/settingsInterfaces"
+import { COMPACT_SYMBOL, JIRA_KEY_REGEX } from "../settings/settingsInterfaces"
 
 interface IMatchDecoratorRef {
     ref: MatchDecorator

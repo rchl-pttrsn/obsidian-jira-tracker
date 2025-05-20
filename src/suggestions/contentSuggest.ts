@@ -4,7 +4,7 @@ import {
 	SearchResult,
 	prepareFuzzySearch,
 } from 'obsidian'
-import { SEARCH_COLUMNS_DESCRIPTION } from 'src/interfaces/settingsInterfaces'
+import { SEARCH_COLUMNS_DESCRIPTION } from 'src/settings/settingsInterfaces'
 import { SettingsData } from 'src/settings'
 
 /*
@@ -56,7 +56,7 @@ abstract class ContentSuggest extends AbstractInputSuggest<string> {
 		const goodMatches = matches.filter((i) => i[1] && i[1]['score'] > minScore)
 		goodMatches.sort((c) => c[1]['score'])
 		const ret = goodMatches.map((c) => c[0])
-		return ret.slice(0, maxResults)
+		return ret.slice(0, maxResults)	
 	}
 
 	renderSuggestion(content: string, el: HTMLElement): void {
@@ -100,5 +100,19 @@ export class ColumnSuggest extends ContentSuggest {
 	open() {
 		super.open()
 		this.suggestEl.style.width = `${this.inputEl.parentElement.clientWidth}px`
+	}
+
+	selectSuggestion(content: string, evt: MouseEvent | KeyboardEvent): void {
+		super.selectSuggestion(content, evt)
+		const customEvent = new CustomEvent('selectSuggestion', {
+			detail: {
+				selectedSuggestion: content,
+			},
+			bubbles: true,
+			cancelable: true,
+			composed: false,
+		})
+
+		this.suggestEl.dispatchEvent(customEvent)
 	}
 }

@@ -1,7 +1,7 @@
 import { MarkdownPostProcessorContext } from "obsidian"
 import JiraClient from "../client/jiraClient"
 import { IJiraIssue } from "../interfaces/issueInterfaces"
-import { COMPACT_SYMBOL, JIRA_KEY_REGEX } from "../interfaces/settingsInterfaces"
+import { COMPACT_SYMBOL, JIRA_KEY_REGEX } from "../settings/settingsInterfaces"
 import ObjectsCache from "../objectsCache"
 import { SettingsData } from "../settings"
 import RC from "./renderingCommon"

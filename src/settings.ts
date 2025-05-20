@@ -542,7 +542,7 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 						await this.saveSettings()
 					})
 					.then(({ inputEl }) => {
-						new FileSuggest(inputEl, this.app)
+						new FileSuggest(this.app, inputEl)
 					})
 			})
 			.then((setting) => {
@@ -563,7 +563,7 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 						await this.saveSettings()
 					})
 					.then(({ inputEl }) => {
-						new FolderSuggest(inputEl, this.app)
+						new FolderSuggest(this.app, inputEl)
 					})
 			)
 			.then((setting) => {

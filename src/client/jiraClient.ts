@@ -1,6 +1,6 @@
 import { Platform, requestUrl, RequestUrlParam, RequestUrlResponse } from 'obsidian'
-import { AVATAR_RESOLUTION, AuthenticationTypes, JiraAccountSettings } from '../settings/settings.interfaces'
-import { ESprintState, IJiraAutocompleteField, IJiraBoard, IJiraField, IJiraIssue, IJiraSearchResults, IJiraSprint, IJiraUser } from '../interfaces/issueInterfaces'
+import { AVATAR_RESOLUTION, JiraAccountSettings } from '../settings/settings.interfaces'
+import { ESprintState, IJiraBoard, IJiraField, IJiraIssue, IJiraSearchResults, IJiraSprint, IJiraUser } from '../interfaces/issueInterfaces'
 import { SettingsData } from "../settings"
 
 interface RequestOptions {
@@ -64,11 +64,7 @@ function buildUrl(host: string, requestOptions: RequestOptions): string {
 
 function buildHeaders(account: JiraAccountSettings): Record<string, string> {
     const requestHeaders: Record<string, string> = {}
-    if (account.authenticationType === AuthenticationTypes.BASIC || account.authenticationType === AuthenticationTypes.CLOUD) {
-        requestHeaders['Authorization'] = 'Basic ' + base64Encode(`${account.username}:${account.password}`)
-    } else if (account.authenticationType === AuthenticationTypes.BEARER_TOKEN) {
-        requestHeaders['Authorization'] = `Bearer ${account.bareToken}`
-    }
+    requestHeaders['Authorization'] = 'Basic ' + base64Encode(`${account.username}:${account.password}`)
     return requestHeaders
 }
 
@@ -81,15 +77,13 @@ async function sendRequest(requestOptions: RequestOptions): Promise<any> {
             return { ...response.json, account: requestOptions.account }
         }
     } else {
-        for (let i = 0; i < SettingsData.accounts.length; i++) {
-            const account = SettingsData.accounts[i]
-            response = await sendRequestWithAccount(account, requestOptions)
+        const { account } = SettingsData
+        response = await sendRequestWithAccount(account, requestOptions)
 
-            if (response.status === 200) {
-                return { ...response.json, account: account }
-            } else if (Math.floor(response.status / 100) !== 4) {
-                break
-            }
+        if (response.status === 200) {
+            return { ...response.json, account: account }
+        } else if (Math.floor(response.status / 100) !== 4) {
+            return
         }
     }
 
@@ -239,30 +233,29 @@ export default {
 
     async updateCustomFieldsCache(): Promise<void> {
         SettingsData.cache.columns = []
-        for (const account of SettingsData.accounts) {
-            try {
-                const response = await sendRequest(
-                    {
-                        method: 'GET',
-                        path: `/field`,
-                        account: account,
-                    }
-                ) as IJiraField[]
-                account.cache.customFieldsIdToName = {}
-                account.cache.customFieldsNameToId = {}
-                account.cache.customFieldsType = {}
-                for (let i in response) {
-                    const field = response[i]
-                    if (field.custom && field.schema && field.schema.customId) {
-                        account.cache.customFieldsIdToName[field.schema.customId] = field.name
-                        account.cache.customFieldsNameToId[field.name] = field.schema.customId.toString()
-                        account.cache.customFieldsType[field.schema.customId] = field.schema
-                        SettingsData.cache.columns.push(field.schema.customId.toString(), field.name.toUpperCase())
-                    }
+        const { account } = SettingsData
+        try {
+            const response = await sendRequest(
+                {
+                    method: 'GET',
+                    path: `/field`,
+                    account: account,
                 }
-            } catch (e) {
-                console.error('Error while retrieving custom fields list of account:', account.alias, e)
+            ) as IJiraField[]
+            account.cache.customFieldsIdToName = {}
+            account.cache.customFieldsNameToId = {}
+            account.cache.customFieldsType = {}
+            for (let i in response) {
+                const field = response[i]
+                if (field.custom && field.schema && field.schema.customId) {
+                    account.cache.customFieldsIdToName[field.schema.customId] = field.name
+                    account.cache.customFieldsNameToId[field.name] = field.schema.customId.toString()
+                    account.cache.customFieldsType[field.schema.customId] = field.schema
+                    SettingsData.cache.columns.push(field.schema.customId.toString(), field.name.toUpperCase())
+                }
             }
+        } catch (e) {
+            console.error('Error while retrieving custom fields list of account:', account.alias, e)
         }
     },
 

@@ -24,16 +24,15 @@ function convertInlineIssuesToTags(el: HTMLElement): void {
 
 function convertInlineIssuesUrlToTags(el: HTMLElement): void {
     if (SettingsData.inlineIssueUrlToTag) {
-        for (const account of SettingsData.accounts) {
-            const issueUrlElements = el.querySelectorAll(`a.external-link[href^="${account.host}/browse/"]`)
-            issueUrlElements.forEach((issueUrlElement: HTMLAnchorElement) => {
-                const compact = issueUrlElement.previousSibling && issueUrlElement.previousSibling.textContent.endsWith('-')
-                const issueKey = issueUrlElement.href.replace(`${account.host}/browse/`, '')
-                const container = createSpan({ cls: 'ji-inline-issue jira-issue-container', attr: { 'data-issue-key': issueKey, 'data-compact': compact } })
-                container.appendChild(RC.renderLoadingItem(issueKey, true))
-                issueUrlElement.replaceWith(container)
-            })
-        }
+        const { account } = SettingsData
+        const issueUrlElements = el.querySelectorAll(`a.external-link[href^="${account.host}/browse/"]`)
+        issueUrlElements.forEach((issueUrlElement: HTMLAnchorElement) => {
+            const compact = issueUrlElement.previousSibling && issueUrlElement.previousSibling.textContent.endsWith('-')
+            const issueKey = issueUrlElement.href.replace(`${account.host}/browse/`, '')
+            const container = createSpan({ cls: 'ji-inline-issue jira-issue-container', attr: { 'data-issue-key': issueKey, 'data-compact': compact } })
+            container.appendChild(RC.renderLoadingItem(issueKey, true))
+            issueUrlElement.replaceWith(container)
+        })
     }
 }
 

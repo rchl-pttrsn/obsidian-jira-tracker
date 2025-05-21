@@ -252,8 +252,27 @@ svg.svg-icon.jira-issue-hidden {
     stroke: none;
     fill: currentColor;
 }
+.toggle-password-icon {
+    position: absolute;
+}
+.toggle-password-icon:hover {
+    background: none;
+}
 
+.jira-account-tile {
+  padding-left: 5px;
+  border-left: 5px solid var(--jira-account-color, #000);
+}
 /* --- Settings Panel --- */
+/* .setting-item > .setting-item-control,
+.setting-item > .setting-item-info {
+    flex: 1;
+}
+
+.setting-item-control > input {
+    width: 60%;
+} */
+
 .setting-item-control .search-input-container {
     width: 100%;
 }

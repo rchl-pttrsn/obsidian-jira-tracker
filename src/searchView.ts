@@ -78,9 +78,6 @@ export class SearchView {
                                 }
                             })
                         break
-                    case 'account':
-                        sv.account = getAccountByAlias(value)
-                        break
                     case 'label':
                         sv.label = value
                         break

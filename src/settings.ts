@@ -1,26 +1,21 @@
 import {
 	App,
 	normalizePath,
-	Notice,
 	PluginSettingTab,
 	Setting,
-	TextComponent,
 } from 'obsidian'
-import JiraClient from './client/jiraClient'
 import {
-	AuthenticationTypes,
 	JiraFields,
-	JiraAccountSettings,
 	JiraTrackerSettings,
-	AUTHENTICATION_TYPES
 } from './settings/settings.interfaces'
 import JiraIssuePlugin from './main'
-import { getRandomHexColor } from './utils'
 import { FileSuggest, FolderSuggest } from './suggestions/contentSuggest'
 import { ColumnSettings } from './settings/column-settings'
+import { AccountSettings } from './settings/account-settings'
+import { ACCOUNT_TEMPLATE } from './settings/account-settings-mixin'
 
 export const DEFAULT_SETTINGS: JiraTrackerSettings = {
-	accounts: [],
+	account: ACCOUNT_TEMPLATE,
 	apiBasePath: '/rest/api/latest',
 	cacheTime: '15m',
 	searchResultsLimit: 10,
@@ -90,24 +85,7 @@ export const DEFAULT_SETTINGS: JiraTrackerSettings = {
 	logImagesFetch: false,
 }
 
-export const DEFAULT_ACCOUNT: JiraAccountSettings = {
-	alias: 'Default',
-	host: 'https://mycompany.atlassian.net',
-	authenticationType: AuthenticationTypes.OPEN,
-	password: '',
-	priority: 1,
-	color: '#000000',
-	cache: {
-		statusColor: {},
-		customFieldsIdToName: {},
-		customFieldsNameToId: {},
-		customFieldsType: {},
-		jqlAutocomplete: {
-			fields: [],
-			functions: {},
-		},
-	},
-}
+export const SettingsData: JiraTrackerSettings = deepCopy(DEFAULT_SETTINGS)
 
 function deepCopy(obj: any): any {
 	return JSON.parse(JSON.stringify(obj))
@@ -116,7 +94,6 @@ function deepCopy(obj: any): any {
 export class JiraIssueSettingTab extends PluginSettingTab {
 	private _plugin: JiraIssuePlugin
 	private _onChangeListener: (() => void) | null = null
-	private _showPassword: boolean = false
 
 	constructor(app: App, plugin: JiraIssuePlugin) {
 		super(app, plugin)
@@ -125,23 +102,12 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
 	async loadSettings(): Promise<void> {
 		Object.assign(SettingsData, DEFAULT_SETTINGS, await this._plugin.loadData())
-		for (const i in SettingsData.accounts) {
-			SettingsData.accounts[i] = Object.assign(
+			SettingsData.account = Object.assign(
 				{},
-				DEFAULT_ACCOUNT,
-				SettingsData.accounts[i]
-			)
-		}
+				ACCOUNT_TEMPLATE,
+				SettingsData.account
+			)	
 		SettingsData.cache = deepCopy(DEFAULT_SETTINGS.cache)
-
-		if (
-			SettingsData.accounts.length === 0 ||
-			SettingsData.accounts[0] === null
-		) {
-			SettingsData.accounts = [DEFAULT_ACCOUNT]
-			this.saveSettings()
-		}
-		this.accountsConflictsFix()
 	}
 
 	async saveSettings() {
@@ -156,9 +122,8 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 				statusColorCache: null,
 			}
 		)
-		settingsToStore.accounts.forEach(
-			(account) => (account.cache = DEFAULT_ACCOUNT.cache)
-		)
+		settingsToStore.account.cache = ACCOUNT_TEMPLATE.cache
+
 		await this._plugin.saveData(settingsToStore)
 		if (this._onChangeListener) {
 			this._onChangeListener()
@@ -213,295 +178,7 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 	}
 
 	displayAccountsSettings() {
-		const { containerEl } = this
-		new Setting(containerEl).setName('Account').setHeading()
-
-		for (const account of SettingsData.accounts) {
-			const accountSetting = new Setting(containerEl)
-				.setName(account.alias)
-				.setDesc(account.host)
-				.addExtraButton((button) =>
-					button
-						.setIcon('pencil')
-						.setTooltip('Modify')
-						.onClick(async () => {
-							this.displayModifyAccountPage(account)
-						})
-				)
-				.addExtraButton((button) =>
-					button
-						.setIcon('trash')
-						.setTooltip('Delete')
-						.setDisabled(SettingsData.accounts.length <= 1)
-						.onClick(async () => {
-							SettingsData.accounts.remove(account)
-							this.accountsConflictsFix()
-							await this.saveSettings()
-							// Force refresh
-							this.display()
-						})
-				)
-			accountSetting.infoEl.setAttr(
-				'style',
-				'padding-left:5px;border-left:5px solid ' + account.color
-			)
-		}
-	}
-
-	displayModifyAccountPage(
-		prevAccount: JiraAccountSettings,
-		newAccount: JiraAccountSettings = null
-	) {
-		if (!newAccount) newAccount = Object.assign({}, prevAccount)
-		const { containerEl } = this
-		containerEl.empty()
-		new Setting(containerEl).setName('Modify account').setHeading()
-
-		new Setting(containerEl)
-			.setName('Alias')
-			.setDesc('Name of this account.')
-			.addText((text) =>
-				text
-					.setPlaceholder('Example: Company name')
-					.setValue(newAccount.alias)
-					.onChange(async (value) => {
-						newAccount.alias = value
-					})
-			)
-		new Setting(containerEl)
-			.setName('Host')
-			.setDesc('Hostname of your company Jira server.')
-			.addText((text) =>
-				text
-					.setPlaceholder('Example: ' + DEFAULT_ACCOUNT.host)
-					.setValue(newAccount.host)
-					.onChange(async (value) => {
-						newAccount.host = value
-					})
-			)
-		new Setting(containerEl)
-			.setName('Authentication type')
-			.setDesc('Select how the plugin should authenticate in your Jira server.')
-			.addDropdown((dropdown) =>
-				dropdown
-					.addOptions(AUTHENTICATION_TYPES)
-					.setValue(newAccount.authenticationType)
-					.onChange(async (value) => {
-						newAccount.authenticationType = value as AuthenticationTypes
-						this._showPassword = false
-						// Force refresh
-						this.displayModifyAccountPage(prevAccount, newAccount)
-					})
-			)
-		if (newAccount.authenticationType === AuthenticationTypes.BASIC) {
-			new Setting(containerEl)
-				.setName('Username')
-				.setDesc(
-					'Username to access your Jira Server account using HTTP basic authentication.'
-				)
-				.addText((text) =>
-					text
-						// .setPlaceholder('')
-						.setValue(newAccount.username)
-						.onChange(async (value) => {
-							newAccount.username = value
-						})
-				)
-			new Setting(containerEl)
-				.setName('Password')
-				.setDesc(
-					'Password to access your Jira Server account using HTTP basic authentication.'
-				)
-				.addText((text) =>
-					text
-						// .setPlaceholder('')
-						.setValue(newAccount.password)
-						.onChange(async (value) => {
-							newAccount.password = value
-						})
-						.inputEl.setAttr('type', this._showPassword ? 'text' : 'password')
-				)
-				.addExtraButton((button) =>
-					button
-						.setIcon(
-							this._showPassword ? 'jira-issue-hidden' : 'jira-issue-visible'
-						)
-						.setTooltip(this._showPassword ? 'Hide password' : 'Show password')
-						.onClick(async () => {
-							this._showPassword = !this._showPassword
-							// Force refresh
-							this.displayModifyAccountPage(prevAccount, newAccount)
-						})
-				)
-		} else if (newAccount.authenticationType === AuthenticationTypes.CLOUD) {
-			new Setting(containerEl)
-				.setName('Email')
-				.setDesc('Email of your Jira Cloud account.')
-				.addText((text) =>
-					text
-						// .setPlaceholder('')
-						.setValue(newAccount.username)
-						.onChange(async (value) => {
-							newAccount.username = value
-						})
-				)
-			const apiTokenDescription = new Setting(containerEl)
-				.setName('API Token')
-				.addText((text) =>
-					text
-						// .setPlaceholder('')
-						.setValue(newAccount.password)
-						.onChange(async (value) => {
-							newAccount.password = value
-						})
-						.inputEl.setAttr('type', this._showPassword ? 'text' : 'password')
-				)
-				.addExtraButton((button) =>
-					button
-						.setIcon(
-							this._showPassword ? 'jira-issue-hidden' : 'jira-issue-visible'
-						)
-						.setTooltip(this._showPassword ? 'Hide password' : 'Show password')
-						.onClick(async () => {
-							this._showPassword = !this._showPassword
-							// Force refresh
-							this.displayModifyAccountPage(prevAccount, newAccount)
-						})
-				).descEl
-			apiTokenDescription.appendText('API token of your Jira Cloud account (')
-			apiTokenDescription.appendChild(
-				createEl('a', {
-					text: 'Official Documentation',
-					href: 'https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/',
-				})
-			)
-			apiTokenDescription.appendText(').')
-		} else if (
-			newAccount.authenticationType === AuthenticationTypes.BEARER_TOKEN
-		) {
-			new Setting(containerEl)
-				.setName('Bearer token')
-				.setDesc(
-					'Token to access your Jira account using OAuth3 Bearer token authentication.'
-				)
-				.addText((text) =>
-					text
-						// .setPlaceholder('')
-						.setValue(newAccount.bareToken)
-						.onChange(async (value) => {
-							newAccount.bareToken = value
-						})
-						.inputEl.setAttr('type', this._showPassword ? 'text' : 'password')
-				)
-				.addExtraButton((button) =>
-					button
-						.setIcon(
-							this._showPassword ? 'jira-issue-hidden' : 'jira-issue-visible'
-						)
-						.setTooltip(this._showPassword ? 'Hide password' : 'Show password')
-						.onClick(async () => {
-							this._showPassword = !this._showPassword
-							// Force refresh
-							this.displayModifyAccountPage(prevAccount, newAccount)
-						})
-				)
-		}
-		new Setting(containerEl)
-			.setName('Priority')
-			.setDesc('Accounts search priority.')
-			.addDropdown((dropdown) =>
-				dropdown
-					.addOptions(this.createPriorityOptions())
-					.setValue(newAccount.priority.toString())
-					.onChange(async (value) => {
-						newAccount.priority = parseInt(value)
-					})
-			)
-		let colorTextComponent: TextComponent = null
-		const colorInput = new Setting(containerEl)
-			.setName('Color band')
-			.setDesc(
-				'Color of the tags border. Use colors in hexadecimal notation (Example: #000000).'
-			)
-			.addText((text) => {
-				text
-					.setPlaceholder('Example: #000000')
-					.setValue(newAccount.color)
-					.onChange(async (value) => {
-						newAccount.color = value.replace(/[^#0-9A-Fa-f]/g, '')
-						if (newAccount.color[0] != '#')
-							newAccount.color = '#' + newAccount.color
-						colorInput.setAttr(
-							'style',
-							'border-left: 5px solid ' + newAccount.color
-						)
-					})
-				colorTextComponent = text
-			})
-			.addExtraButton((button) =>
-				button
-					.setIcon('dice')
-					.setTooltip('New random color')
-					.onClick(async () => {
-						newAccount.color = getRandomHexColor()
-						if (colorTextComponent != null)
-							colorTextComponent.setValue(newAccount.color)
-						colorInput.setAttr(
-							'style',
-							'border-left: 5px solid ' + newAccount.color
-						)
-					})
-			).controlEl.children[0]
-		colorInput.setAttr('style', 'border-left: 5px solid ' + newAccount.color)
-
-		new Setting(containerEl)
-			.addButton((button) =>
-				button
-					.setButtonText('Back')
-					.setWarning()
-					.onClick(async (value) => {
-						this._showPassword = false
-						this.display()
-					})
-			)
-			.addButton((button) =>
-				button.setButtonText('Test Connection').onClick(async (value) => {
-					button.setDisabled(true)
-					button.setButtonText('Testing...')
-					try {
-						await JiraClient.testConnection(newAccount)
-						new Notice('JiraIssue: Connection established!')
-						try {
-							const loggedUser = await JiraClient.getLoggedUser(newAccount)
-							new Notice(`JiraIssue: Logged as ${loggedUser.displayName}`)
-						} catch (e) {
-							new Notice('JiraIssue: Logged as Guest')
-							console.error('JiraIssue:TestConnection', e)
-						}
-					} catch (e) {
-						console.error('JiraIssue:TestConnection', e)
-						new Notice('JiraIssue: Connection failed!')
-					}
-					button.setButtonText('Test Connection')
-					button.setDisabled(false)
-				})
-			)
-			.addButton((button) =>
-				button
-					.setButtonText('Save')
-					.setCta()
-					.onClick(async (value) => {
-						this._showPassword = false
-						// Swap priority with another existing account
-						SettingsData.accounts.find(
-							(a) => a.priority === newAccount.priority
-						).priority = prevAccount.priority
-						Object.assign(prevAccount, newAccount)
-						this.accountsConflictsFix()
-						await this.saveSettings()
-						this.display()
-					})
-			)
+		new AccountSettings(this).displayPanel()
 	}
 
 	displayRenderingSettings() {
@@ -679,33 +356,4 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 				})
 		)
 	}
-
-	createNewEmptyAccount() {
-		const newAccount = JSON.parse(JSON.stringify(DEFAULT_ACCOUNT))
-		newAccount.priority = SettingsData.accounts.length + 1
-		this.accountsConflictsFix()
-		return newAccount
-	}
-
-	accountsConflictsFix() {
-		const aliases: string[] = []
-		SettingsData.accounts.sort((a, b) => a.priority - b.priority)
-		let priority = 1
-		for (const account of SettingsData.accounts) {
-			while (aliases.indexOf(account.alias) >= 0) account.alias += '1'
-			aliases.push(account.alias)
-
-			account.priority = priority
-			priority++
-		}
-	}
-
-	createPriorityOptions(): Record<string, string> {
-		const options: Record<string, string> = {}
-		for (let i = 1; i <= SettingsData.accounts.length; i++) {
-			options[i.toString()] = i.toString()
-		}
-		return options
-	}
 }
-export const SettingsData: JiraTrackerSettings = deepCopy(DEFAULT_SETTINGS)

@@ -69,7 +69,7 @@ describe('Settings', () => {
         expect(SettingsData).toEqual({
             ...StoredSettings,
             accounts: [{
-                ...StoredSettings.accounts[0],
+                ...StoredSettings.account,
                 priority: 1,
                 "cache": {
                     "customFieldsIdToName": {},

@@ -7,7 +7,6 @@ import ObjectsCache from "../objectsCache"
 import { SettingsData } from "../settings"
 import RC from "./renderingCommon"
 import escapeStringRegexp from 'escape-string-regexp'
-import { getAccountByHost } from "../utils"
 import { COMPACT_SYMBOL, JIRA_KEY_REGEX } from "../settings/settings.interfaces"
 
 interface IMatchDecoratorRef {
@@ -53,13 +52,20 @@ class InlineIssueWidget extends WidgetType {
             }
         } else {
             this._htmlContainer.replaceChildren(RC.renderLoadingItem(this._issueKey))
-            JiraClient.getIssue(this._issueKey, { account: getAccountByHost(this._host) }).then(newIssue => {
-                const issue = ObjectsCache.add(this._issueKey, newIssue).data as IJiraIssue
-                this._htmlContainer.replaceChildren(RC.renderIssue(issue, this._compact))
-            }).catch(err => {
-                ObjectsCache.add(this._issueKey, err, true)
-                this._htmlContainer.replaceChildren(RC.renderIssueError(this._issueKey, err))
-            })
+            JiraClient.getIssue(this._issueKey, { account: SettingsData.account })
+							.then((newIssue) => {
+								const issue = ObjectsCache.add(this._issueKey, newIssue)
+									.data as IJiraIssue
+								this._htmlContainer.replaceChildren(
+									RC.renderIssue(issue, this._compact)
+								)
+							})
+							.catch((err) => {
+								ObjectsCache.add(this._issueKey, err, true)
+								this._htmlContainer.replaceChildren(
+									RC.renderIssueError(this._issueKey, err)
+								)
+							})
         }
     }
 
@@ -98,7 +104,7 @@ function buildMatchDecorators() {
 
     if (SettingsData.inlineIssueUrlToTag) {
         const urls: string[] = []
-        SettingsData.accounts.forEach(account => urls.push(escapeRegexp(account.host)))
+        urls.push(escapeRegexp(SettingsData.account.host))
         jiraUrlMatchDecorator.ref = new MatchDecorator({
             regexp: new RegExp(`(${COMPACT_SYMBOL}?)(${urls.join('|')})/browse/(${JIRA_KEY_REGEX})`, 'g'),
             decoration: (match: RegExpExecArray, view: EditorView, pos: number) => {

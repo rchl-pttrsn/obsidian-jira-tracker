@@ -1,4 +1,3 @@
-import { getAccountByAlias, getAccountByHost } from "../utils"
 import ObjectsCache from "../objectsCache"
 import { getActiveSprint, getActiveSprintName, getVelocity, getWorkLogByDates, getWorkLogBySprint, getWorkLogBySprintId, getWorkLogSeriesByUser } from "./apiMacro"
 import { getDefaultedSearchResults, getIssueDefaulted } from "./apiDefaulted"
@@ -30,10 +29,6 @@ const API = {
     chart: {
         getWorklogPerDay: getWorklogPerDay,
         getWorklogPerUser: getWorklogPerUser,
-    },
-    account: {
-        getAccountByAlias: getAccountByAlias,
-        getAccountByHost: getAccountByHost,
     },
     util: {
         clearCache: ObjectsCache.clear

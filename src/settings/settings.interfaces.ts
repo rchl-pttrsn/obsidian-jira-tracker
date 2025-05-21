@@ -5,22 +5,8 @@ export const AVATAR_RESOLUTION = '16x16'
 export const COMMENT_REGEX = /^\s*#/
 export const JIRA_KEY_REGEX = '[A-Z][A-Z0-9_]*-[0-9]+'
 
-export enum AuthenticationTypes {
-    OPEN = 'OPEN',
-    BASIC = 'BASIC',
-    CLOUD = 'CLOUD',
-    BEARER_TOKEN = 'BEARER_TOKEN',
-}
-
-export const AUTHENTICATION_TYPES = {
-	[AuthenticationTypes.OPEN]: 'Open',
-	[AuthenticationTypes.BASIC]: 'Basic Authentication',
-	[AuthenticationTypes.CLOUD]: 'Jira Cloud',
-	[AuthenticationTypes.BEARER_TOKEN]: 'Bearer Token',
-}
-
 export interface JiraTrackerSettings {
-	accounts: JiraAccountSettings[]
+	account: JiraAccountSettings
 	apiBasePath: string
 	cacheTime: string
 	searchResultsLimit: number
@@ -38,26 +24,23 @@ export interface JiraTrackerSettings {
 }
 
 export interface JiraAccountSettings {
-    alias: string
-    host: string
-    authenticationType: AuthenticationTypes
-    username?: string
-    password?: string
-    bareToken?: string
-    priority: number
-    color: string
-    cache: {
-        statusColor: Record<string, string>
-        customFieldsIdToName: Record<string, string>
-        customFieldsNameToId: Record<string, string>
-        customFieldsType: Record<string, IJiraFieldSchema>
-        jqlAutocomplete: {
-            fields: IJiraAutocompleteDataField[]
-            functions: {
-                [key: string]: [string]
-            }
-        }
-    }
+	alias: string
+	host: string
+	username?: string
+	password?: string
+	color: string
+	cache: {
+		statusColor: Record<string, string>
+		customFieldsIdToName: Record<string, string>
+		customFieldsNameToId: Record<string, string>
+		customFieldsType: Record<string, IJiraFieldSchema>
+		jqlAutocomplete: {
+			fields: IJiraAutocompleteDataField[]
+			functions: {
+				[key: string]: [string]
+			}
+		}
+	}
 }
 
 export enum SearchResultFormats {

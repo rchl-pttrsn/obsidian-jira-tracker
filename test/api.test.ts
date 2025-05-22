@@ -29,27 +29,20 @@ const kSprintName = 'SprintName'
 const kSprint = { id: 567, name: kSprintName }
 
 describe('API', () => {
-
     describe('defaulted', () => {
         test('getIssue', async () => {
             (JiraClient.getIssue as jest.Mock).mockReturnValue(kIssue);
 
             const baseIssue = await API.base.getIssue(kIssueKey)
-            const defaultedIssue = await API.defaulted.getIssue(kIssueKey)
 
             expect(baseIssue).toEqual(kIssue)
-            expect(defaultedIssue.id).toEqual('')
-            expect(defaultedIssue.fields.assignee.displayName).toEqual('')
         })
         test('getSearchResults', async () => {
             (JiraClient.getSearchResults as jest.Mock).mockReturnValue(kSearchResults);
 
             const baseSearchResults = await API.base.getSearchResults(kSearchQuery)
-            const defaultedSearchResults = await API.defaulted.getSearchResults(kSearchQuery)
 
             expect(baseSearchResults).toEqual(kSearchResults)
-            expect(defaultedSearchResults.issues[0].id).toEqual('')
-            expect(defaultedSearchResults.issues[0].fields.assignee.displayName).toEqual('')
         })
     })
 
@@ -61,7 +54,7 @@ describe('API', () => {
             (JiraClient.getBoards as jest.Mock).mockReturnValueOnce([kBoard]);
             (JiraClient.getSprints as jest.Mock).mockReturnValueOnce([kSprint]);
 
-            expect(await API.macro.getActiveSprint(kProject)).toEqual(kSprint)
+            expect(await API.base.getActiveSprint(kProject)).toEqual(kSprint)
 
             expect(ObjectsCache.get).toBeCalledTimes(2)
             expect(ObjectsCache.get).toHaveBeenNthCalledWith(1, expect.stringMatching(new RegExp(kProject)))
@@ -80,7 +73,7 @@ describe('API', () => {
                 .mockReturnValueOnce(null);
             (JiraClient.getSprints as jest.Mock).mockReturnValueOnce([kSprint]);
 
-            expect(await API.macro.getActiveSprint(kProject)).toEqual(kSprint)
+            expect(await API.base.getActiveSprint(kProject)).toEqual(kSprint)
 
             expect(ObjectsCache.get).toBeCalledTimes(2)
             expect(ObjectsCache.get).toHaveBeenNthCalledWith(1, expect.stringMatching(new RegExp(kProject)))
@@ -96,7 +89,7 @@ describe('API', () => {
                 .mockReturnValueOnce({ data: [kBoard] })
                 .mockReturnValueOnce({ data: [kSprint] });
 
-            expect(await API.macro.getActiveSprint(kProject)).toEqual(kSprint)
+            expect(await API.base.getActiveSprint(kProject)).toEqual(kSprint)
 
             expect(ObjectsCache.get).toBeCalledTimes(2)
             expect(ObjectsCache.get).toHaveBeenNthCalledWith(1, expect.stringMatching(new RegExp(kProject)))
@@ -109,7 +102,7 @@ describe('API', () => {
             (ObjectsCache.get as jest.Mock).mockReturnValueOnce(null);
             (JiraClient.getBoards as jest.Mock).mockReturnValueOnce([]);
 
-            expect(await API.macro.getActiveSprint(kProject)).toEqual(null)
+            expect(await API.base.getActiveSprint(kProject)).toEqual(null)
 
             expect(ObjectsCache.get).toBeCalledTimes(1)
             expect(ObjectsCache.get).toHaveBeenNthCalledWith(1, expect.stringMatching(new RegExp(kProject)))
@@ -124,7 +117,7 @@ describe('API', () => {
             (JiraClient.getBoards as jest.Mock).mockReturnValueOnce([kBoard]);
             (JiraClient.getSprints as jest.Mock).mockReturnValueOnce([]);
 
-            expect(await API.macro.getActiveSprint(kProject)).toEqual(null)
+            expect(await API.base.getActiveSprint(kProject)).toEqual(null)
 
             expect(ObjectsCache.get).toBeCalledTimes(2)
             expect(ObjectsCache.get).toHaveBeenNthCalledWith(1, expect.stringMatching(new RegExp(kProject)))
@@ -138,23 +131,6 @@ describe('API', () => {
             expect(JiraClient.getSprints).toHaveBeenNthCalledWith(1, kBoardId, { state: ['active'], limit: 1 })
         })
     })
-
-    describe('getActiveSprintName', () => {
-        test('found', async () => {
-            (ObjectsCache.get as jest.Mock)
-                .mockReturnValueOnce({ data: [kBoard] })
-                .mockReturnValueOnce({ data: [kSprint] });
-
-            expect(await API.macro.getActiveSprintName(kProject)).toEqual(kSprintName)
-        })
-        test('not found', async () => {
-            (ObjectsCache.get as jest.Mock).mockReturnValueOnce(null);
-            (JiraClient.getBoards as jest.Mock).mockReturnValueOnce([]);
-
-            expect(await API.macro.getActiveSprintName(kProject)).toEqual('')
-        })
-    })
-
     afterEach(() => {
         jest.clearAllMocks()
     })

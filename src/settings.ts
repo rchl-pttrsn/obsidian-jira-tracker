@@ -68,7 +68,7 @@ export const DEFAULT_SETTINGS: JiraTrackerSettings = {
 		[JiraFields.WORKLOG]: false,
 		[JiraFields.WORK_RATIO]: false,
 		[JiraFields.CUSTOM_FIELD]: false,
-		[JiraFields.NOTES]: false
+		[JiraFields.NOTES]: false,
 	},
 	searchColumns: [
 		{ type: JiraFields.KEY, compact: false },
@@ -81,8 +81,7 @@ export const DEFAULT_SETTINGS: JiraTrackerSettings = {
 		{ type: JiraFields.PRIORITY, compact: true },
 		{ type: JiraFields.STATUS, compact: false },
 	],
-	logRequestsResponses: false,
-	logImagesFetch: false,
+	debugMode: false
 }
 
 export const SettingsData: JiraTrackerSettings = deepCopy(DEFAULT_SETTINGS)
@@ -332,28 +331,17 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 		)
 		
 		new Setting(containerEl)
-			.setName('Log data request and responses')
+			.setName('debug')
 			.setDesc(
 				'Log in the console (CTRL+Shift+I) all the API requests and responses performed by the plugin.'
 			)
 			.addToggle((toggle) =>
 				toggle
-					.setValue(SettingsData.logRequestsResponses)
+					.setValue(SettingsData.debugMode)
 					.onChange(async (value) => {
-						SettingsData.logRequestsResponses = value
+						SettingsData.debugMode = value
 						await this.saveSettings()
 					})
 			)
-		new Setting(containerEl)
-			.setName('Log images requests and responses')
-			.setDesc(
-				'Log in the console (CTRL+Shift+I) all the images fetch requests and responses performed by the plugin.'
-			)
-			.addToggle((toggle) =>
-				toggle.setValue(SettingsData.logImagesFetch).onChange(async (value) => {
-					SettingsData.logImagesFetch = value
-					await this.saveSettings()
-				})
-		)
 	}
 }

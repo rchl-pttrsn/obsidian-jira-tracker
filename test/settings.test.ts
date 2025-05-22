@@ -1,40 +1,27 @@
 jest.mock('obsidian')
 jest.mock('../src/client/jiraClient')
-
-import { EAuthenticationTypes, IJiraIssueSettings } from "../src/interfaces/settingsInterfaces"
-import { DEFAULT_ACCOUNT, DEFAULT_SETTINGS, JiraIssueSettingTab, SettingsData } from "../src/settings"
+import { DEFAULT_SETTINGS, JiraIssueSettingTab, SettingsData } from "../src/settings"
+import { ACCOUNT_TEMPLATE } from "../src/settings/account-settings-mixin"
+import { JiraFieldVisibility, JiraTrackerSettings } from "../src/settings/settings.interfaces"
 
 function deepCopy(obj: any): any {
     return JSON.parse(JSON.stringify(obj))
 }
 
 const StoredSettings = {
-    accounts: [{
-        alias: 'aliasVal',
-        authenticationType: EAuthenticationTypes.BASIC,
-        username: 'usernameVal',
-        password: 'passwordVal',
-        color: 'colorVal',
-        host: 'hostVal',
-        bareToken: 'bareToken',
-        priority: 1,
-        cache: {} as any
-    }],
-    apiBasePath: 'apiBasePathVal',
-    cache: {
-        columns: ['column1', 'column2']
-    },
-    cacheTime: 'cacheTimeVal',
-    inlineIssuePrefix: 'inlineIssuePrefixVal',
-    inlineIssueUrlToTag: true,
-    logImagesFetch: false,
-    logRequestsResponses: true,
-    searchColumns: [
-        // { type: ESearchColumnsTypes.KEY, compact: true },
-        // { type: ESearchColumnsTypes.CUSTOM_FIELD, compact: false, extra: 'customVal' },
-    ],
-    searchResultsLimit: 99
-} as IJiraIssueSettings
+	account: ACCOUNT_TEMPLATE,
+	apiBasePath: 'apiBasePathVal',
+	cache: {
+		columns: ['column1', 'column2'],
+	},
+	cacheTime: 'cacheTimeVal',
+	inlineIssuePrefix: 'inlineIssuePrefixVal',
+	inlineIssueUrlToTag: true,
+    debugMode: true,
+    jiraFieldOptions: {} as JiraFieldVisibility,
+	searchColumns: [],
+	searchResultsLimit: 99,
+} as JiraTrackerSettings
 
 describe('Settings', () => {
     const pluginMock = {
@@ -50,7 +37,7 @@ describe('Settings', () => {
         expect(pluginMock.saveData).toBeCalledTimes(1)
         expect(pluginMock.saveData.mock.calls[0][0]).toEqual({
             ...DEFAULT_SETTINGS,
-            accounts: [DEFAULT_ACCOUNT],
+            accounts: [ACCOUNT_TEMPLATE],
             customFieldsIdToName: null,
             customFieldsNameToId: null,
             jqlAutocomplete: null,
@@ -58,7 +45,7 @@ describe('Settings', () => {
         })
         expect(SettingsData).toEqual({
             ...DEFAULT_SETTINGS,
-            accounts: [DEFAULT_ACCOUNT],
+            accounts: [ACCOUNT_TEMPLATE],
         })
     })
     test('loadSettings valid full settings', async () => {

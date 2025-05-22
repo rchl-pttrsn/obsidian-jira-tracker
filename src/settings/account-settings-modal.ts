@@ -19,8 +19,8 @@ export class AccountSettingsModal extends Modal {
 	}
 
 	private renderSettings() {
+		this.contentEl.style.marginTop = '0.75em'
 		this.contentEl.empty()
-		// new Setting(this.contentEl).setName('Account').setHeading()
 		this.addAccountTile()
 		this.addColor()
 		this.addAlias()

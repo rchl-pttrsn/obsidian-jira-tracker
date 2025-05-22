@@ -17,8 +17,7 @@ export interface JiraTrackerSettings {
 	inlineIssuePrefix: string
 	searchColumns: ISearchColumn[]
 	jiraFieldOptions: JiraFieldVisibility
-	logRequestsResponses: boolean
-	logImagesFetch: boolean
+	debugMode: boolean
 	noteFolder?: string
 	noteTemplate?: string
 }

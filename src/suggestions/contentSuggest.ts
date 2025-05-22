@@ -4,7 +4,7 @@ import {
 	SearchResult,
 	prepareFuzzySearch,
 } from 'obsidian'
-import { SEARCH_COLUMNS_DESCRIPTION } from 'src/settings/settings.interfaces'
+import { JIRA_FIELDS } from 'src/settings/settings.interfaces'
 import { SettingsData } from 'src/settings'
 
 /*
@@ -90,11 +90,11 @@ export class ColumnSuggest extends ContentSuggest {
 	constructor(app: App, inputEl: HTMLInputElement) {
 		super(app, inputEl)
 		this.limit = this.incrementalLimit
-		this.total = Object.keys(SEARCH_COLUMNS_DESCRIPTION).length
+		this.total = Object.keys(JIRA_FIELDS).length
 	}
 
 	getContent() {
-		return Object.values(SEARCH_COLUMNS_DESCRIPTION)
+		return Object.values(JIRA_FIELDS)
 	}
 
 	open() {

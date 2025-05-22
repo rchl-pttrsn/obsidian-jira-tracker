@@ -6,12 +6,12 @@ import { renderTableColumn } from "./renderTableColumns"
 import { SearchView } from "../searchView"
 import { SettingsData } from "../settings"
 import RC from "./renderingCommon"
-import { ESearchColumnsTypes, ESearchResultsRenderingTypes, IJiraIssueAccountSettings, SEARCH_COLUMNS_DESCRIPTION } from "../settings/settings.interfaces"
+import { JiraFields, SearchResultFormats, JiraAccountSettings, JIRA_FIELDS } from "../settings/settings.interfaces"
 
 
 async function renderSearchResults(rootEl: HTMLElement, searchView: SearchView, searchResults: IJiraSearchResults): Promise<void> {
     searchView.account = searchResults.account
-    if (searchView.type === ESearchResultsRenderingTypes.LIST) {
+    if (searchView.type === SearchResultFormats.LIST) {
         renderSearchResultsList(rootEl, searchResults)
     } else {
         await renderSearchResultsTable(rootEl, searchView, searchResults)
@@ -27,20 +27,20 @@ async function renderSearchResultsTable(rootEl: HTMLElement, searchView: SearchV
     rootEl.replaceChildren(RC.renderContainer([table, footer]))
 }
 
-function renderSearchResultsTableHeader(table: HTMLElement, searchView: SearchView, account: IJiraIssueAccountSettings): void {
+function renderSearchResultsTableHeader(table: HTMLElement, searchView: SearchView, account: JiraAccountSettings): void {
     const header = createEl('tr', {
         parent:
             createEl('thead', { attr: { style: 'border-left: 3px solid ' + searchView.account.color }, parent: table })
     })
     const columns = searchView.columns.length > 0 ? searchView.columns : SettingsData.searchColumns
     for (const column of columns) {
-        let name = SEARCH_COLUMNS_DESCRIPTION[column.type]
+        let name = JIRA_FIELDS[column.type]
         // Frontmatter
-        if (column.type === ESearchColumnsTypes.NOTES && column.extra) {
+        if (column.type === JiraFields.NOTES && column.extra) {
             name = column.extra
         }
         // Custom field
-        if (column.type === ESearchColumnsTypes.CUSTOM_FIELD) {
+        if (column.type === JiraFields.CUSTOM_FIELD) {
             if (Number(column.extra)) {
                 name = account.cache.customFieldsIdToName[column.extra]
             } else {

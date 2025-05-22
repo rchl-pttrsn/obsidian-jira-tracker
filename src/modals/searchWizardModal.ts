@@ -1,5 +1,5 @@
 import { App, Modal, Setting } from "obsidian"
-import { ESearchColumnsTypes, ESearchResultsRenderingTypes, SEARCH_COLUMNS_DESCRIPTION, SEARCH_RESULTS_RENDERING_TYPE_DESCRIPTION } from "../settings/settings.interfaces"
+import { JiraFields, SearchResultFormats, JIRA_FIELDS, SEARCH_RESULTS_FORMATS } from "../settings/settings.interfaces"
 import { SearchView } from "../searchView"
 import { SettingsData } from "../settings"
 
@@ -22,10 +22,10 @@ export class SearchWizardModal extends Modal {
         new Setting(contentEl)
             .setName('Search rendering type')
             .addDropdown(dropdown => dropdown
-                .addOptions(SEARCH_RESULTS_RENDERING_TYPE_DESCRIPTION)
+                .addOptions(SEARCH_RESULTS_FORMATS)
                 .setValue(this._searchView.type)
                 .onChange(async value => {
-                    this._searchView.type = value as ESearchResultsRenderingTypes
+                    this._searchView.type = value as SearchResultFormats
                 }))
         new Setting(contentEl)
             .setName('Jira query')
@@ -50,10 +50,10 @@ export class SearchWizardModal extends Modal {
         this._searchView.columns.forEach((column, index) => {
             const setting = new Setting(contentEl)
                 .addDropdown(dropdown => dropdown
-                    .addOptions(SEARCH_COLUMNS_DESCRIPTION)
+                    .addOptions(JIRA_FIELDS)
                     .setValue(column.type)
                     .onChange(async value => {
-                        this._searchView.columns[index].type = value as ESearchColumnsTypes
+                        this._searchView.columns[index].type = value as JiraFields
                         // Force refresh
                         this.open()
                     }).selectEl.addClass('flex-grow-1')
@@ -115,7 +115,7 @@ export class SearchWizardModal extends Modal {
             .setButtonText("Add Column")
             .setCta()
             .onClick(async value => {
-                this._searchView.columns.push({ type: ESearchColumnsTypes.KEY, compact: false })
+                this._searchView.columns.push({ type: JiraFields.KEY, compact: false })
                 // Force refresh
                 this.open()
             })

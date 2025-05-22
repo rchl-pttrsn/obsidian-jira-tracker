@@ -1,5 +1,5 @@
 import { components } from "src/client/jira.schema"
-import { IJiraIssueAccountSettings } from "../settings/settings.interfaces"
+import { JiraAccountSettings } from "../settings/settings.interfaces"
 
 export type IJiraSearchField = components['schemas']['Fields'] & {
     [key: string]: unknown;
@@ -47,7 +47,7 @@ export type IJiraIssue = components['schemas']['IssueBean'] & {
     readonly id: string;
     readonly key: string;
     readonly fields: IJiraSearchField
-    account?: IJiraIssueAccountSettings
+    account?: JiraAccountSettings
 }   
 
 export type IJiraProgress = {
@@ -59,7 +59,7 @@ export type IJiraWorklog = components['schemas']['Worklog'];
 
 export type IJiraSearchResults = components['schemas']['SearchAndReconcileResults'] & {
     issues: IJiraIssue[];
-    account: IJiraIssueAccountSettings
+    account: JiraAccountSettings
     total: number;
 }
 

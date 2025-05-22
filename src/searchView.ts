@@ -1,13 +1,13 @@
-import { COMMENT_REGEX, COMPACT_SYMBOL, ESearchColumnsTypes, ESearchResultsRenderingTypes, IJiraIssueAccountSettings, ISearchColumn } from "./settings/settings.interfaces"
+import { COMMENT_REGEX, COMPACT_SYMBOL, JiraFields, SearchResultFormats, JiraAccountSettings, ISearchColumn } from "./settings/settings.interfaces"
 import { SettingsData } from "./settings"
 import { getAccountByAlias } from "./utils"
 
 export class SearchView {
-    type: ESearchResultsRenderingTypes = ESearchResultsRenderingTypes.TABLE
+    type: SearchResultFormats = SearchResultFormats.TABLE
     query: string = ''
     limit: number = null
     columns: ISearchColumn[] = []
-    account: IJiraIssueAccountSettings = null
+    account: JiraAccountSettings = null
     label: string = null
     private _cacheKey: string = null
 
@@ -25,8 +25,8 @@ export class SearchView {
                 // Advanced mode with key value structure
                 switch (key.trim().toLowerCase()) {
                     case 'type':
-                        if (value.toUpperCase() in ESearchResultsRenderingTypes) {
-                            sv.type = value.toUpperCase() as ESearchResultsRenderingTypes
+                        if (value.toUpperCase() in SearchResultFormats) {
+                            sv.type = value.toUpperCase() as SearchResultFormats
                         } else {
                             throw new Error(`Invalid type: ${value}`)
                         }
@@ -58,28 +58,25 @@ export class SearchView {
                                 // Custom field
                                 if (column.startsWith('$')) {
                                     columnExtra = column.slice(1)
-                                    column = ESearchColumnsTypes.CUSTOM_FIELD
+                                    column = JiraFields.CUSTOM_FIELD
                                     if (SettingsData.cache.columns.indexOf(columnExtra.toUpperCase()) === -1) {
                                         throw new Error(`Custom field ${columnExtra} not found`)
                                     }
                                 }
                                 // Check validity
                                 column = column.toUpperCase()
-                                if (!(column in ESearchColumnsTypes)) {
+                                if (!(column in JiraFields)) {
                                     if (column.startsWith('#')) {
                                         throw new Error(`Please replace the symbol "#" with "${COMPACT_SYMBOL}" to use the compact format`)
                                     }
                                     throw new Error(`Invalid column: ${column}`)
                                 }
                                 return {
-                                    type: column as ESearchColumnsTypes,
+                                    type: column as JiraFields,
                                     compact: compact,
                                     extra: columnExtra,
                                 }
                             })
-                        break
-                    case 'account':
-                        sv.account = getAccountByAlias(value)
                         break
                     case 'label':
                         sv.label = value
@@ -89,7 +86,7 @@ export class SearchView {
                 }
             }
         }
-        if (sv.type === ESearchResultsRenderingTypes.LIST && sv.columns.length > 0) {
+        if (sv.type === SearchResultFormats.LIST && sv.columns.length > 0) {
             throw new Error('Type LIST and custom columns are not compatible options')
         }
         return sv
@@ -108,7 +105,7 @@ export class SearchView {
         }
         if (this.columns.length > 0) {
             result += `columns: ${this.columns.map(c =>
-                (c.compact ? COMPACT_SYMBOL : '') + (c.type !== ESearchColumnsTypes.CUSTOM_FIELD ? c.type : '$' + c.extra)
+                (c.compact ? COMPACT_SYMBOL : '') + (c.type !== JiraFields.CUSTOM_FIELD ? c.type : '$' + c.extra)
             ).join(', ')}\n`
         }
         if (this.account) {

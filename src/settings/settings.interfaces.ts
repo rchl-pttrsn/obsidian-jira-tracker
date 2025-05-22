@@ -1,4 +1,7 @@
-import { IJiraAutocompleteDataField, IJiraFieldSchema } from "../interfaces/issueInterfaces"
+import {
+	IJiraAutocompleteDataField,
+	IJiraFieldSchema,
+} from '../interfaces/issueInterfaces'
 
 export const COMPACT_SYMBOL = '-'
 export const AVATAR_RESOLUTION = '16x16'
@@ -14,7 +17,7 @@ export interface JiraTrackerSettings {
 		columns: string[]
 	}
 	inlineIssueUrlToTag: boolean
-	inlineIssuePrefix: string
+	inlinePrefix: string
 	searchColumns: ISearchColumn[]
 	jiraFieldOptions: JiraFieldVisibility
 	debugMode: boolean
@@ -43,8 +46,8 @@ export interface JiraAccountSettings {
 }
 
 export enum SearchResultFormats {
-    TABLE = 'TABLE',
-    LIST = 'LIST',
+	TABLE = 'TABLE',
+	LIST = 'LIST',
 }
 export const SEARCH_RESULTS_FORMATS: Record<SearchResultFormats, string> = {
 	[SearchResultFormats.TABLE]: 'Table',
@@ -52,50 +55,50 @@ export const SEARCH_RESULTS_FORMATS: Record<SearchResultFormats, string> = {
 }
 
 export enum JiraFields {
-    AGGREGATE_PROGRESS = 'AGGREGATE_PROGRESS',
-    AGGREGATE_TIME_ESTIMATED = 'AGGREGATE_TIME_ESTIMATED',
-    AGGREGATE_TIME_ORIGINAL_ESTIMATE = 'AGGREGATE_TIME_ORIGINAL_ESTIMATE',
-    AGGREGATE_TIME_SPENT = 'AGGREGATE_TIME_SPENT',
-    ASSIGNEE = 'ASSIGNEE',
-    COMPONENTS = 'COMPONENTS',
-    CREATED = 'CREATED',
-    DESCRIPTION = 'DESCRIPTION',
-    DUE_DATE = 'DUE_DATE',
-    ENVIRONMENT = 'ENVIRONMENT',
-    FIX_VERSIONS = 'FIX_VERSIONS',
-    LINKED_ISSUES = "LINKED_ISSUES",
-    KEY = 'KEY',
-    LABELS = 'LABELS',
-    LAST_VIEWED = 'LAST_VIEWED',
-    PARENT = "PARENT",
-    PRIORITY = 'PRIORITY',
-    PROGRESS = 'PROGRESS',
-    PROJECT = 'PROJECT',
-    REPORTER = 'REPORTER',
-    RESOLUTION = 'RESOLUTION',
-    RESOLUTION_DATE = 'RESOLUTION_DATE',
-    STATUS = 'STATUS',
-    SUMMARY = 'SUMMARY',
-    TIME_ESTIMATE = 'TIME_ESTIMATE',
-    TIME_ORIGINAL_ESTIMATE = 'TIME_ORIGINAL_ESTIMATE',
-    TIME_SPENT = 'TIME_SPENT',
-    TYPE = 'TYPE',
-    UPDATED = 'UPDATED',
-    CREATOR = "CREATOR",
-    SUB_TASKS = "SUB_TASKS",
-    WATCHES = "WATCHES",
-    ATTACHMENT = 'ATTACHMENT',
-    COMMENT = "COMMENT",
-    ISSUE_RESTRICTION = "ISSUE_RESTRICTION",
-    SECURITY = "SECURITY",
-    THUMBNAIL = "THUMBNAIL",
-    TIME_TRACKING = "TIME_TRACKING",
-    VERSIONS = "VERSIONS",
-    VOTES = "VOTES",
-    WORKLOG = "WORKLOG",
-    WORK_RATIO = "WORK_RATIO",
-    CUSTOM_FIELD = 'CUSTOM_FIELD',
-    NOTES = 'NOTES',
+	AGGREGATE_PROGRESS = 'AGGREGATE_PROGRESS',
+	AGGREGATE_TIME_ESTIMATED = 'AGGREGATE_TIME_ESTIMATED',
+	AGGREGATE_TIME_ORIGINAL_ESTIMATE = 'AGGREGATE_TIME_ORIGINAL_ESTIMATE',
+	AGGREGATE_TIME_SPENT = 'AGGREGATE_TIME_SPENT',
+	ASSIGNEE = 'ASSIGNEE',
+	COMPONENTS = 'COMPONENTS',
+	CREATED = 'CREATED',
+	DESCRIPTION = 'DESCRIPTION',
+	DUE_DATE = 'DUE_DATE',
+	ENVIRONMENT = 'ENVIRONMENT',
+	FIX_VERSIONS = 'FIX_VERSIONS',
+	LINKED_ISSUES = 'LINKED_ISSUES',
+	KEY = 'KEY',
+	LABELS = 'LABELS',
+	LAST_VIEWED = 'LAST_VIEWED',
+	PARENT = 'PARENT',
+	PRIORITY = 'PRIORITY',
+	PROGRESS = 'PROGRESS',
+	PROJECT = 'PROJECT',
+	REPORTER = 'REPORTER',
+	RESOLUTION = 'RESOLUTION',
+	RESOLUTION_DATE = 'RESOLUTION_DATE',
+	STATUS = 'STATUS',
+	SUMMARY = 'SUMMARY',
+	TIME_ESTIMATE = 'TIME_ESTIMATE',
+	TIME_ORIGINAL_ESTIMATE = 'TIME_ORIGINAL_ESTIMATE',
+	TIME_SPENT = 'TIME_SPENT',
+	TYPE = 'TYPE',
+	UPDATED = 'UPDATED',
+	CREATOR = 'CREATOR',
+	SUB_TASKS = 'SUB_TASKS',
+	WATCHES = 'WATCHES',
+	ATTACHMENT = 'ATTACHMENT',
+	COMMENT = 'COMMENT',
+	ISSUE_RESTRICTION = 'ISSUE_RESTRICTION',
+	SECURITY = 'SECURITY',
+	THUMBNAIL = 'THUMBNAIL',
+	TIME_TRACKING = 'TIME_TRACKING',
+	VERSIONS = 'VERSIONS',
+	VOTES = 'VOTES',
+	WORKLOG = 'WORKLOG',
+	WORK_RATIO = 'WORK_RATIO',
+	CUSTOM_FIELD = 'CUSTOM_FIELD',
+	NOTES = 'NOTES',
 }
 export const JIRA_FIELDS = {
 	[JiraFields.KEY]: 'Key',
@@ -148,9 +151,9 @@ export const JIRA_FIELDS = {
 }
 
 export interface ISearchColumn {
-    type: JiraFields
-    compact: boolean
-    extra?: string
+	type: JiraFields
+	compact: boolean
+	extra?: string
 }
 
 export type JiraFieldVisibility = Record<JiraFields, boolean>

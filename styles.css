@@ -228,11 +228,6 @@
     padding: 0;
 }
 
-.jira-issue-container .rotate-animation {
-    animation-name: rotate-keyframes;
-    animation-duration: 2s;
-}
-
 .rotate-animation {
     animation-name: rotate-keyframes;
     animation-duration: 2s;
@@ -249,20 +244,26 @@
 }
 
 
-/* --- Settings Panel --- */
-.setting-item .jira-account-tile {
+/* --- Settings Tab --- */
+
+/* --- Settings Tab Jra Tracker Overrides --- */
+.jto .setting-item-control:has(*) {
+    max-width: 200px;
+    min-width: 200px;
+}
+.jto .setting-item-control input {
+    width: 100%;
+    max-width: 200px;
+}
+.setting-item .setting-item-info.jira-account-tile {
   padding-left: 5px;
   border-left: 5px solid var(--jira-account-color, #000);
 }
 
-.setting-item-control .search-input-container {
+.jto .setting-item-control .search-input-container {
     width: 100%;
 }
-.setting-item.search-column-container {
-    margin-bottom: var(--size-4-1);
-    background: var(--background-secondary-blur);
-    padding: var(--size-4-2) var(--size-4-1);
-}
+
 .setting-item-control select.flex-grow-1 {
     flex-grow: 1;
     max-width: none;
@@ -272,15 +273,32 @@
     height: 2.5em;
     border-radius: var(--size-4-2);
 }
-.setting-item-control input[type='text'].error {
-    border: 1px solid var(--text-error);
-    color: var(--text-error);
+
+/* --- Settings Tab - Text Input Error --- */
+.setting-item-control.error {
+    flex: none;
+    position: relative;
 }
-.setting-item-description .error {
+.setting-item-control.error input[type='text'] {
+    border: 1px solid var(--text-error);
+    flex: 1;
+}
+.setting-item-control.error .error-msg {
+    display: block;
     color: var(--text-error);
+    position: absolute;
+    z-index: 1;
+    top: 32px;
+    font-size: var(--font-ui-smaller);
+    line-height: var(--line-height-tight);
+    width: -webkit-fill-available;
+    text-align: left;
+}
+.setting-item-control .error-msg {
+    display: none;
 }
 
-/* --- Settings Panel Jira Fields Config --- */
+/* --- Settings Tab Jira Fields Config --- */
 .column-settings-fields {
     display: flex;
     flex-direction: column;
@@ -322,7 +340,21 @@
     max-width: 100%;
 }
 
+.setting-item.search-column-container {
+    margin-bottom: var(--size-4-1);
+    background: var(--background-secondary-blur);
+    padding: var(--size-2-1) 0;
+    border-radius: var(--size-4-1);
+}
+
+.setting-item.search-column-container .drag-handle {
+    margin-inline-end: var(--size-4-2);
+}
+
 /* --- Drag and Drop --- */
+.selected-columns-dnd-container .search-column-container .drag-handle svg {
+    vertical-align: middle;
+}
 .selected-columns-dnd-container .search-column-container.dragging {
     opacity: 0.5;
 }

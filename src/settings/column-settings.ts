@@ -51,12 +51,13 @@ export class ColumnSettings {
 		new Setting(containerEl)
 			.setName('Limit')
 			.setDesc('Maximum number of results to return for each query by default.')
-			.addText((text) =>
-				text
-					.setValue(SettingsData.searchResultsLimit.toString())
+			.addSlider((slider) =>
+				slider
+					.setLimits(1, 50, 1)
+					.setValue(SettingsData.searchResultsLimit)
+					.setDynamicTooltip()
 					.onChange(async (value) => {
-						SettingsData.searchResultsLimit =
-							parseInt(value) || DEFAULT_SETTINGS.searchResultsLimit
+						SettingsData.searchResultsLimit = value
 						await this.saveCb()
 					})
 			)

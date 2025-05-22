@@ -1,6 +1,5 @@
 import { COMMENT_REGEX, COMPACT_SYMBOL, JiraFields, SearchResultFormats, JiraAccountSettings, ISearchColumn } from "./settings/settings.interfaces"
 import { SettingsData } from "./settings"
-import { getAccountByAlias } from "./utils"
 
 export class SearchView {
     type: SearchResultFormats = SearchResultFormats.TABLE

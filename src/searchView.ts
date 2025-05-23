@@ -6,7 +6,6 @@ export class SearchView {
     query: string = ''
     limit: number = null
     columns: ISearchColumn[] = []
-    account: JiraAccountSettings = null
     label: string = null
     private _cacheKey: string = null
 
@@ -49,19 +48,19 @@ export class SearchView {
                                 const compact = column.trim().startsWith(COMPACT_SYMBOL)
                                 column = column.trim().replace(new RegExp(`^${COMPACT_SYMBOL}`), '')
                                 // Frontmatter
-                                if (column.toUpperCase().startsWith('NOTES.')) {
-                                    const split = column.split('.')
-                                    column = split.splice(0, 1)[0]
-                                    columnExtra = split.join('.')
-                                }
-                                // Custom field
-                                if (column.startsWith('$')) {
-                                    columnExtra = column.slice(1)
-                                    column = JiraFields.CUSTOM_FIELD
-                                    if (SettingsData.cache.columns.indexOf(columnExtra.toUpperCase()) === -1) {
-                                        throw new Error(`Custom field ${columnExtra} not found`)
-                                    }
-                                }
+                                // if (column.toUpperCase().startsWith('NOTES.')) {
+                                //     const split = column.split('.')
+                                //     column = split.splice(0, 1)[0]
+                                //     columnExtra = split.join('.')
+                                // }
+                                // // Custom field
+                                // if (column.startsWith('$')) {
+                                //     columnExtra = column.slice(1)
+                                //     column = JiraFields.CUSTOM_FIELD
+                                //     if (SettingsData.cache.columns.indexOf(columnExtra.toUpperCase()) === -1) {
+                                //         throw new Error(`Custom field ${columnExtra} not found`)
+                                //     }
+                                // }
                                 // Check validity
                                 column = column.toUpperCase()
                                 if (!(column in JiraFields)) {
@@ -107,15 +106,12 @@ export class SearchView {
                 (c.compact ? COMPACT_SYMBOL : '') + (c.type !== JiraFields.CUSTOM_FIELD ? c.type : '$' + c.extra)
             ).join(', ')}\n`
         }
-        if (this.account) {
-            result += `account: ${this.account.alias}\n`
-        }
         return result
     }
 
     getCacheKey(): string {
         if (!this._cacheKey) {
-            this._cacheKey = this.query + (this.limit || '') + (this.account ? this.account.alias : '')
+            this._cacheKey = this.query + (this.limit || '')
         }
         return this._cacheKey
     }

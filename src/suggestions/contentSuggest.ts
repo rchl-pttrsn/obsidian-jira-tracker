@@ -4,8 +4,6 @@ import {
 	SearchResult,
 	prepareFuzzySearch,
 } from 'obsidian'
-import { JIRA_FIELDS } from 'src/settings/settings.interfaces'
-import { SettingsData } from 'src/settings'
 
 /*
  * Class that can be added to an existing inputElement to add suggestions.

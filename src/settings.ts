@@ -23,6 +23,7 @@ export const DEFAULT_SETTINGS: JiraTrackerSettings = {
 		[JiraFields.ASSIGNEE]: false,
 		[JiraFields.COMPONENTS]: false,
 		[JiraFields.CREATED]: false,
+		[JiraFields.CREATOR]: false,
 		[JiraFields.DESCRIPTION]: false,
 		[JiraFields.DUE_DATE]: false,
 		[JiraFields.ENVIRONMENT]: false,
@@ -47,6 +48,9 @@ export const DEFAULT_SETTINGS: JiraTrackerSettings = {
 		[JiraFields.UPDATED]: false,
 		[JiraFields.CUSTOM_FIELD]: false,
 		[JiraFields.NOTES]: false,
+		[JiraFields.SUB_TASKS]: false,
+		[JiraFields.WATCHES]: false,
+		[JiraFields.VOTES]: false,
 	},
 	searchColumns: [
 		{ type: JiraFields.KEY, compact: false },

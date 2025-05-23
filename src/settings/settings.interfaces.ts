@@ -84,13 +84,10 @@ export enum JiraFields {
 	TIME_SPENT = 'TIME_SPENT',
 	TYPE = 'TYPE',
 	UPDATED = 'UPDATED',
-	
-	// TODO coming soon
-	// CREATOR = 'CREATOR',
-	// SUB_TASKS = 'SUB_TASKS',
-	// WATCHES = 'WATCHES',
-	// TIME_TRACKING = 'TIME_TRACKING',
-	// VOTES = 'VOTES',
+	CREATOR = 'CREATOR',
+	SUB_TASKS = 'SUB_TASKS',
+	WATCHES = 'WATCHES',
+	VOTES = 'VOTES',
 
 	// wont support
 	// SECURITY = 'SECURITY',
@@ -138,11 +135,10 @@ export const JIRA_FIELDS = {
 	[JiraFields.CUSTOM_FIELD]: 'Custom field',
 	[JiraFields.NOTES]: 'Notes',
 	// coming soon
-	// [JiraFields.CREATOR]: 'Creator (Coming Soon)',
-	// [JiraFields.SUB_TASKS]: 'Sub Tasks (Coming Soon)',
-	// [JiraFields.WATCHES]: 'Watches (Coming Soon)',
-	// [JiraFields.TIME_TRACKING]: 'Time Tracking (Coming Soon)',
-	// [JiraFields.VOTES]: 'Votes (Coming Soon)',
+	[JiraFields.CREATOR]: 'Creator',
+	[JiraFields.SUB_TASKS]: 'Sub Tasks',
+	[JiraFields.WATCHES]: 'Watches',
+	[JiraFields.VOTES]: 'Votes',
 	// // wont support
 	// [JiraFields.SECURITY]: 'Comment (Not Supported)',
 	// [JiraFields.WORK_RATIO]: 'Work Ratio (Not Supported)',

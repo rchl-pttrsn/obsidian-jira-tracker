@@ -9,17 +9,14 @@ import { IssueFenceRenderer } from './rendering/issueFenceRenderer'
 import { SearchFenceRenderer } from './rendering/searchFenceRenderer'
 import { SearchWizardModal } from './modals/searchWizardModal'
 import { ViewPluginManager } from './rendering/inlineIssueViewPlugin'
-import { QuerySuggest } from './suggestions/querySuggest'
 import { setupIcons } from './icons/icons'
 import API from './api/api'
-import { FolderSuggest } from './suggestions/contentSuggest'
 
 export let ObsidianApp: App = null
 
 export default class JiraIssuePlugin extends Plugin {
     private _settingTab: JiraIssueSettingTab
     private _columnsSuggest: ColumnsSuggest
-    private _querySuggest: QuerySuggest
     private _inlineIssueViewPlugin: ViewPluginManager
 
     async onload() {
@@ -44,12 +41,6 @@ export default class JiraIssuePlugin extends Plugin {
             this._columnsSuggest = new ColumnsSuggest(this.app)
             this.registerEditorSuggest(this._columnsSuggest)
         })
-
-        // TODO
-        // this.app.workspace.onLayoutReady(() => {
-        //     this._querySuggest = new QuerySuggest(this.app)
-        //     this.registerEditorSuggest(this._querySuggest)
-        // })
 
         // Reading mode inline issue rendering
         this.registerMarkdownPostProcessor(InlineIssueRenderer)

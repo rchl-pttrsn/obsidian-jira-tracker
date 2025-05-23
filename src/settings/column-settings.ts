@@ -1,39 +1,44 @@
 import { App, Setting } from 'obsidian'
+import { JiraFields, JIRA_FIELDS } from 'src/settings/settings.interfaces'
 import {
-	JiraFields,
-	JIRA_FIELDS,
-} from 'src/settings/settings.interfaces'
-import { DEFAULT_SETTINGS, SettingsData } from 'src/settings'
-import { ColumnSuggest } from 'src/suggestions/contentSuggest'
+	DEFAULT_SETTINGS,
+	SettingsData,
+	JiraIssueSettingTab,
+} from 'src/settings'
 
 export class ColumnSettings {
-	containerEl: HTMLElement
-	saveCb: () => Promise<void>
-	displayCb: () => Promise<void>
+	parent: JiraIssueSettingTab
 	app: App
-	constructor(
-		containerEl: HTMLElement,
-		saveCb: () => Promise<void>,
-		displayCb: () => Promise<void>,
-		app: App
-	) {
-		this.containerEl = containerEl
-		this.saveCb = saveCb
-		this.displayCb = displayCb
-		this.app = app
+	containerEl: HTMLElement
+
+	constructor(parent: JiraIssueSettingTab) {
+		this.parent = parent
+		this.app = parent.app
+		this.containerEl = parent.containerEl
 	}
 
-	public render() {
+	public display() {
+		this.addHeaderField()
+		this.addNotesField()
+		this.addQueryLimitField()
+		this.addSelectedFields()
+		this.addColumnActions()
+	}
+
+	private addHeaderField() {
 		const { containerEl } = this
 		new Setting(containerEl).setName('Search query defaults').setHeading()
-
-		this.containerEl.createDiv({
+		containerEl.createEl('div', {
 			text: 'Configure the default behavior and display options for `jira-search` queries.',
 			cls: 'setting-item-description',
 			attr: {
 				style: 'margin-bottom: 8px;',
 			},
 		})
+	}
+
+	private addNotesField() {
+		const { containerEl } = this
 		new Setting(containerEl)
 			.setName('Link note')
 			.setDesc(
@@ -44,41 +49,49 @@ export class ColumnSettings {
 					.setValue(SettingsData.inlineIssueUrlToTag)
 					.onChange(async (value) => {
 						SettingsData.inlineIssueUrlToTag = value
-						await this.saveCb()
+						await this.parent.saveSettings()
 					})
 			)
+	}
 
+	private addQueryLimitField() {
+		const { containerEl } = this
 		new Setting(containerEl)
 			.setName('Limit')
 			.setDesc('Maximum number of results to return for each query by default.')
-			.addText((text) =>
-				text
-					.setValue(SettingsData.searchResultsLimit.toString())
+			.addSlider((slider) =>
+				slider
+					.setLimits(1, 50, 1)
+					.setValue(SettingsData.searchResultsLimit)
+					.setDynamicTooltip()
 					.onChange(async (value) => {
-						SettingsData.searchResultsLimit =
-							parseInt(value) || DEFAULT_SETTINGS.searchResultsLimit
-						await this.saveCb()
+						SettingsData.searchResultsLimit = value
+						await this.parent.saveSettings()
 					})
 			)
+	}
 
+	private addSelectedFields() {
+		const { containerEl } = this
 		new Setting(containerEl)
 			.setName('Column defaults')
 			.setDesc(
 				'Fields shown by default in search results when no columns are specified in your `jira-search` query.'
 			)
+		addSelectedFields(containerEl, 'Jira fields', async () => await this.parent.saveSettings())
+	}
 
-		this.renderSelectedFields('Jira fields')
-
+	private addColumnActions() {
+		const { containerEl } = this
 		new Setting(containerEl)
 			.addButton((button) =>
 				button
 					.setButtonText('Reset columns')
 					.setWarning()
-					.onClick(async (value) => {
+					.onClick(async (_value) => {
 						SettingsData.searchColumns = [...DEFAULT_SETTINGS.searchColumns]
-						await this.saveCb()
-						// Force refresh
-						this.displayCb()
+						await this.parent.saveSettings()
+						this.parent.display()
 					})
 			)
 			.addButton((button) =>
@@ -86,20 +99,33 @@ export class ColumnSettings {
 					.setButtonText('Change Columns')
 					.setCta()
 					.onClick(async (_value) => {
-						this.renderModifySettings()
+						new ColumnSettingsPage(this.parent).display()
 					})
 			)
 	}
+}
 
-	private renderModifySettings() {
-		this.containerEl.empty()
-		this.renderHeader()
-		this.renderAvailableFields()
-		this.renderSelectedFields()
-		this.renderBackButton()
+class ColumnSettingsPage {
+	parent: JiraIssueSettingTab
+	app: App
+	containerEl: HTMLElement
+
+	constructor(parent: JiraIssueSettingTab) {
+		this.parent = parent
+		this.app = parent.app
+		this.containerEl = parent.containerEl
 	}
 
-	private renderHeader() {
+	public display() {
+		this.containerEl.empty()
+		this.containerEl.addClass('jto')
+		this.addHeaderField()
+		this.addAvailableFields()
+		this.addSelectedFields()
+		this.addBackButton()
+	}
+
+	private addHeaderField() {
 		new Setting(this.containerEl).setName('Configure Jira fields').setHeading()
 		this.containerEl.createDiv({
 			text: "Select which Jira fields to display by default in your `jira-search` query. Available fields depend on your organization's Jira configuration. If a field you need is missing, you can request it as a future feature.",
@@ -110,187 +136,233 @@ export class ColumnSettings {
 		})
 	}
 
-	private renderAvailableFields() {
+	private addAvailableFields() {
 		const setting = new Setting(this.containerEl)
 			.setName('Available fields')
-			.addSearch((search) =>
-				search.setPlaceholder('Search for fields. Ex. time').then((search) => {
-					new ColumnSuggest(this.app, search.inputEl)
-				})
-			)
 
-		setting.settingEl.addClass('column-settings-fields')
-		const fieldOptionsContainerEl = setting.settingEl.createEl('div', {
+		let searchValue = ''
+		// Simple fuzzy search implementation
+		function fuzzyMatch(needle: string, haystack: string) {
+			needle = needle.toLowerCase()
+			haystack = haystack.toLowerCase()
+			let hIdx = 0
+			for (let nIdx = 0; nIdx < needle.length; nIdx++) {
+				const nChar = needle[nIdx]
+				hIdx = haystack.indexOf(nChar, hIdx)
+				if (hIdx === -1) return false
+				hIdx++
+			}
+			return true
+		}
+		const filterFields = () => {
+			const lower = searchValue.toLowerCase()
+			if (!lower) return Object.entries(JIRA_FIELDS)
+			return Object.entries(JIRA_FIELDS).filter(
+				([field, desc]) =>
+					fuzzyMatch(lower, field) ||
+					fuzzyMatch(lower, desc)
+			)
+		}
+
+		const fieldContainerEl = setting.settingEl.createEl('div', {
 			cls: 'field-options-container',
 		})
-		// Flexbox for up to 3 items per row, aligned
-		let allFields: Record<string, boolean>
-		const fields = Object.keys(JiraFields)
-			.filter((field) => isNaN(Number(field)))
-			.reduce((prev, curr) => {
-				prev[curr] = false
+		const fieldOptionsContainerEl = fieldContainerEl.createEl('div', {
+			cls: 'flex',
+		})
+		const renderCheckboxes = () => {
+			fieldOptionsContainerEl.empty()
+			let allFields: Record<string, boolean>
+			const fields = Object.keys(JiraFields)
+				.filter((field) => isNaN(Number(field)))
+				.reduce((prev, curr) => {
+					prev[curr] = false
+					return prev
+				}, {} as Record<string, boolean>)
+			const selectedFields = SettingsData.searchColumns.reduce((prev, curr) => {
+				prev[curr.type] = true
 				return prev
 			}, {} as Record<string, boolean>)
-		const selectedFields = SettingsData.searchColumns.reduce((prev, curr) => {
-			prev[curr.type] = true
-			return prev
-		}, {} as Record<string, boolean>)
-		allFields = Object.assign(fields, selectedFields)
+			allFields = Object.assign(fields, selectedFields)
 
-		const itemsPerRow = 3
-		Object.entries(JIRA_FIELDS).forEach(([field, desc]) => {
-			const label = fieldOptionsContainerEl.createEl('label', {
-				cls: 'field-option-label',
-			})
-			const checkbox = label.createEl('input', {
-				type: 'checkbox',
-				attr: { value: desc },
-			})
-			checkbox.checked = allFields[field]
-			checkbox.addEventListener('change', async () => {
-				allFields[field] = checkbox.checked
-				const scIdx = SettingsData.searchColumns.findIndex(
-					(sc) => sc.type === field
-				)
-				if (scIdx === -1) {
-					SettingsData.searchColumns.push({
-						type: field as JiraFields,
-						compact: false,
-					})
-				} else {
-					const start = SettingsData.searchColumns.slice(0, scIdx)
-					const endSc = SettingsData.searchColumns.slice(scIdx + 1)
-					SettingsData.searchColumns = [...start, ...endSc]
-				}
-				await this.saveCb()
-				this.renderModifySettings()
-			})
-			label.createSpan({
-				text: desc,
-				cls: 'field-option-label-text',
-			})
-		})
-		// Add invisible spacers if needed to fill out the last row
-		const remainder = Object.keys(allFields).length % itemsPerRow
-		if (remainder !== 0) {
-			for (let i = 0; i < itemsPerRow - remainder; i++) {
-				fieldOptionsContainerEl.createEl('div', {
-					cls: 'field-option-spacer',
+			const itemsPerRow = 3
+			const filtered = filterFields()
+			filtered.forEach(([field, desc]) => {
+				const label = fieldOptionsContainerEl.createEl('label', {
+					cls: 'field-option-label',
 				})
+				const checkbox = label.createEl('input', {
+					type: 'checkbox',
+					attr: { value: desc },
+				})
+				checkbox.checked = allFields[field]
+				checkbox.addEventListener('change', async () => {
+					allFields[field] = checkbox.checked
+					const scIdx = SettingsData.searchColumns.findIndex(
+						(sc) => sc.type === field
+					)
+					if (scIdx === -1) {
+						SettingsData.searchColumns.push({
+							type: field as JiraFields,
+							compact: false,
+						})
+					} else {
+						const start = SettingsData.searchColumns.slice(0, scIdx)
+						const endSc = SettingsData.searchColumns.slice(scIdx + 1)
+						SettingsData.searchColumns = [...start, ...endSc]
+					}
+					await this.parent.saveSettings()
+					this.display()
+				})
+				label.createSpan({
+					text: desc,
+					cls: 'field-option-label-text',
+				})
+			})
+			const remainder = filtered.length % itemsPerRow
+			if (remainder !== 0) {
+				for (let i = 0; i < itemsPerRow - remainder; i++) {
+					fieldOptionsContainerEl.createEl('div', {
+						cls: 'field-option-spacer',
+					})
+				}
 			}
 		}
-	}
 
-	private renderSelectedFields(settingName?: string) {
-		new Setting(this.containerEl).setName(settingName ?? 'Selected fields')
-
-		// --- Drag and drop container for selected columns ---
-		const selectedColumnsContainer = this.containerEl.createDiv({
-			cls: 'selected-columns-dnd-container',
-		})
-
-		const renderSelectedColumns = () => {
-			selectedColumnsContainer.empty()
-			SettingsData.searchColumns.forEach((column, index) => {
-				const setting = new Setting(selectedColumnsContainer)
-				setting.settingEl.addClass('search-column-container')
-				setting.settingEl.setAttr('draggable', 'true')
-				setting.settingEl.setAttr('data-index', index)
-				// Add drag handle SVG
-				const dragHandle = document.createElement('span')
-				dragHandle.className = 'drag-handle'
-				dragHandle.innerHTML = `
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grip-vertical-icon lucide-grip-vertical"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>
-				`
-				setting.settingEl.prepend(dragHandle)
-				setting.infoEl.createDiv({
-					text: JIRA_FIELDS[
-						column.type as keyof typeof JIRA_FIELDS
-					],
-				})
-
-				setting.addExtraButton((button) =>
-					button
-						.setIcon(
-							SettingsData.searchColumns[index].compact
-								? 'compress-glyph'
-								: 'enlarge-glyph'
-						)
-						.setTooltip(
-							SettingsData.searchColumns[index].compact
-								? 'Compact'
-								: 'Full width'
-						)
-						.onClick(async () => {
-							SettingsData.searchColumns[index].compact =
-								!SettingsData.searchColumns[index].compact
-							await this.saveCb()
-							renderSelectedColumns()
-						})
-				)
-				setting.addExtraButton((button) =>
-					button
-						.setIcon('trash')
-						.setTooltip('Delete')
-						.onClick(async () => {
-							SettingsData.searchColumns.splice(index, 1)
-							await this.saveCb()
-							renderSelectedColumns()
-						})
-				)
-			})
-
-			this.enableDragAndDrop(selectedColumnsContainer, renderSelectedColumns)
-		}
-
-		renderSelectedColumns()
-	}
-
-	private enableDragAndDrop(container: HTMLElement, rerender: () => void) {
-		let dragSrcIdx: number | null = null
-		container.querySelectorAll('.search-column-container').forEach((el) => {
-			el.addEventListener('dragstart', (e: DragEvent) => {
-				dragSrcIdx = Number(
-					(e.currentTarget as HTMLElement).getAttribute('data-index')
-				)
-				;(e.currentTarget as HTMLElement).classList.add('dragging')
-			})
-			el.addEventListener('dragend', (e: DragEvent) => {
-				;(e.currentTarget as HTMLElement).classList.remove('dragging')
-			})
-			el.addEventListener('dragover', (e: DragEvent) => {
-				;(e as DragEvent).preventDefault()
-				;(e.currentTarget as HTMLElement).classList.add('drag-over')
-			})
-			el.addEventListener('dragleave', (e: DragEvent) => {
-				;(e.currentTarget as HTMLElement).classList.remove('drag-over')
-			})
-			el.addEventListener('drop', async (e) => {
-				;(e as DragEvent).preventDefault()
-				const targetIdx = Number(
-					((e as DragEvent).currentTarget as HTMLElement).getAttribute(
-						'data-index'
-					)
-				)
-				if (dragSrcIdx !== null && dragSrcIdx !== targetIdx) {
-					const moved = SettingsData.searchColumns.splice(dragSrcIdx, 1)[0]
-					SettingsData.searchColumns.splice(targetIdx, 0, moved)
-					await this.saveCb()
-					rerender()
-				}
-				dragSrcIdx = null
+		setting.addSearch((search) => {
+			search.setPlaceholder('Search for fields. Ex. time')
+			search.onChange((val) => {
+				searchValue = val
+				renderCheckboxes()
 			})
 		})
+		setting.settingEl.addClass('column-settings-fields')
+		renderCheckboxes()
 	}
 
-	private renderBackButton() {
+	private addSelectedFields() {
+		addSelectedFields(this.containerEl, 'Selected fields', async () => await this.parent.saveSettings())
+	}
+
+	private addBackButton() {
 		new Setting(this.containerEl).addButton((button) =>
 			button
 				.setButtonText('Back')
 				.setWarning()
-				.onClick(async (value) => {
-					this.displayCb()
+				.onClick(async (_value) => {
+					this.parent.display()
 				})
 		)
 	}
 }
+
+const addSelectedFields = (
+	containerEl: HTMLElement,
+	settingName: string,
+	saveCb: () => Promise<void>
+) => {
+	new Setting(containerEl).setName(settingName)
+
+	const selectedColumnsContainer = containerEl.createDiv({
+		cls: 'selected-columns-dnd-container',
+	})
+
+	const renderSelectedColumns = () => {
+		selectedColumnsContainer.empty()
+		SettingsData.searchColumns.forEach((column, index) => {
+			const setting = new Setting(selectedColumnsContainer)
+			setting.settingEl.addClass('search-column-container')
+			setting.settingEl.setAttr('draggable', 'true')
+			setting.settingEl.setAttr('data-index', index)
+			const dragHandle = document.createElement('span')
+			dragHandle.className = 'drag-handle'
+			dragHandle.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grip-vertical-icon lucide-grip-vertical"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+				`
+			setting.settingEl.prepend(dragHandle)
+			setting.infoEl.createDiv({
+				text: JIRA_FIELDS[column.type as keyof typeof JIRA_FIELDS],
+			})
+
+			setting.addExtraButton((button) =>
+				button
+					.setIcon(
+						SettingsData.searchColumns[index].compact
+							? 'compress-glyph'
+							: 'enlarge-glyph'
+					)
+					.setTooltip(
+						SettingsData.searchColumns[index].compact ? 'Compact' : 'Full width'
+					)
+					.onClick(async () => {
+						SettingsData.searchColumns[index].compact =
+							!SettingsData.searchColumns[index].compact
+						await saveCb()
+						renderSelectedColumns()
+					})
+			)
+			setting.addExtraButton((button) =>
+				button
+					.setIcon('trash')
+					.setTooltip('Delete')
+					.onClick(async () => {
+						SettingsData.searchColumns.splice(index, 1)
+						await saveCb()
+						renderSelectedColumns()
+					})
+			)
+		})
+
+		enableDragAndDrop(selectedColumnsContainer, renderSelectedColumns, saveCb)
+	}
+
+	renderSelectedColumns()
+}
+
+const enableDragAndDrop = (
+	container: HTMLElement,
+	rerender: () => void,
+	saveCb: () => Promise<void>
+) => {
+	let dragSrcIdx: number | null = null
+	container.querySelectorAll('.search-column-container').forEach((el) => {
+		el.addEventListener('dragstart', (e: DragEvent) => {
+			dragSrcIdx = Number(
+				(e.currentTarget as HTMLElement).getAttribute('data-index')
+			)
+			;(e.currentTarget as HTMLElement).classList.add('dragging')
+		})
+		el.addEventListener('dragend', (e: DragEvent) => {
+			;(e.currentTarget as HTMLElement).classList.remove('dragging')
+		})
+		el.addEventListener('dragover', (e: DragEvent) => {
+			;(e as DragEvent).preventDefault()
+			;(e.currentTarget as HTMLElement).classList.add('drag-over')
+		})
+		el.addEventListener('dragleave', (e: DragEvent) => {
+			;(e.currentTarget as HTMLElement).classList.remove('drag-over')
+		})
+		el.addEventListener('drop', async (e) => {
+			;(e as DragEvent).preventDefault()
+			const targetIdx = Number(
+				((e as DragEvent).currentTarget as HTMLElement).getAttribute(
+					'data-index'
+				)
+			)
+			if (dragSrcIdx !== null && dragSrcIdx !== targetIdx) {
+				const moved = SettingsData.searchColumns.splice(dragSrcIdx, 1)[0]
+				SettingsData.searchColumns.splice(targetIdx, 0, moved)
+				await saveCb()
+				rerender()
+			}
+			dragSrcIdx = null
+		})
+	})
+}
+
+// In the fuzzyMatch function:
+// - `needle` is the user's search input (the string they are typing).
+// - `haystack` is the string being checked (either the field name or description).
+// The function checks if all characters of `needle` appear in order (but not necessarily consecutively) in `haystack`.
+// For example, fuzzyMatch('abc', 'alphabetical') returns true because 'a', 'b', 'c' appear in order in 'alphabetical'.
+// If any character in `needle` is not found in `haystack` after the previous match, it returns false.

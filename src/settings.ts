@@ -1,18 +1,9 @@
-import {
-	App,
-	normalizePath,
-	PluginSettingTab,
-	Setting,
-} from 'obsidian'
-import {
-	JiraFields,
-	JiraTrackerSettings,
-} from './settings/settings.interfaces'
+import { App, normalizePath, PluginSettingTab, Setting } from 'obsidian'
+import { JiraFields, JiraTrackerSettings } from './settings/settings.interfaces'
 import JiraIssuePlugin from './main'
 import { FileSuggest, FolderSuggest } from './suggestions/contentSuggest'
 import { ColumnSettings } from './settings/column-settings'
-import { AccountSettings } from './settings/account-settings'
-import { ACCOUNT_TEMPLATE } from './settings/account-settings-mixin'
+import { ACCOUNT_TEMPLATE, AccountSettings } from './settings/account-settings'
 
 export const DEFAULT_SETTINGS: JiraTrackerSettings = {
 	account: ACCOUNT_TEMPLATE,
@@ -23,7 +14,7 @@ export const DEFAULT_SETTINGS: JiraTrackerSettings = {
 		columns: [],
 	},
 	inlineIssueUrlToTag: true,
-	inlineIssuePrefix: 'JIRA:',
+	inlinePrefix: 'JIRA:',
 	jiraFieldOptions: {
 		[JiraFields.AGGREGATE_PROGRESS]: false,
 		[JiraFields.AGGREGATE_TIME_ESTIMATED]: false,
@@ -54,19 +45,6 @@ export const DEFAULT_SETTINGS: JiraTrackerSettings = {
 		[JiraFields.TIME_SPENT]: false,
 		[JiraFields.TYPE]: false,
 		[JiraFields.UPDATED]: false,
-		[JiraFields.CREATOR]: false,
-		[JiraFields.SUB_TASKS]: false,
-		[JiraFields.WATCHES]: false,
-		[JiraFields.ATTACHMENT]: false,
-		[JiraFields.COMMENT]: false,
-		[JiraFields.ISSUE_RESTRICTION]: false,
-		[JiraFields.SECURITY]: false,
-		[JiraFields.THUMBNAIL]: false,
-		[JiraFields.TIME_TRACKING]: false,
-		[JiraFields.VERSIONS]: false,
-		[JiraFields.VOTES]: false,
-		[JiraFields.WORKLOG]: false,
-		[JiraFields.WORK_RATIO]: false,
 		[JiraFields.CUSTOM_FIELD]: false,
 		[JiraFields.NOTES]: false,
 	},
@@ -81,7 +59,7 @@ export const DEFAULT_SETTINGS: JiraTrackerSettings = {
 		{ type: JiraFields.PRIORITY, compact: true },
 		{ type: JiraFields.STATUS, compact: false },
 	],
-	debugMode: false
+	debugMode: false,
 }
 
 export const SettingsData: JiraTrackerSettings = deepCopy(DEFAULT_SETTINGS)
@@ -101,11 +79,11 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
 	async loadSettings(): Promise<void> {
 		Object.assign(SettingsData, DEFAULT_SETTINGS, await this._plugin.loadData())
-			SettingsData.account = Object.assign(
-				{},
-				ACCOUNT_TEMPLATE,
-				SettingsData.account
-			)	
+		SettingsData.account = Object.assign(
+			{},
+			ACCOUNT_TEMPLATE,
+			SettingsData.account
+		)
 		SettingsData.cache = deepCopy(DEFAULT_SETTINGS.cache)
 	}
 
@@ -135,91 +113,24 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 
 	display(): void {
 		this.containerEl.empty()
-		this.displayAccountsSettings()
-		this.displayRenderingSettings()
-		this.displayNoteTemplateSettings()
-		this.displaySearchColumnsSettings()
-		this.displayExtraSettings()
+		this.containerEl.addClass('jto')
+		this.addAccountsSettings()
+		this.addInlineSettings()
+		this.addNoteSettings()
+		this.addSearchColumnsSettings()
+		this.addAdvanceSettings()
 		this.displayFooter()
 	}
 
-	displayFooter() {
-		const { containerEl } = this
-		// Custom GitHub star button
-		
-		new Setting(containerEl).setName('🦖 Support development').setHeading
-
-		const starDiv = containerEl.createDiv({ cls: 'styleSettingsButton prism-star' })
-		const starLink = starDiv.createEl('a', {
-			href: 'https://marc0l92.github.io/obsidian-jira-issue/',
-			attr: { target: '_blank', rel: 'noopener nofollow' }
-		})
-		const starEmoji = starLink.createSpan({ cls: 'styleSettingsButtonEmoji' })
-		starEmoji.textContent = '🌠'
-		starLink.append('Star the project on GitHub')
-		const issueDiv = containerEl.createDiv({ cls: 'styleSettingsButton prism-issue' })
-		const issueLink = issueDiv.createEl('a', {
-			href: 'https://github.com/marc0l92/obsidian-jira-issue/issues',
-			attr: { target: '_blank', rel: 'noopener nofollow' }
-		})
-		const issueEmoji = issueLink.createSpan({ cls: 'styleSettingsButtonEmoji' })
-		issueEmoji.textContent = '⚠️'
-		issueLink.append('Submit an issue')
-
-		const coffeeDiv = containerEl.createDiv({ cls: 'styleSettingsButton prism-coffee' })
-		const coffeeLink = coffeeDiv.createEl('a', {
-			href: 'https://ko-fi.com/marc0l92',
-			attr: { target: '_blank', rel: 'noopener nofollow' }
-		})
-		const coffeeEmoji = coffeeLink.createSpan({ cls: 'styleSettingsButtonEmoji' })
-		coffeeEmoji.textContent = '☕'
-		coffeeLink.append('Buy me a coffee')
+	addAccountsSettings() {
+		new AccountSettings(this).display()
 	}
 
-	displayAccountsSettings() {
-		new AccountSettings(this).displayPanel()
-	}
-
-	displayRenderingSettings() {
+	addInlineSettings() {
 		const { containerEl } = this
-		new Setting(containerEl).setName('Inline display').setHeading()
 		new Setting(containerEl)
-			.setName('Alias prefix')
-			.setDesc(
-				(() => {
-					const frag = document.createDocumentFragment()
-					frag.append('Prefix used to display alias. Leave empty to disable.')
-					frag.appendChild(document.createElement('br'))
-					frag.append('Example: JIRA:AAA-123')
-					return frag
-				})()
-			)
-			.addText((text) =>
-				text
-					.setValue(SettingsData.inlineIssuePrefix)
-					.onChange(async (value) => {
-						SettingsData.inlineIssuePrefix = value
-						await this.saveSettings()
-					})
-			)
-
-		new Setting(containerEl)
-			.setName('Convert to aliases')
-			.setDesc(
-				(() => {
-					const frag = document.createDocumentFragment()
-					frag.append('Convert Jira work item URLs to an alias. Example:')
-					frag.appendChild(document.createElement('br'))
-					const url = document.createElement('em')
-					url.textContent = 'https://yourcompany.atlassian.net/browse/AAA-123'
-					frag.appendChild(url)
-					frag.append(' converts to ')
-					const alias = document.createElement('em')
-					alias.textContent = 'JIRA:AAA-123'
-					frag.appendChild(alias)
-					return frag
-				})()
-			)
+			.setName('Convert URLs inline')
+			.setDesc('Convert work item URLs to use the inline format.')
 			.addToggle((toggle) =>
 				toggle
 					.setValue(SettingsData.inlineIssueUrlToTag)
@@ -228,14 +139,32 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 						await this.saveSettings()
 					})
 			)
+
+		new Setting(containerEl)
+			.setName('Inline tag prefix')
+			.setDesc(
+				(() => {
+					const frag = document.createDocumentFragment()
+					frag.append(
+						'Prefix to covert work items to inline format. Ex: JIRA:AAA-123'
+					)
+					frag.appendChild(createEl('div', { text: 'Leave blank to disable.' }))
+					return frag
+				})()
+			)
+			.addText((text) =>
+				text.setValue(SettingsData.inlinePrefix).onChange(async (value) => {
+					SettingsData.inlinePrefix = value
+					await this.saveSettings()
+				})
+			)
 	}
 
-	displayNoteTemplateSettings() {
+	addNoteSettings() {
 		const { containerEl, app } = this
-		new Setting(containerEl).setName('Work item notes').setHeading()
 		new Setting(containerEl)
-			.setName('Template')
-			.setDesc('Template to track work item notes. Leave blank to ignore')
+			.setName('Jira template')
+			.setDesc('Template to track work item notes. Leave blank to disable.')
 			.addText((text) => {
 				const thisText = text
 				text
@@ -256,7 +185,7 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 			})
 
 		new Setting(containerEl)
-			.setName('Folder')
+			.setName('Jira folder')
 			.setDesc('Jira notes are saved here. Default is root folder.')
 			.addText((text) =>
 				text
@@ -281,37 +210,27 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 			errText: string,
 			isValidCb: (value: any) => boolean
 		) {
-			const inputEl = setting.controlEl.getElementsByTagName('input')[0]
-			const errorEl = setting.descEl.createEl('div', {
-				text: errText,
-				cls: ['error'],
-			})
-			errorEl.toggleVisibility(false)
-
+			const { controlEl } = setting
+			const inputEl = controlEl.getElementsByTagName('input')[0]
+			const errEl = controlEl.createEl('div', { cls: ['error-msg'] })
+			errEl.createEl('span', { text: errText })
 			inputEl.addEventListener('blur', (event) => {
 				const value = (event.target as HTMLInputElement).value
 				if (!isValidCb(value)) {
-					errorEl.toggleVisibility(true)
-					inputEl.addClass('error')
+					controlEl.addClass('error')
 				}
 			})
 			inputEl.addEventListener('focus', (_event) => {
-				errorEl.toggleVisibility(false)
-				inputEl.removeClass('error')
+				controlEl.removeClass('error')
 			})
 		}
 	}
 
-	displaySearchColumnsSettings() {
-		new ColumnSettings(
-			this.containerEl,
-			this.saveSettings.bind(this),
-			this.display.bind(this),
-			this.app
-		).render()
+	addSearchColumnsSettings() {
+		new ColumnSettings(this).display()
 	}
 
-	displayExtraSettings() {
+	addAdvanceSettings() {
 		const { containerEl } = this
 
 		new Setting(containerEl).setName('Advanced').setHeading()
@@ -328,20 +247,59 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 						SettingsData.cacheTime = value
 						await this.saveSettings()
 					})
-		)
-		
+			)
+
 		new Setting(containerEl)
 			.setName('debug')
 			.setDesc(
 				'Log in the console (CTRL+Shift+I) all the API requests and responses performed by the plugin.'
 			)
 			.addToggle((toggle) =>
-				toggle
-					.setValue(SettingsData.debugMode)
-					.onChange(async (value) => {
-						SettingsData.debugMode = value
-						await this.saveSettings()
-					})
+				toggle.setValue(SettingsData.debugMode).onChange(async (value) => {
+					SettingsData.debugMode = value
+					await this.saveSettings()
+				})
 			)
+	}
+
+	displayFooter() {
+		const { containerEl } = this
+		// Custom GitHub star button
+
+		new Setting(containerEl).setName('🦖 Support development').setHeading
+
+		const starDiv = containerEl.createDiv({
+			cls: 'styleSettingsButton prism-star',
+		})
+		const starLink = starDiv.createEl('a', {
+			href: 'https://marc0l92.github.io/obsidian-jira-issue/',
+			attr: { target: '_blank', rel: 'noopener nofollow' },
+		})
+		const starEmoji = starLink.createSpan({ cls: 'styleSettingsButtonEmoji' })
+		starEmoji.textContent = '🌠'
+		starLink.append('Star the project on GitHub')
+		const issueDiv = containerEl.createDiv({
+			cls: 'styleSettingsButton prism-issue',
+		})
+		const issueLink = issueDiv.createEl('a', {
+			href: 'https://github.com/marc0l92/obsidian-jira-issue/issues',
+			attr: { target: '_blank', rel: 'noopener nofollow' },
+		})
+		const issueEmoji = issueLink.createSpan({ cls: 'styleSettingsButtonEmoji' })
+		issueEmoji.textContent = '⚠️'
+		issueLink.append('Submit an issue')
+
+		const coffeeDiv = containerEl.createDiv({
+			cls: 'styleSettingsButton prism-coffee',
+		})
+		const coffeeLink = coffeeDiv.createEl('a', {
+			href: 'https://ko-fi.com/marc0l92',
+			attr: { target: '_blank', rel: 'noopener nofollow' },
+		})
+		const coffeeEmoji = coffeeLink.createSpan({
+			cls: 'styleSettingsButtonEmoji',
+		})
+		coffeeEmoji.textContent = '☕'
+		coffeeLink.append('Buy me a coffee')
 	}
 }

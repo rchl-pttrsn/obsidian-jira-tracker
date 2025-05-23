@@ -1,7 +1,7 @@
 jest.mock('obsidian')
 jest.mock('../src/client/jiraClient')
 import { DEFAULT_SETTINGS, JiraIssueSettingTab, SettingsData } from "../src/settings"
-import { ACCOUNT_TEMPLATE } from "../src/settings/account-settings-mixin"
+import { ACCOUNT_TEMPLATE } from "../src/settings/account-settings"
 import { JiraFieldVisibility, JiraTrackerSettings } from "../src/settings/settings.interfaces"
 
 function deepCopy(obj: any): any {
@@ -15,7 +15,7 @@ const StoredSettings = {
 		columns: ['column1', 'column2'],
 	},
 	cacheTime: 'cacheTimeVal',
-	inlineIssuePrefix: 'inlineIssuePrefixVal',
+	inlinePrefix: 'inlineIssuePrefixVal',
 	inlineIssueUrlToTag: true,
     debugMode: true,
     jiraFieldOptions: {} as JiraFieldVisibility,

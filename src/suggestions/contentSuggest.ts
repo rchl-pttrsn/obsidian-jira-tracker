@@ -82,37 +82,3 @@ export class FileSuggest extends ContentSuggest {
 		return this.app.vault.getMarkdownFiles().map((f) => f.path)
 	}
 }
-
-export class ColumnSuggest extends ContentSuggest {
-	total: number
-	incrementalLimit = 10
-
-	constructor(app: App, inputEl: HTMLInputElement) {
-		super(app, inputEl)
-		this.limit = this.incrementalLimit
-		this.total = Object.keys(JIRA_FIELDS).length
-	}
-
-	getContent() {
-		return Object.values(JIRA_FIELDS)
-	}
-
-	open() {
-		super.open()
-		this.suggestEl.style.width = `${this.inputEl.parentElement.clientWidth}px`
-	}
-
-	selectSuggestion(content: string, evt: MouseEvent | KeyboardEvent): void {
-		super.selectSuggestion(content, evt)
-		const customEvent = new CustomEvent('selectSuggestion', {
-			detail: {
-				selectedSuggestion: content,
-			},
-			bubbles: true,
-			cancelable: true,
-			composed: false,
-		})
-
-		this.suggestEl.dispatchEvent(customEvent)
-	}
-}

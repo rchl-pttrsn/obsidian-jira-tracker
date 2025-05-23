@@ -1,6 +1,7 @@
-import { App, Modal, Setting } from 'obsidian'
+import { App, Modal, Notice, Setting } from 'obsidian'
 import { JiraIssueSettingTab, SettingsData } from 'src/settings'
 import { JiraAccountSettings } from './settings.interfaces'
+import JiraClient from '../client/jiraClient'
 
 export const ACCOUNT_TEMPLATE: JiraAccountSettings = {
 	alias: 'Jira',

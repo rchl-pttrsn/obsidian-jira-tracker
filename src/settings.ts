@@ -45,19 +45,6 @@ export const DEFAULT_SETTINGS: JiraTrackerSettings = {
 		[JiraFields.TIME_SPENT]: false,
 		[JiraFields.TYPE]: false,
 		[JiraFields.UPDATED]: false,
-		[JiraFields.CREATOR]: false,
-		[JiraFields.SUB_TASKS]: false,
-		[JiraFields.WATCHES]: false,
-		[JiraFields.ATTACHMENT]: false,
-		[JiraFields.COMMENT]: false,
-		[JiraFields.ISSUE_RESTRICTION]: false,
-		[JiraFields.SECURITY]: false,
-		[JiraFields.THUMBNAIL]: false,
-		[JiraFields.TIME_TRACKING]: false,
-		[JiraFields.VERSIONS]: false,
-		[JiraFields.VOTES]: false,
-		[JiraFields.WORKLOG]: false,
-		[JiraFields.WORK_RATIO]: false,
 		[JiraFields.CUSTOM_FIELD]: false,
 		[JiraFields.NOTES]: false,
 	},
@@ -240,12 +227,7 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 	}
 
 	addSearchColumnsSettings() {
-		new ColumnSettings(
-			this.containerEl,
-			this.saveSettings.bind(this),
-			this.display.bind(this),
-			this.app
-		).render()
+		new ColumnSettings(this).display()
 	}
 
 	addAdvanceSettings() {

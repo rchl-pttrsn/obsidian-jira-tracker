@@ -1,371 +1,393 @@
 /* --- Jira Issue Container --- */
 .jira-issue-container {
-    display: flex;
-    align-items: flex-start;
-    position: relative;
-    line-height: 1em;
-    flex-direction: column;
-    margin-bottom: 10px;
-    vertical-align: middle;
+	display: flex;
+	align-items: flex-start;
+	position: relative;
+	line-height: 1em;
+	flex-direction: column;
+	margin-bottom: 10px;
+	vertical-align: middle;
 }
 
 /* --- Links --- */
 .jira-issue-container a {
-    cursor: pointer;
-    text-decoration: none;
+	cursor: pointer;
+	text-decoration: none;
 }
 .jira-issue-container a.icon-link {
-    font-weight: var(--font-extrabold);
-    font-size: var(--font-ui-large);
+	font-weight: var(--font-extrabold);
+	font-size: var(--font-ui-large);
 }
 
 /* --- Images --- */
 .jira-issue-container img.fit-content {
-    height: 16px;
-    width: 16px;
-    max-width: fit-content;
-    width: fit-content;
+	height: 16px;
+	width: 16px;
+	max-width: fit-content;
+	width: fit-content;
 }
 .jira-issue-container img.letter-height {
-    height: auto;
-    max-height: 1em;
+	height: auto;
+	max-height: 1em;
 }
 .jira-issue-container img.avatar {
-    height: auto;
-    width: 100%;
-    max-width: 16px;
-    max-height: 16px;
+	height: auto;
+	width: 100%;
+	max-width: 16px;
+	max-height: 16px;
 }
 
 /* --- Flex Utilities --- */
 .jira-issue-container .no-wrap {
-    flex-grow: 0;
-    flex-shrink: 0;
-    white-space: nowrap;
+	flex-grow: 0;
+	flex-shrink: 0;
+	white-space: nowrap;
 }
 .jira-issue-container .grow-1 {
-    flex-grow: 1;
+	flex-grow: 1;
 }
-
 
 /* --- Tags --- */
 .jira-issue-container .ji-tags {
-    align-items: stretch;
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    margin-bottom: 0.5em;
+	align-items: stretch;
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	margin-bottom: 0.5em;
 }
 .jira-issue-container .ji-tags:last-child {
-    margin-bottom: 0;
+	margin-bottom: 0;
 }
 .jira-issue-container .ji-tags.has-addons .ji-tag {
-    margin-right: 0;
+	margin-right: 0;
 }
 .jira-issue-container .ji-tags.has-addons .ji-tag:not(:first-child) {
-    margin-left: 0;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
+	margin-left: 0;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
 }
 .jira-issue-container .ji-tags.has-addons .ji-tag:not(:last-child) {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
 }
 .jira-issue-container .ji-tag {
-    align-items: center;
-    border-radius: 4px;
-    display: inline-flex;
-    font-size: 0.75em;
-    justify-content: flex-start;
-    line-height: 1.5;
-    padding: 0.2em 0.75em;
+	align-items: center;
+	border-radius: 4px;
+	display: inline-flex;
+	font-size: 0.75em;
+	justify-content: flex-start;
+	line-height: 1.5;
+	padding: 0.2em 0.75em;
 }
 .jira-issue-container .ji-tag.ji-sm-tag {
-    padding: 0.2em 0.4em;
+	padding: 0.2em 0.4em;
 }
 
 /* --- Tag Types --- */
 .jira-issue-container .ji-tag.is-danger {
-    background-color: var(--color-red-base);
-    color: var(--text-error);
+	background-color: var(--color-red-base);
+	color: var(--text-error);
 }
 .jira-issue-container .ji-tag.is-dark {
-    background-color: #363636;
-    color: #fff;
+	background-color: #363636;
+	color: #fff;
 }
 .jira-issue-container .ji-tag.is-delete {
-    margin-left: 1px;
-    padding: 0;
-    position: relative;
-    width: 2em;
+	margin-left: 1px;
+	padding: 0;
+	position: relative;
+	width: 2em;
 }
 .jira-issue-container .ji-tag.is-delete::before {
-    height: 1px;
-    width: 50%;
+	height: 1px;
+	width: 50%;
 }
 .jira-issue-container .ji-tag.is-delete::after {
-    height: 50%;
-    width: 1px;
+	height: 50%;
+	width: 1px;
 }
 .jira-issue-container .ji-tag.is-delete::after,
 .jira-issue-container .ji-tag.is-delete::before {
-    background-color: currentColor;
-    content: "";
-    display: block;
-    left: 50%;
-    position: absolute;
-    top: 50%;
-    transform: translateX(-50%) translateY(-50%) rotate(45deg);
-    transform-origin: center center;
+	background-color: currentColor;
+	content: '';
+	display: block;
+	left: 50%;
+	position: absolute;
+	top: 50%;
+	transform: translateX(-50%) translateY(-50%) rotate(45deg);
+	transform-origin: center center;
 }
 .jira-issue-container .ji-tag.is-link {
-    background-color: var(--background-primary);
-    color: var(--link-color);
+	background-color: var(--background-primary);
+	color: var(--link-color);
 }
 .jira-issue-container .ji-tag.is-info {
-    background-color: #3e8ed0;
-    color: #fff;
+	background-color: #3e8ed0;
+	color: #fff;
 }
 .jira-issue-container .ji-tag.is-success {
-    background-color: #48c78e;
-    color: #fff;
+	background-color: #48c78e;
+	color: #fff;
 }
 .ji-tag.is-warning {
-    background-color: #ffe08a;
-    color: rgba(0, 0, 0, 0.7);
+	background-color: #ffe08a;
+	color: rgba(0, 0, 0, 0.7);
 }
 
 /* --- Table --- */
 .jira-issue-container table {
-    width: 100%;
+	width: 100%;
 }
 .jira-issue-container table th,
 .jira-issue-container table td {
-    vertical-align: top;
-    white-space: nowrap;
-    padding: 0.5em 0.75em;
+	vertical-align: top;
+	white-space: nowrap;
+	padding: 0.5em 0.75em;
 }
 .jira-issue-container table.is-narrow th,
 .jira-issue-container table.is-narrow td {
-    padding: 0.25em 0.5em;
+	padding: 0.25em 0.5em;
 }
 .jira-issue-container table tbody tr:hover {
-    background-color: var(--background-primary);
+	background-color: var(--background-primary);
 }
 .jira-issue-container table td.text-align-center {
-    text-align: center;
+	text-align: center;
 }
 
 /* --- Inline Issues --- */
 .jira-issue-container.ji-inline-issue {
-    display: inline-block;
-    margin: 0;
+	display: inline-block;
+	margin: 0;
 }
 .jira-issue-container.ji-inline-issue .ji-tag {
-    padding: 0.1em 0.3em;
+	padding: 0.1em 0.3em;
 }
 
 /* --- Suggestions --- */
 .jira-issue-suggestion {
-    font-size: small;
-    margin-right: 5px;
+	font-size: small;
+	margin-right: 5px;
 }
 .jira-issue-suggestion:last-child {
-    margin-right: 0;
+	margin-right: 0;
 }
 .jira-issue-suggestion.is-compact {
-    color: green;
+	color: green;
 }
 .jira-issue-suggestion.is-custom-field {
-    color: orange;
+	color: orange;
 }
 .jira-issue-suggestion.is-function {
-    color: red;
+	color: red;
 }
 
 /* --- Inline Plugin --- */
 .jira-issue-inline-mark {
-    display: inline-block;
-    padding: 2px 5px;
+	display: inline-block;
+	padding: 2px 5px;
 }
-.HyperMD-task-line[data-task="x"] .ji-inline-issue.jira-issue-container {
-    text-decoration: line-through;
+.HyperMD-task-line[data-task='x'] .ji-inline-issue.jira-issue-container {
+	text-decoration: line-through;
 }
 
 /* --- Spinner --- */
 .jira-issue-container .spinner {
-    position: relative;
-    display: inline-block;
-    width: 16px;
-    height: 16px;
+	position: relative;
+	display: inline-block;
+	width: 16px;
+	height: 16px;
 }
 .jira-issue-container .spinner::before {
-    content: "";
-    box-sizing: border-box;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 16px;
-    height: 16px;
-    margin-top: -8px;
-    margin-left: -8px;
-    border-radius: 50%;
-    border: 2px solid #ccc;
-    border-top-color: #000;
-    animation: spinner 0.6s linear infinite;
+	content: '';
+	box-sizing: border-box;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 16px;
+	height: 16px;
+	margin-top: -8px;
+	margin-left: -8px;
+	border-radius: 50%;
+	border: 2px solid #ccc;
+	border-top-color: #000;
+	animation: spinner 0.6s linear infinite;
 }
 @keyframes spinner {
-    to {
-        transform: rotate(360deg);
-    }
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 /* --- Miscellaneous --- */
 .ji-inline-issue.jira-issue-container .ji-band,
 .jira-issue-container .ji-band {
-    width: 3px;
-    min-width: 3px;
-    padding: 0;
+	width: 3px;
+	min-width: 3px;
+	padding: 0;
 }
 
 .rotate-animation {
-    animation-name: rotate-keyframes;
-    animation-duration: 2s;
+	animation-name: rotate-keyframes;
+	animation-duration: 2s;
 }
 
 @keyframes rotate-keyframes {
-    from {
-        transform: rotate(0deg);
-    }
+	from {
+		transform: rotate(0deg);
+	}
 
-    to {
-        transform: rotate(360deg);
-    }
+	to {
+		transform: rotate(360deg);
+	}
 }
-
 
 /* --- Settings Tab --- */
 
 /* --- Settings Tab Jra Tracker Overrides --- */
 .jto .setting-item-control:has(*) {
-    max-width: 200px;
-    min-width: 200px;
+	max-width: 200px;
+	min-width: 200px;
 }
 .jto .setting-item-control input {
-    width: 100%;
-    max-width: 200px;
+	width: 100%;
+	max-width: 200px;
 }
 .setting-item .setting-item-info.jira-account-tile {
-  padding-left: 5px;
-  border-left: 5px solid var(--jira-account-color, #000);
-}
-
-.jto .setting-item-control .search-input-container {
-    width: 100%;
+	padding-left: 5px;
+	border-left: 5px solid var(--jira-account-color, #000);
 }
 
 .setting-item-control select.flex-grow-1 {
-    flex-grow: 1;
-    max-width: none;
+	flex-grow: 1;
+	max-width: none;
 }
-.setting-item-control input[type="text"].custom-field-text {
-    margin-left: 10px;
-    height: 2.5em;
-    border-radius: var(--size-4-2);
+.setting-item-control input[type='text'].custom-field-text {
+	margin-left: 10px;
+	height: 2.5em;
+	border-radius: var(--size-4-2);
 }
 
 /* --- Settings Tab - Text Input Error --- */
 .setting-item-control.error {
-    flex: none;
-    position: relative;
+	flex: none;
+	position: relative;
 }
 .setting-item-control.error input[type='text'] {
-    border: 1px solid var(--text-error);
-    flex: 1;
+	border: 1px solid var(--text-error);
+	flex: 1;
 }
 .setting-item-control.error .error-msg {
-    display: block;
-    color: var(--text-error);
-    position: absolute;
-    z-index: 1;
-    top: 32px;
-    font-size: var(--font-ui-smaller);
-    line-height: var(--line-height-tight);
-    width: -webkit-fill-available;
-    text-align: left;
+	display: block;
+	color: var(--text-error);
+	position: absolute;
+	z-index: 1;
+	top: 32px;
+	font-size: var(--font-ui-smaller);
+	line-height: var(--line-height-tight);
+	width: -webkit-fill-available;
+	text-align: left;
 }
 .setting-item-control .error-msg {
-    display: none;
+	display: none;
 }
 
 /* --- Settings Tab Jira Fields Config --- */
-.column-settings-fields {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--size-4-2);
+.jto .setting-item.column-settings-fields {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: var(--size-4-2);
 }
+.jto .setting-item.column-settings-fields .setting-item-control,
+.jto
+	.setting-item.column-settings-fields
+	.setting-item-control
+	.search-input-container,
+.jto
+	.setting-item.column-settings-fields
+	.setting-item-control
+	.search-input-container
+	input {
+	width: 100%;
+	max-width: none;
+}
+
 .field-options-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--size-4-2);
-    padding: var(--size-4-2);
-    padding-left: var(--size-4-3);
-    padding-right: 0;
-    border: var(--border-width) solid var(--background-modifier-border);
-    width: 100%;
-    height: 220px;
-    overflow-y: scroll;
-    background: var(--background-secondary-blur);
+	padding: var(--size-4-2);
+	padding-left: var(--size-4-3);
+	padding-right: 0;
+	border: var(--border-width) solid var(--background-modifier-border);
+	width: 100%;
+	height: 220px;
+	overflow-y: scroll;
+	background: var(--background-secondary-blur);
 }
+
+.field-options-container .flex {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+}
+
 .field-option-label {
-    flex: 1 1 min(33.333%, 200px);
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    margin-bottom: var(--size-4-2);
-    box-sizing: border-box;
-    max-width: 100%;
+	flex: 1 1 min(33.333%, 200px);
+	display: flex;
+	align-items: center;
+	min-width: 0;
+	margin-bottom: 0; /* Remove margin, use gap for spacing */
+	box-sizing: border-box;
+	max-width: 100%;
 }
 .field-option-label-text {
-    margin-left: 6px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+	margin-left: 6px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 .field-option-spacer {
-    flex: 1 1 min(33.333%, 200px);
-    margin-bottom: var(--size-4-2);
-    visibility: hidden;
-    max-width: 100%;
+	flex: 1 1 min(33.333%, 200px);
+	margin-bottom: var(--size-4-2);
+	visibility: hidden;
+	max-width: 100%;
 }
 
 .setting-item.search-column-container {
-    margin-bottom: var(--size-4-1);
-    background: var(--background-secondary-blur);
-    padding: var(--size-2-1) 0;
-    border-radius: var(--size-4-1);
+	margin-bottom: var(--size-4-1);
+	background: var(--background-secondary-blur);
+	padding: var(--size-2-1) 0;
+	border-radius: var(--size-4-1);
 }
 
 .setting-item.search-column-container .drag-handle {
-    margin-inline-end: var(--size-4-2);
+	margin-inline-end: var(--size-4-2);
 }
 
 /* --- Drag and Drop --- */
 .selected-columns-dnd-container .search-column-container .drag-handle svg {
-    vertical-align: middle;
+	vertical-align: middle;
 }
 .selected-columns-dnd-container .search-column-container.dragging {
-    opacity: 0.5;
+	opacity: 0.5;
 }
 .selected-columns-dnd-container .search-column-container.drag-over {
-    border: 2px dashed var(--color-accent);
+	border: 2px dashed var(--color-accent);
 }
 
 /* --- Responsive --- */
 @media (max-width: 700px) {
-    .field-option-label {
-        flex: 1 1 100% !important;
-        max-width: 100% !important;
-    }
+	.field-option-label {
+		flex: 1 1 100% !important;
+		max-width: 100% !important;
+	}
+}
+
+.field-option-label,
+.field-option-spacer {
+	height: 24px;
+	box-sizing: border-box;
+	margin-bottom: 0;
+	flex-shrink: 0;
+	flex-grow: 0;
+	overflow: hidden;
 }

@@ -1,8 +1,8 @@
 import { App, normalizePath, PluginSettingTab, Setting } from 'obsidian'
-import { JiraFields, JiraTrackerSettings } from './settings/settings.interfaces'
+import { JiraFields, JiraTrackerSettings } from './settings/settings.models'
 import JiraIssuePlugin from './main'
 import { FileSuggest, FolderSuggest } from './suggestions/contentSuggest'
-import { ColumnSettings } from './settings/column-settings'
+import { SearchPresetSettings } from './settings/column-settings'
 import { ACCOUNT_TEMPLATE, AccountSettings } from './settings/account-settings'
 
 export const DEFAULT_SETTINGS: JiraTrackerSettings = {
@@ -231,7 +231,7 @@ export class JiraIssueSettingTab extends PluginSettingTab {
 	}
 
 	addSearchColumnsSettings() {
-		new ColumnSettings(this).display()
+		new SearchPresetSettings(this).display()
 	}
 
 	addAdvanceSettings() {

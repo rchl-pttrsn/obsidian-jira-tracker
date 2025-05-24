@@ -1,10 +1,8 @@
 import { TFile } from 'obsidian'
 import {
-	IJiraIssue,
-	IJiraProgress,
-	IJiraSearchField,
-	IJiraUser,
-} from '../interfaces/issueInterfaces'
+	JiraIssue,
+	JiraApi,
+} from '../client/jira.models'
 import RC, {
 	JIRA_STATUS_COLOR_MAP,
 	JIRA_STATUS_COLOR_MAP_BY_NAME,
@@ -15,22 +13,23 @@ import {
 	JiraFields,
 	JiraAccountSettings,
 	ISearchColumn,
-} from '../settings/settings.interfaces'
+} from '../settings/settings.models'
 import { SettingsData } from 'src/settings'
 
 export const renderTableColumn = async (
+	account: JiraAccountSettings,
 	columns: ISearchColumn[],
-	issue: IJiraIssue,
+	issue: JiraIssue,
 	row: HTMLTableRowElement
 ): Promise<void> => {
 	let markdownNotes: TFile[] = null
 	for (const column of columns) {
 		switch (column.type) {
 			case JiraFields.KEY:
-				renderLinkField(column, row, issue.account, issue.key)
+				renderLinkField(column, row, account, issue.key)
 				break
 			case JiraFields.PARENT:
-				renderLinkField(column, row, issue.account, issue.fields.parent?.key)
+				renderLinkField(column, row, account, issue.fields.parent?.key)
 				break
 			case JiraFields.SUMMARY:
 				renderLongTextField(column, row, issue.fields.summary)
@@ -180,20 +179,20 @@ export const renderTableColumn = async (
 				renderProgressField(column, row, issue.fields.progress)
 				break
 			case JiraFields.LINKED_ISSUES:
-				renderLinkedIssuesField(column, row, issue)
+				renderLinkedIssuesField(column, row, account, issue)
 				break
-      case JiraFields.SUB_TASKS:
-        if (!!issue.fields.subtasks.length) {
-          issue.fields.subtasks.forEach((subtask) =>
-            renderLinkField(column, row, issue.account, subtask.key)
-          )
-        } else {
-          createEl('td', { parent: row }) 
-        }
+			case JiraFields.SUB_TASKS:
+				if (!!issue.fields.subtasks.length) {
+					issue.fields.subtasks.forEach((subtask) =>
+						renderLinkField(column, row, account, subtask.key)
+					)
+				} else {
+					createEl('td', { parent: row })
+				}
 				break
 			case JiraFields.CUSTOM_FIELD:
 				createEl('td', {
-					text: renderCustomField(issue, column.extra),
+					text: renderCustomField(account, issue, column.extra),
 					parent: row,
 				})
 				break
@@ -250,11 +249,14 @@ export const renderTableColumn = async (
 			case JiraFields.LAST_VIEWED:
 				renderDateField(column, row, issue.fields.lastViewed)
 				break
-      case JiraFields.WATCHES:
-        createEl('td', { text: `${issue.fields.watches.watchCount ?? 0}`, parent: row })
+			case JiraFields.WATCHES:
+				createEl('td', {
+					text: `${issue.fields.watches.watchCount ?? 0}`,
+					parent: row,
+				})
 				break
 			case JiraFields.VOTES:
-        createEl('td', {
+				createEl('td', {
 					text: `${issue.fields.votes.votes ?? 0}`,
 					parent: row,
 				})
@@ -310,9 +312,9 @@ function renderNoteFrontMatter(
 	}
 }
 
-function renderCustomField(issue: IJiraIssue, customField: string): string {
+function renderCustomField(account: JiraAccountSettings, issue: JiraIssue, customField: string): string {
 	if (!Number(customField)) {
-		customField = issue.account.cache.customFieldsNameToId[customField]
+		customField = account.cache.customFieldsNameToId[customField]
 	}
 	const value = issue.fields[`customfield_${customField}`]
 	if (typeof value === 'string' || typeof value === 'number') {
@@ -343,7 +345,8 @@ function renderLinkField(
 function renderLinkedIssuesField(
 	column: ISearchColumn,
 	row: HTMLTableRowElement,
-  issue: IJiraIssue,
+	account: JiraAccountSettings,
+	issue: JiraIssue
 ) {
 	const parentCell = createEl('td', { parent: row })
 	issue.fields.issuelinks.forEach((l) => {
@@ -365,9 +368,9 @@ function renderLinkedIssuesField(
 		})
 		createEl('a', {
 			cls: 'no-wrap',
-			href: RC.issueUrl(issue.account, issueKey),
+			href: RC.issueUrl(account, issueKey),
 			text: column.compact ? '🔗' : issueKey,
-			title: column.compact ? issueKey : RC.issueUrl(issue.account, issueKey),
+			title: column.compact ? issueKey : RC.issueUrl(account, issueKey),
 			parent: div,
 		})
 	})
@@ -376,7 +379,7 @@ function renderLinkedIssuesField(
 function renderUserField(
 	column: ISearchColumn,
 	row: HTMLTableRowElement,
-	user: IJiraUser
+	user: JiraApi.User
 ) {
 	const userName = user.displayName || ''
 	if (column.compact && userName && user.avatarUrls[AVATAR_RESOLUTION]) {
@@ -394,7 +397,7 @@ function renderUserField(
 function renderIconField(
 	column: ISearchColumn,
 	parentCell: HTMLTableCellElement,
-	icon: IJiraSearchField['issuetype']
+	icon: JiraApi.IssueType
 ) {
 	if (icon.iconUrl) {
 		createEl('img', {
@@ -465,7 +468,7 @@ function renderEstimatorField(
 function renderProgressField(
 	column: ISearchColumn,
 	row: HTMLTableRowElement,
-	progress: IJiraProgress
+	progress: JiraApi.Progress
 ) {
 	let percent = 0
 	if (progress.progress > 0 && progress.total > 0) {

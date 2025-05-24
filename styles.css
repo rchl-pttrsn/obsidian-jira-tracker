@@ -359,6 +359,10 @@
 	border-radius: var(--size-4-1);
 }
 
+.setting-item.search-column-container[draggable='true']:hover {
+	cursor: grab;
+}
+
 .setting-item.search-column-container .drag-handle {
 	margin-inline-end: var(--size-4-2);
 }

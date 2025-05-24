@@ -7,7 +7,7 @@ import {
 	EditorSuggestTriggerInfo,
 	TFile,
 } from 'obsidian'
-import { COMPACT_SYMBOL, JiraFields } from '../settings/settings.interfaces'
+import { COMPACT_SYMBOL, JiraFields } from '../settings/settings.models'
 import { SettingsData } from '../settings'
 
 interface SuggestionEntry {

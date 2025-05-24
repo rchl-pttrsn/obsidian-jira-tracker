@@ -7,19 +7,17 @@ import {
 import {
 	AVATAR_RESOLUTION,
 	JiraAccountSettings,
-} from '../settings/settings.interfaces'
+} from '../settings/settings.models'
 import {
-	ESprintState,
-	IJiraBoard,
-	IJiraField,
-	IJiraIssue,
-	IJiraSearchResults,
-	IJiraSprint,
-	IJiraUser,
-} from '../interfaces/issueInterfaces'
+	JiraIssue,
+	JiraSearchResults,
+	JiraApi,
+	JiraAgileApi,
+} from './jira.models'
 import { SettingsData } from '../settings'
 
 interface RequestOptions {
+	account: JiraAccountSettings
 	method: string
 	path: string
 	queryParameters?: URLSearchParams
@@ -97,7 +95,7 @@ function buildHeaders(account: JiraAccountSettings): Record<string, string> {
 }
 
 async function sendRequest(requestOptions: RequestOptions): Promise<any> {
-	const { account } = SettingsData
+	const { account } = requestOptions
 	const requestUrlParam: RequestUrlParam = {
 		method: requestOptions.method,
 		url: buildUrl(account.host, requestOptions),
@@ -114,7 +112,7 @@ async function sendRequest(requestOptions: RequestOptions): Promise<any> {
 	}
 
 	if (response.status === 200) {
-		return { ...response.json, account: account }
+		return response.json
 	}
 
 	if (response.json?.errorMessages) {
@@ -169,17 +167,17 @@ async function preFetchImage(
 	return null
 }
 
-async function fetchIssueImages(issue: IJiraIssue) {
+async function fetchIssueImages(issue: JiraIssue, account: JiraAccountSettings) {
 	if (issue.fields) {
 		if (issue.fields.issuetype && issue.fields.issuetype.iconUrl) {
 			issue.fields.issuetype.iconUrl = await preFetchImage(
-				issue.account,
+				account,
 				issue.fields.issuetype.iconUrl
 			)
 		}
 		if (issue.fields.reporter) {
 			issue.fields.reporter.avatarUrls[AVATAR_RESOLUTION] = await preFetchImage(
-				issue.account,
+				account,
 				issue.fields.reporter.avatarUrls[AVATAR_RESOLUTION]
 			)
 		}
@@ -189,13 +187,13 @@ async function fetchIssueImages(issue: IJiraIssue) {
 			issue.fields.assignee.avatarUrls[AVATAR_RESOLUTION]
 		) {
 			issue.fields.assignee.avatarUrls[AVATAR_RESOLUTION] = await preFetchImage(
-				issue.account,
+				account,
 				issue.fields.assignee.avatarUrls[AVATAR_RESOLUTION]
 			)
 		}
 		if (issue.fields.priority && issue.fields.priority.iconUrl) {
 			issue.fields.priority.iconUrl = await preFetchImage(
-				issue.account,
+				account,
 				issue.fields.priority.iconUrl
 			)
 		}
@@ -205,8 +203,8 @@ async function fetchIssueImages(issue: IJiraIssue) {
 export default {
 	async getIssue(
 		issueKey: string,
-		options: { fields?: string[]; } = {}
-	): Promise<IJiraIssue> {
+		options: { fields?: string[] } = {}
+	): Promise<JiraIssue> {
 		const opt = {
 			fields: options.fields || [],
 		}
@@ -214,22 +212,24 @@ export default {
 			fields: opt.fields.join(','),
 		})
 		const issue = (await sendRequest({
+			account: SettingsData.account,
 			method: 'GET',
 			path: `/issue/${issueKey}`,
 			queryParameters: queryParameters,
-		})) as IJiraIssue
-		await fetchIssueImages(issue)
+		})) as JiraIssue
+		await fetchIssueImages(issue, SettingsData.account)
 		return issue
 	},
 
 	async getSearchResults(
+		account: JiraAccountSettings,
 		query: string,
 		options: {
 			limit?: number
 			offset?: number
 			fields?: string[]
 		} = {}
-	): Promise<IJiraSearchResults> {
+	): Promise<JiraSearchResults> {
 		const opt = {
 			fields: options.fields || ['*navigable'],
 			offset: options.offset || 0,
@@ -242,13 +242,13 @@ export default {
 			maxResults: opt.limit > 0 ? opt.limit.toString() : '',
 		})
 		const searchResults = (await sendRequest({
+			account: account,
 			method: 'GET',
 			path: `/search/jql`,
 			queryParameters: queryParameters,
-		})) as IJiraSearchResults
+		})) as JiraSearchResults
 		for (const issue of searchResults.issues) {
-			issue.account = searchResults.account
-			await fetchIssueImages(issue)
+			await fetchIssueImages(issue, account)
 		}
 		searchResults.total = searchResults.issues.length
 		return searchResults
@@ -262,6 +262,7 @@ export default {
 			return
 		}
 		const response = await sendRequest({
+			account,
 			method: 'GET',
 			path: `/status/${status}`,
 		})
@@ -273,9 +274,10 @@ export default {
 		const { account } = SettingsData
 		try {
 			const response = (await sendRequest({
+				account,
 				method: 'GET',
 				path: `/field`,
-			})) as IJiraField[]
+			})) as JiraApi.FieldDetails[]
 			account.cache.customFieldsIdToName = {}
 			account.cache.customFieldsNameToId = {}
 			account.cache.customFieldsType = {}
@@ -301,11 +303,12 @@ export default {
 		}
 	},
 
-	async getLoggedUser(): Promise<IJiraUser> {
-		return (await sendRequest({
+	async getLoggedUser(): Promise<JiraApi.User> {
+		return await sendRequest({
+			account: SettingsData.account,
 			method: 'GET',
 			path: `/myself`,
-		})) as IJiraUser
+		})
 	},
 
 	async getBoards(
@@ -314,7 +317,7 @@ export default {
 			limit?: number
 			offset?: number
 		} = {}
-	): Promise<IJiraBoard[]> {
+	): Promise<JiraAgileApi.Board[]> {
 		const opt = {
 			offset: options.offset || 0,
 			limit: options.limit || 50,
@@ -325,6 +328,7 @@ export default {
 			maxResults: opt.limit > 0 ? opt.limit.toString() : '',
 		})
 		const boards = await sendRequest({
+			account: SettingsData.account,
 			method: 'GET',
 			path: `/rest/agile/1.0/board`,
 			queryParameters: queryParameters,
@@ -341,9 +345,9 @@ export default {
 		options: {
 			limit?: number
 			offset?: number
-			state?: ESprintState[]
+			state?: JiraAgileApi.SprintState[]
 		} = {}
-	): Promise<IJiraSprint[]> {
+	): Promise<JiraAgileApi.Sprint[]> {
 		const opt = {
 			state: options.state || [],
 			offset: options.offset || 0,
@@ -355,6 +359,7 @@ export default {
 			maxResults: opt.limit > 0 ? opt.limit.toString() : '',
 		})
 		const sprints = await sendRequest({
+			account: SettingsData.account,
 			method: 'GET',
 			path: `/rest/agile/1.0/board/${boardId}/sprint`,
 			queryParameters: queryParameters,
@@ -366,10 +371,9 @@ export default {
 		return []
 	},
 
-	async getSprint(
-		sprintId: number,
-	): Promise<IJiraSprint> {
+	async getSprint(sprintId: number): Promise<JiraAgileApi.Sprint> {
 		return await sendRequest({
+			account: SettingsData.account,
 			method: 'GET',
 			path: `/rest/agile/1.0/sprint/${sprintId}`,
 			noBasePath: true,

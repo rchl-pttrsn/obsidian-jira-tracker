@@ -1,12 +1,12 @@
 import { App, Setting } from 'obsidian'
-import { JiraFields, JIRA_FIELDS } from 'src/settings/settings.interfaces'
+import { JiraFields, JIRA_FIELDS } from 'src/settings/settings.models'
 import {
 	DEFAULT_SETTINGS,
 	SettingsData,
 	JiraIssueSettingTab,
 } from 'src/settings'
 
-export class ColumnSettings {
+export class SearchPresetSettings {
 	parent: JiraIssueSettingTab
 	app: App
 	containerEl: HTMLElement
@@ -18,18 +18,18 @@ export class ColumnSettings {
 	}
 
 	public display() {
-		this.addHeaderField()
-		this.addNotesField()
-		this.addQueryLimitField()
+		this.addHeading()
+		this.addLimitField()
+		this.addNotesColumnField()
 		this.addSelectedFields()
 		this.addColumnActions()
 	}
 
-	private addHeaderField() {
+	private addHeading() {
 		const { containerEl } = this
-		new Setting(containerEl).setName('Search query defaults').setHeading()
+		new Setting(containerEl).setName('Search presets').setHeading()
 		containerEl.createEl('div', {
-			text: 'Configure the default behavior and display options for `jira-search` queries.',
+			text: 'Default search criteria for Jira issues. These will be used for all searches unless specify different options in the Search Wizard or jira-search block. (table format only)',
 			cls: 'setting-item-description',
 			attr: {
 				style: 'margin-bottom: 8px;',
@@ -37,28 +37,11 @@ export class ColumnSettings {
 		})
 	}
 
-	private addNotesField() {
-		const { containerEl } = this
-		new Setting(containerEl)
-			.setName('Link note')
-			.setDesc(
-				'Add a backlink to your Jira issue note in the default search results.'
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(SettingsData.inlineIssueUrlToTag)
-					.onChange(async (value) => {
-						SettingsData.inlineIssueUrlToTag = value
-						await this.parent.saveSettings()
-					})
-			)
-	}
-
-	private addQueryLimitField() {
+	private addLimitField() {
 		const { containerEl } = this
 		new Setting(containerEl)
 			.setName('Limit')
-			.setDesc('Maximum number of results to return for each query by default.')
+			.setDesc('Maximum number of results to return for each search.')
 			.addSlider((slider) =>
 				slider
 					.setLimits(1, 50, 1)
@@ -71,14 +54,31 @@ export class ColumnSettings {
 			)
 	}
 
-	private addSelectedFields() {
+	private addNotesColumnField() {
 		const { containerEl } = this
 		new Setting(containerEl)
-			.setName('Column defaults')
+			.setName('Include notes column')
 			.setDesc(
-				'Fields shown by default in search results when no columns are specified in your `jira-search` query.'
+				'Display a link to notes in Obsidian related to your search results for easy reference.'
 			)
-		addSelectedFields(containerEl, 'Jira fields', async () => await this.parent.saveSettings())
+			.addToggle((toggle) =>
+				toggle
+					.setValue(SettingsData.inlineIssueUrlToTag)
+					.onChange(async (value) => {
+						SettingsData.inlineIssueUrlToTag = value
+						await this.parent.saveSettings()
+					})
+			)
+	}
+
+	private addSelectedFields() {
+		const { containerEl } = this
+		addSelectedFields(
+			containerEl,
+			'Selected Jira Fields',
+			'Data from Jira that will be included in the search results',
+			async () => await this.parent.saveSettings()
+		)
 	}
 
 	private addColumnActions() {
@@ -126,9 +126,9 @@ class ColumnSettingsPage {
 	}
 
 	private addHeaderField() {
-		new Setting(this.containerEl).setName('Configure Jira fields').setHeading()
+		new Setting(this.containerEl).setName('Jira fields').setHeading()
 		this.containerEl.createDiv({
-			text: "Select which Jira fields to display by default in your `jira-search` query. Available fields depend on your organization's Jira configuration. If a field you need is missing, you can request it as a future feature.",
+			text: 'Select from the list of available fields provided by your Jira organization to add to your default search query. The current fields are Jira defaults. Support for custom fields is coming soon—if you’d like a specific field included, please let me know on GitHub.',
 			cls: 'setting-item-description',
 			attr: {
 				style: 'margin-bottom: 8px;',
@@ -137,8 +137,7 @@ class ColumnSettingsPage {
 	}
 
 	private addAvailableFields() {
-		const setting = new Setting(this.containerEl)
-			.setName('Available fields')
+		const setting = new Setting(this.containerEl).setName('Available fields')
 
 		let searchValue = ''
 		// Simple fuzzy search implementation
@@ -158,9 +157,7 @@ class ColumnSettingsPage {
 			const lower = searchValue.toLowerCase()
 			if (!lower) return Object.entries(JIRA_FIELDS)
 			return Object.entries(JIRA_FIELDS).filter(
-				([field, desc]) =>
-					fuzzyMatch(lower, field) ||
-					fuzzyMatch(lower, desc)
+				([field, desc]) => fuzzyMatch(lower, field) || fuzzyMatch(lower, desc)
 			)
 		}
 
@@ -230,7 +227,7 @@ class ColumnSettingsPage {
 		}
 
 		setting.addSearch((search) => {
-			search.setPlaceholder('Search for fields. Ex. time')
+			search.setPlaceholder('Filter available fields. Example: sum')
 			search.onChange((val) => {
 				searchValue = val
 				renderCheckboxes()
@@ -241,7 +238,12 @@ class ColumnSettingsPage {
 	}
 
 	private addSelectedFields() {
-		addSelectedFields(this.containerEl, 'Selected fields', async () => await this.parent.saveSettings())
+		addSelectedFields(
+			this.containerEl,
+			'Selected fields',
+			'',
+			async () => await this.parent.saveSettings()
+		)
 	}
 
 	private addBackButton() {
@@ -258,10 +260,11 @@ class ColumnSettingsPage {
 
 const addSelectedFields = (
 	containerEl: HTMLElement,
-	settingName: string,
+	title: string,
+	description: string,
 	saveCb: () => Promise<void>
 ) => {
-	new Setting(containerEl).setName(settingName)
+	new Setting(containerEl).setName(title).setDesc(description)
 
 	const selectedColumnsContainer = containerEl.createDiv({
 		cls: 'selected-columns-dnd-container',

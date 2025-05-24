@@ -1,7 +1,6 @@
 import {
-	IJiraAutocompleteDataField,
-	IJiraFieldSchema,
-} from '../interfaces/issueInterfaces'
+	JiraApi,
+} from '../client/jira.models'
 
 export const COMPACT_SYMBOL = '-'
 export const AVATAR_RESOLUTION = '16x16'
@@ -25,6 +24,30 @@ export interface JiraTrackerSettings {
 	noteTemplate?: string
 }
 
+export interface IJiraAutocompleteDataField {
+	value: string
+	displayName: string
+	auto: string
+	orderable: string
+	searchable: string
+	cfid: string
+	operators: [string]
+	types: [string]
+}
+
+export interface IJiraAutocompleteData {
+	visibleFieldNames: IJiraAutocompleteDataField[]
+	visibleFunctionNames: [
+		{
+			value: string
+			displayName: string
+			isList?: string
+			types: [string]
+		}
+	]
+	jqlReservedWords: [string]
+}
+
 export interface JiraAccountSettings {
 	alias: string
 	host: string
@@ -35,7 +58,7 @@ export interface JiraAccountSettings {
 		statusColor: Record<string, string>
 		customFieldsIdToName: Record<string, string>
 		customFieldsNameToId: Record<string, string>
-		customFieldsType: Record<string, IJiraFieldSchema>
+		customFieldsType: Record<string, JiraApi.Schema>
 		jqlAutocomplete: {
 			fields: IJiraAutocompleteDataField[]
 			functions: {
@@ -88,7 +111,6 @@ export enum JiraFields {
 	SUB_TASKS = 'SUB_TASKS',
 	WATCHES = 'WATCHES',
 	VOTES = 'VOTES',
-
 	// wont support
 	// SECURITY = 'SECURITY',
 	// WORK_RATIO = 'WORK_RATIO',
@@ -131,23 +153,13 @@ export const JIRA_FIELDS = {
 	[JiraFields.TIME_SPENT]: 'Time Spent',
 	[JiraFields.TIME_ESTIMATE]: 'Remaining Estimate',
 	[JiraFields.TIME_ORIGINAL_ESTIMATE]: 'Original Estimate',
-	// FIX ME
-	[JiraFields.CUSTOM_FIELD]: 'Custom field',
-	[JiraFields.NOTES]: 'Notes',
-	// coming soon
 	[JiraFields.CREATOR]: 'Creator',
 	[JiraFields.SUB_TASKS]: 'Sub Tasks',
 	[JiraFields.WATCHES]: 'Watches',
 	[JiraFields.VOTES]: 'Votes',
-	// // wont support
-	// [JiraFields.SECURITY]: 'Comment (Not Supported)',
-	// [JiraFields.WORK_RATIO]: 'Work Ratio (Not Supported)',
-	// [JiraFields.COMMENT]: 'Comment (Not Supported)',
-	// [JiraFields.ATTACHMENT]: 'Attachment (Not Supported)',
-	// [JiraFields.THUMBNAIL]: 'Thumbnail (Not Supported)',
-	// [JiraFields.ISSUE_RESTRICTION]: 'Issue Restriction (Not Supported)',
-	// [JiraFields.VERSIONS]: 'Versions (Not Supported)',
-	// [JiraFields.WORKLOG]: 'Work Log (Not Supported)',
+	// FIX ME
+	[JiraFields.CUSTOM_FIELD]: 'Custom field',
+	[JiraFields.NOTES]: 'Notes',
 }
 
 export interface ISearchColumn {

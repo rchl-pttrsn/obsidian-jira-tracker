@@ -1,7 +1,7 @@
 import { MarkdownPostProcessorContext } from 'obsidian'
 import JiraClient from '../client/jiraClient'
-import { IJiraIssue } from '../interfaces/issueInterfaces'
-import { COMPACT_SYMBOL, JIRA_KEY_REGEX } from '../settings/settings.interfaces'
+import { JiraIssue } from '../client/jira.models'
+import { COMPACT_SYMBOL, JIRA_KEY_REGEX } from '../settings/settings.models'
 import ObjectsCache from '../objectsCache'
 import { SettingsData } from '../settings'
 import RC from './renderingCommon'
@@ -74,15 +74,17 @@ export const InlineIssueRenderer = async (
 				)
 			} else {
 				value.replaceChildren(
-					RC.renderIssue(cachedIssue.data as IJiraIssue, compact)
+					RC.renderIssue(SettingsData.account,cachedIssue.data as JiraIssue, compact)
 				)
 			}
 		} else {
 			value.replaceChildren(RC.renderLoadingItem(issueKey))
 			JiraClient.getIssue(issueKey)
 				.then((newIssue) => {
-					const issue = ObjectsCache.add(issueKey, newIssue).data as IJiraIssue
-					value.replaceChildren(RC.renderIssue(issue, compact))
+					const issue = ObjectsCache.add(issueKey, newIssue).data as JiraIssue
+					value.replaceChildren(
+						RC.renderIssue(SettingsData.account, issue, compact)
+					)
 				})
 				.catch((err) => {
 					ObjectsCache.add(issueKey, err, true)

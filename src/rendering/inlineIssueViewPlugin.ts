@@ -12,12 +12,12 @@ import {
 } from '@codemirror/view'
 import { editorLivePreviewField } from 'obsidian'
 import JiraClient from '../client/jiraClient'
-import { IJiraIssue } from '../interfaces/issueInterfaces'
+import { JiraIssue } from '../client/jira.models'
 import ObjectsCache from '../objectsCache'
 import { SettingsData } from '../settings'
 import RC from './renderingCommon'
 import escapeStringRegexp from 'escape-string-regexp'
-import { COMPACT_SYMBOL, JIRA_KEY_REGEX } from '../settings/settings.interfaces'
+import { COMPACT_SYMBOL, JIRA_KEY_REGEX } from '../settings/settings.models'
 
 interface IMatchDecoratorRef {
 	ref: MatchDecorator
@@ -68,7 +68,7 @@ class InlineIssueWidget extends WidgetType {
 				)
 			} else {
 				this._htmlContainer.replaceChildren(
-					RC.renderIssue(cachedIssue.data as IJiraIssue, this._compact)
+					RC.renderIssue(SettingsData.account, cachedIssue.data as JiraIssue, this._compact)
 				)
 			}
 		} else {
@@ -76,9 +76,9 @@ class InlineIssueWidget extends WidgetType {
 			JiraClient.getIssue(this._issueKey)
 				.then((newIssue) => {
 					const issue = ObjectsCache.add(this._issueKey, newIssue)
-						.data as IJiraIssue
+						.data as JiraIssue
 					this._htmlContainer.replaceChildren(
-						RC.renderIssue(issue, this._compact)
+						RC.renderIssue(SettingsData.account, issue, this._compact)
 					)
 				})
 				.catch((err) => {
